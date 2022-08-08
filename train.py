@@ -50,7 +50,7 @@ def train(config, output_dir, training_data, validation_data):
     print_config_summary(config)
 
     strategy = create_strategy()
-    model = build_and_compile_model(strategy, config, strategy)
+    model = build_and_compile_model(strategy, config)
     print('Compiled model')
 
     print('Training RCAN model')

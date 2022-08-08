@@ -9,7 +9,7 @@ import train
 #################################################################################
 
 data_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/NV_713_FAD_healthy.npz'
-model_name = 'FAD_model_0713_cervix_SSIML1'
+model_name = 'monorepo test'
 main_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/'
 os.chdir(main_path)
 if not os.path.exists(os.path.join(main_path, model_name)):
@@ -61,8 +61,9 @@ def gather_data(config, data_path):
 
 
 def main():
-    print(f'Got arguments: {sys.argv}')
-    if (len(sys.argv) >= 1 and sys.argv[0] == 'train') or True:
+    args = sys.argv[1:]
+
+    if len(args) >= 1 and args[0] == 'train':
         print('Running in "train" mode.')
 
         (training_data, validation_data) = gather_data(config, data_path)
@@ -73,6 +74,8 @@ def main():
                     validation_data=validation_data)
 
         print('Successfully completed training.')
+    else:
+        raise ValueError(f'Invalid mode: {args[0]}')
 
 
 try:
