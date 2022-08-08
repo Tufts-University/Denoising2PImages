@@ -1,3 +1,4 @@
+from importlib.metadata import requires
 import os as os
 import tensorflow as tf
 import sys
@@ -51,8 +52,13 @@ def gather_data(config, data_path, requires_channel_dim):
         50,
         transform_function=None)
 
-    training_data = data_gen.flow(*list(zip([X, Y])))
-    validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
+    if not requires_channel_dim:
+        # The data generator only accepts 2D data.
+        training_data = data_gen.flow(*list(zip([X, Y])))
+        validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
+    else:
+        training_data = list(zip([X, Y]))
+        validation_data = list(zip([X_val, Y_val]))
 
     print('----------------------------------------------------------------------')
 
