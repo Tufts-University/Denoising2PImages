@@ -21,7 +21,7 @@ def print_config_summary(config):
 
 def create_strategy():
     strategy = tf.distribute.MirroredStrategy()
-    print('Number of devices: {}'.format(strategy.num_replicas_in_sync))
+    print('Number of devices: {strategy.num_replicas_in_sync}')
 
     return strategy
 
