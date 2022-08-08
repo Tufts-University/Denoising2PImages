@@ -9,16 +9,16 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004
 #SBATCH --mem=2g  #requesting 2GB of RAM total
-#SBATCH --output=pytestjob.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=pytestjob.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=Denoising_monorepo_test.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=Denoising_monorepo_test.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
 module load anaconda/2021.05
 source activate Denoising
 
-output_file="../Denoising_monorepo_test.out"
-
 cd Cervical-Project 
-git pull > $output_file
-python -u main.py train > $output_file
+git pull
+echo "Starting python script..."
+echo "=========================================================="
+python -u main.py train 
