@@ -23,7 +23,7 @@ model_save_path = os.path.join(main_path, model_name)
 def make_config(model_name):
     return {
         'epochs': 300,
-        'steps_per_epoch': {'rcan': 4, 'care': model_name}[model_name],
+        'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
         'num_residual_groups': 5,
         'num_residual_blocks': 5,
         'input_shape': [256, 256],

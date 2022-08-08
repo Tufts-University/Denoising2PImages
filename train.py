@@ -77,7 +77,7 @@ def train(model_name, config, output_dir, training_data, validation_data):
 
     print('Training RCAN model')
 
-    steps_per_epoch = config['steps_per_epoch'] // basics.get_gpu_count()
+    steps_per_epoch = config['steps'] if config['steps_per_epoch'] != None else None
     validation_steps = None if validation_data is None else steps_per_epoch
     if validation_data is not None:
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
