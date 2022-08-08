@@ -17,7 +17,6 @@
 module load anaconda/2021.05
 source activate Denoising
 
-cd Cervical-Project 
 git pull
 echo "Starting python script..."
 echo "==========================================================\n"
