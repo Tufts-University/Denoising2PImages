@@ -5,7 +5,7 @@ from keras import backend as kb
 from keras.utils.conv_utils import normalize_tuple
 import warnings
 import collections
-from csbdeep import axes_dict
+from csbdeep.utils import axes_dict
 
 # Contains code for data loading and generation before
 # being passed into the network.
