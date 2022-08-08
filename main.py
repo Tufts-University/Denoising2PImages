@@ -70,4 +70,8 @@ def main():
                     validation_data=validation_data)
 
 
-main()
+try:
+    main()
+except Exception as e:
+    sys.stderr.write(f'Failed with error: {e}')
+    raise e
