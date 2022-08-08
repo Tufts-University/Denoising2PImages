@@ -61,7 +61,8 @@ def gather_data(config, data_path):
 
 
 def main():
-    if len(sys.argv) >= 1 and sys.argv[0] == 'train':
+    print(f'Got arguments: {sys.argv}')
+    if (len(sys.argv) >= 1 and sys.argv[0] == 'train') or True:
         print('Running in "train" mode.')
 
         (training_data, validation_data) = gather_data(config, data_path)
