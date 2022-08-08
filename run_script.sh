@@ -17,4 +17,5 @@
 module load anaconda/2021.05
 source activate Denoising
 
-python -u main.py train > Denoising_monorepo_test.out
+git pull
+python -u Cervical-Project/main.py train > Denoising_monorepo_test.out
