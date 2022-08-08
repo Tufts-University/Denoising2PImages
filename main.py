@@ -117,6 +117,8 @@ def main():
     config = make_config(model_name)
     config = apply_config_flags(config_flags, config)
 
+    print(f'Using config: {config}\n')
+
     # === Send out jobs ===
 
     basics.print_device_info()
