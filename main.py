@@ -84,11 +84,7 @@ def apply_config_flags(config_flags, config):
             try:
                 value = float(raw_value)
             except:
-                if len(raw_value) < 2 or raw_value[0] != '"' or raw_value[-1] != '"':
-                    raise ValueError(
-                        f'Invalid config flag: "{config_flag}"; value "{raw_value}" can neither be a number nor a string.')
-
-                value = value[1:-1]
+                value = raw_value
 
         config[key] = value
 
