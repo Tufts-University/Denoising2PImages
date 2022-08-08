@@ -67,15 +67,8 @@ def build_and_compile_model(model_name, strategy, config):
     return model
 
 
-def train(model_name, config, output_dir, training_data, validation_data):
-    print('Training...')
-    print_config_summary(config)
-
-    strategy = create_strategy()
-    model = build_and_compile_model(model_name, strategy, config)
-    print('Compiled model')
-
-    print('Training RCAN model')
+def fit_model(model, model_name, config, output_dir, training_data, validation_data):
+    print('=== Fitting model --------------------------------------------------')
 
     steps_per_epoch = config['steps_per_epoch'] if config['steps_per_epoch'] != None else None
     validation_steps = None if validation_data is None else steps_per_epoch
@@ -85,7 +78,8 @@ def train(model_name, config, output_dir, training_data, validation_data):
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
 
     model.fit(
-        x=training_data,
+        x=training_data if model_name == 'rcan' else training_data[0],
+        y=None if model_name == 'rcan' else training_data[1],
         epochs=config['epochs'],
         # steps_per_epoch=steps_per_epoch,
         shuffle=True,
@@ -98,6 +92,20 @@ def train(model_name, config, output_dir, training_data, validation_data):
             output_dir,
             checkpoint_filepath,
             validation_data))
+
+    print('--------------------------------------------------------------------')
+
+    return model
+
+
+def train(model_name, config, output_dir, training_data, validation_data):
+    print('Training...')
+    print_config_summary(config)
+
+    strategy = create_strategy()
+    model = build_and_compile_model(model_name, strategy, config)
+    model = fit_model(model, model_name, config, output_dir,
+                      training_data, validation_data)
 
     final_weights_path = str(pathlib.Path(output_dir) / 'weights_final.hdf5')
     model.save_weights(final_weights_path)

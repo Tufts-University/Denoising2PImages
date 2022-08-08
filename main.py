@@ -57,8 +57,9 @@ def gather_data(config, data_path, requires_channel_dim):
         training_data = data_gen.flow(*list(zip([X, Y])))
         validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
     else:
-        training_data = list(zip([X, Y]))
-        validation_data = list(zip([X_val, Y_val]))
+        # TODO: Streamline RCAN and CARE data generation.
+        training_data = (X, Y)
+        validation_data = (X_val, Y_val)
 
     print('----------------------------------------------------------------------')
 
