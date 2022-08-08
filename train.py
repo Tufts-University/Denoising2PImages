@@ -59,7 +59,7 @@ def build_and_compile_model(model_name, strategy, config):
 
         #model = convert_to_multi_gpu_model(model, gpus)
         model = compile_model(
-            model, config['initial_learning_rate'], config['loss'])
+            model, config['initial_learning_rate'], config['loss'], config['metrics'])
         model.compile(
             optimizer=tf.keras.optimizers.Adam(
                 lr=config['initial_learning_rate']),
