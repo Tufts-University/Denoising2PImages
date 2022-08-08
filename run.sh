@@ -19,5 +19,6 @@ source activate Denoising
 
 git pull
 echo "Starting python script..."
-echo "==========================================================\n"
+echo "=========================================================="
+echo "" # empty line
 python -u main.py train

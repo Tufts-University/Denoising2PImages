@@ -1,8 +1,11 @@
 import numpy as np
+import tensorflow as tf
 import keras as keras
+from keras import backend as kb
 from keras.utils.conv_utils import normalize_tuple
 import warnings
 import collections
+from csbdeep import axes_dict
 
 # Contains code for data loading and generation before
 # being passed into the network.
@@ -232,21 +235,36 @@ class DataGenerator:
                               self._scale_factor)
 
 
+# MARK: Load training data helpers.
+#
+# TODO: Look whether they're provided in CSBDeep.
+def backend_channels_last():
+    assert kb.image_data_format() in ('channels_first', 'channels_last')
+    return kb.image_data_format() == 'channels_last'
+
+
+def move_channel_for_backend(X, channel):
+    if backend_channels_last():
+        return np.moveaxis(X, channel, -1)
+    else:
+        return np.moveaxis(X, channel,  1)
+
+
 def consume(iterator):
     collections.deque(iterator, maxlen=0)
-
-
-def _raise(e):
-    if isinstance(e, BaseException):
-        raise e
-    else:
-        raise ValueError(e)
 
 
 def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=False):
     """
     S(ample), T(ime), C(hannel), Z, Y, X
     """
+
+    def _raise(e):
+        if isinstance(e, BaseException):
+            raise e
+        else:
+            raise ValueError(e)
+
     allowed = 'STCZYX'
     axes is not None or _raise(ValueError('axis cannot be None.'))
     axes = str(axes).upper()
@@ -259,15 +277,6 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
     length is None or len(axes) == length or _raise(
         ValueError('axes (%s) must be of length %d.' % (axes, length)))
     return (axes, allowed) if return_allowed else axes
-
-
-def axes_dict(axes):
-    """
-    from axes string to dict
-    """
-    axes, allowed = axes_check_and_normalize(axes, return_allowed=True)
-    return {a: None if axes.find(a) == -1 else axes.find(a) for a in allowed}
-    # return collections.namedtuple('Axes',list(allowed))(*[None if axes.find(a) == -1 else axes.find(a) for a in allowed ])
 
 
 def load_training_data(file, validation_split=0, axes=None, n_images=None, verbose=False):
@@ -296,16 +305,29 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
         The tuple of validation data will be ``None`` if ``validation_split = 0``.
     """
 
+    if verbose:
+        print('Loading data...')
+
     f = np.load(file)
     X, Y = f['X'], f['Y']
     if axes is None:
         axes = f['axes']
     axes = axes_check_and_normalize(axes)
 
-    # assert X.shape == Y.shape
+    if verbose:
+        print(f'Found axes: {axes}')
+        print(f'X shape is {tf.shape(X)}; Y shape is {tf.shape(Y)}')
+
+    # The inputted data has 3 channels; add one dimension if a channel
+    # dimension is requested.
+    if len(axes) == 4:
+        X = tf.expand_dims(X, axis=-1)
+        Y = tf.expand_dims(Y, axis=-1)
+
+    assert X.shape == Y.shape  # TODO: Check if this works.
     assert X.ndim == Y.ndim
     assert len(axes) == X.ndim
-    #assert 'C' in axes
+    assert len(axes) == 3 or 'C' in axes
     if n_images is None:
         n_images = X.shape[0]
     assert X.shape[0] == Y.shape[0]
@@ -313,28 +335,32 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
     assert 0 <= validation_split < 1
 
     X, Y = X[:n_images], Y[:n_images]
-    #channel = axes_dict(axes)['C']
+    channel = axes_dict(axes).get('C', None)
 
     if validation_split > 0:
         #n_val   = int(round(n_images * validation_split))
-        ''' NEED TO SET VALIDATION SPLIT BETTER '''
+        ''' TODO: NEED TO SET VALIDATION SPLIT BETTER '''
         n_val = 620
         n_train = n_images - n_val
         assert 0 < n_val and 0 < n_train
         X_t, Y_t = X[-n_val:],  Y[-n_val:]
         X,   Y = X[:n_train], Y[:n_train]
         assert X.shape[0] == n_train and X_t.shape[0] == n_val
-        #X_t = move_channel_for_backend(X_t,channel=channel)
-        #Y_t = move_channel_for_backend(Y_t,channel=channel)
 
-    #X = move_channel_for_backend(X,channel=channel)
-    #Y = move_channel_for_backend(Y,channel=channel)
+        if channel != None:
+            X_t = move_channel_for_backend(X_t, channel=channel)
+            Y_t = move_channel_for_backend(Y_t, channel=channel)
 
-    # axes = axes.replace('C','') # remove channel
-    # if backend_channels_last():
-    #     axes = axes+'C'
-    # else:
-    #     axes = axes[:1]+'C'+axes[1:]
+    if channel != None:
+        X = move_channel_for_backend(X, channel=channel)
+        Y = move_channel_for_backend(Y, channel=channel)
+
+    if channel != None:
+        axes = axes.replace('C', '')  # remove channel
+        if backend_channels_last():
+            axes = axes+'C'
+        else:
+            axes = axes[:1]+'C'+axes[1:]
 
     data_val = (X_t, Y_t) if validation_split > 0 else None
 
@@ -343,12 +369,14 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
         n_train, n_val = len(X), len(X_t) if validation_split > 0 else 0
         image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
         n_dim = len(image_size)
-        #n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
+        if channel != None:
+            n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
 
         print('number of training images:\t', n_train)
         print('number of validation images:\t', n_val)
         print('image size (%dD):\t\t' % n_dim, image_size)
         print('axes:\t\t\t\t', axes)
-        #print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
+        if channel != None:
+            print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
     return (X, Y), data_val, axes

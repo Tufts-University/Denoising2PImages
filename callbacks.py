@@ -1,3 +1,4 @@
+import tensorflow as tf
 import pathlib
 import keras as keras
 from tqdm.keras import TqdmCallback as _TqdmCallback
@@ -74,16 +75,26 @@ def staircase_exponential_decay(n):
     return lambda epoch, lr: lr / 2 if epoch != 0 and epoch % n == 0 else lr
 
 
-def get_callbacks(epochs, output_dir, checkpoint_filepath, validation_data):
+def get_callbacks(model_name, epochs, output_dir, checkpoint_filepath, validation_data):
+    # Learning-rate callback.
+    if model_name == 'rcan':
+        learning_rate_callback = keras.callbacks.LearningRateScheduler(
+            staircase_exponential_decay(epochs // 4))
+    elif model_name == 'care':
+        learning_rate_callback = tf.keras.callbacks.ReduceLROnPlateau(
+            verbose=True, factor=0.97, min_delta=0, patience=20)
+    else:
+        raise ValueError(f'Unknown model name: {model_name}')
+
+    # TODO: Consider: checkpoint_filepath='weights_{epoch:03d}_{val_loss:.8f}.hdf5'
     return [
-        keras.callbacks.LearningRateScheduler(
-            staircase_exponential_decay(epochs // 4)),
+        learning_rate_callback,
         keras.callbacks.TensorBoard(
             log_dir=str(output_dir),
             write_graph=True),
         ModelCheckpoint(
             str(pathlib.Path(output_dir) / checkpoint_filepath),
-            monitor='loss' if validation_data is None else 'val_loss',
+            monitor='val_loss' if validation_data is not None else 'loss',
             save_best_only=True, verbose=1, mode='min'),
         TqdmCallback()
     ]

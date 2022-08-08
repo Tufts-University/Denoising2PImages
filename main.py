@@ -5,6 +5,7 @@ import sys
 # Local dependencies
 import data_generator
 import train
+import basics
 
 #################################################################################
 
@@ -12,42 +13,36 @@ data_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/NV_713
 model_name = 'monorepo test'
 main_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/'
 os.chdir(main_path)
+
 if not os.path.exists(os.path.join(main_path, model_name)):
     os.mkdir(os.path.join(main_path, model_name))
 model_save_path = os.path.join(main_path, model_name)
-print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-is_cuda_gpu_available = tf.test.is_gpu_available(cuda_only=True)
-print(is_cuda_gpu_available)
-
-config = {
-    "epochs": 300,
-    "steps_per_epoch": 4,
-    "num_residual_groups": 5,
-    "num_residual_blocks": 5,
-    "input_shape": [256, 256],
-    "LW_weight_seed": 0,
-    "LW_weight_num": 4
-}
-
-config.setdefault('epochs', 300)
-config.setdefault('steps_per_epoch', 256)
-config.setdefault('initial_learning_rate', 1e-5)
-config.setdefault('loss', 'SSIML1_loss')
-config.setdefault('metrics', ['psnr', 'ssim'])
-config.setdefault('num_residual_blocks', 3)
-config.setdefault('num_residual_groups', 5)
-config.setdefault('channel_reduction', 4)
-config.setdefault('num_channels', 32)
-config.setdefault('LW_weight_seed', 0)
-config.setdefault('LW_weight_num', 4)
 
 
-def gather_data(config, data_path):
+def make_config(model_name):
+    return {
+        'epochs': 300,
+        'steps_per_epoch': {'rcan': 4, 'care': model_name}[model_name],
+        'num_residual_groups': 5,
+        'num_residual_blocks': 5,
+        'input_shape': [256, 256],
+        'initial_learning_rate': 1e-5,
+        'loss': 'ssiml1_loss',
+        'metrics': ['psnr', 'ssim'],
+        'num_residual_blocks': 3,
+        'num_residual_groups': 5,
+        'channel_reduction': 4,
+        'num_channels': 32,
+    }
+
+
+def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
     print('Gathering data...')
 
     (X, Y), (X_val, Y_val), axes = data_generator.load_training_data(
-        data_path, validation_split=0.15, axes='SXY', verbose=True)
+        data_path, validation_split=0.15,
+        axes='SXY' if not requires_channel_dim else 'SXYC', verbose=True)
 
     data_gen = data_generator.DataGenerator(
         config['input_shape'],
@@ -60,22 +55,76 @@ def gather_data(config, data_path):
     return (training_data, validation_data)
 
 
-def main():
-    args = sys.argv[1:]
+def apply_config_flags(config_flags, config):
+    for config_flag in config_flags:
+        components = config_flag.split('=')
+        if len(components) != 2:
+            raise ValueError(
+                f'Invalid config flag: "{config_flag}"; expected key="string" or key=number')
 
-    if len(args) >= 1 and args[0] == 'train':
+        key, raw_value = components
+        if key not in config:
+            raise ValueError(
+                f'Invalid config flag: "{config_flag}"; key "{key}" not found in config.')
+
+        try:
+            value = int(raw_value)
+        except:
+            try:
+                value = float(raw_value)
+            except:
+                if len(raw_value) < 2 or raw_value[0] != '"' or raw_value[-1] != '"':
+                    raise ValueError(
+                        f'Invalid config flag: "{config_flag}"; value "{value}" can neither be a number nor a string.')
+
+                value = value[1:-1]
+
+        config[key] = value
+
+    return config
+
+
+def main():
+    if len(sys.argv) < 2:
+        print('Usage: python main.py <mode: train | eval> <name: rcan | care> <config options...>')
+        raise ValueError('Invalid arguments.')
+
+    # === Get arguments ===
+
+    # We get the arguments in the form:
+    # ['main.py', mode, model_name, config_options...]
+
+    mode = sys.argv[1]
+    if mode not in ['train', 'eval']:
+        raise ValueError(f'Invalid mode: "{mode}"')
+
+    model_name = sys.argv[2]
+    if model_name not in ['rcan', 'care']:
+        raise ValueError(f'Invalid model name: "{model_name}"')
+
+    config_flags = sys.args[3:] if len(sys.args) > 3 else []
+    config = make_config(model_name)
+    config = apply_config_flags(config_flags, config)
+
+    # === Send out jobs ===
+
+    basics.print_device_info()
+
+    if mode == 'train':
         print('Running in "train" mode.')
 
-        (training_data, validation_data) = gather_data(config, data_path)
+        (training_data, validation_data) = gather_data(
+            config, data_path, requires_channel_dim=model_name == 'care')
 
-        train.train(config,
+        train.train(model_name,
+                    config,
                     output_dir=model_save_path,
                     training_data=training_data,
                     validation_data=validation_data)
 
         print('Successfully completed training.')
-    else:
-        raise ValueError(f'Invalid mode: {args[0]}')
+    elif mode == 'eval':
+        print('Not implemented.')
 
 
 try:

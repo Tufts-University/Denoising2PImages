@@ -18,11 +18,11 @@ def ssim(y_true, y_pred):
     return tf.image.ssim(y_true, y_pred, 1, k2=0.05)
 
 
-def SSIM_loss(y_true, y_pred):
+def ssim_loss(y_true, y_pred):
     return 1-((ssim(y_true, y_pred)+1)*0.5)
 
 
-def SSIML1_loss(y_true, y_pred):
+def ssiml1_loss(y_true, y_pred):
     SSIM = 1-((ssim(y_true, y_pred)+1)*0.5)
     MAE = keras.losses.mae(
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
@@ -42,7 +42,7 @@ def psnr(y_true, y_pred):
     # return -4.342944819 * kb.log(kb.mean(kb.square(p - q), axis=-1))
 
 
-def SSIMR2_loss(y_true, y_pred):
+def ssimr2_loss(y_true, y_pred):
     def R_squared(y_true, y_pred):
         residual = tf.reduce_sum(tf.math.squared_difference(y_true, y_pred))
         mean = tf.reduce_mean(y_true)
@@ -83,3 +83,24 @@ def mse(y_true, y_pred):
     '''
     return keras.losses.mse(
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
+
+
+def lookup_metrics(metric_names):
+    metric_dict = {
+        'psnr': psnr,
+        'ssim': ssim,
+    }
+
+    return [metric_dict[metric_name] for metric_name in metric_names]
+
+
+def lookup_loss(loss_name):
+    loss_dict = {
+        'mae': mae,
+        'mse': mse,
+        'ssim_loss': ssim_loss,
+        'ssiml1_loss': ssiml1_loss,
+        'ssimr2_loss': ssimr2_loss,
+    }
+
+    return loss_dict[loss_name]

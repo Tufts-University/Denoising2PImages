@@ -9,10 +9,6 @@ import tensorflow as tf
 # Local dependencies
 import basics
 
-# _tf_version = version.parse(_tf_version)
-# IS_TF_1 = _tf_version.major == 1
-# _KERAS = 'keras' if IS_TF_1 else 'tensorflow.keras'
-
 
 def _get_spatial_ndim(x):
     return keras.backend.ndim(x) - 2
@@ -159,6 +155,19 @@ def build_rcan(input_shape=(16, 256, 256, 1),
     https://arxiv.org/abs/1807.02758
     '''
 
+    print('=== Building RCAN Model --------------------------------------------')
+
+    config = {
+        'input_shape': input_shape,
+        'num_channels': num_channels,
+        'num_residual_blocks': num_residual_blocks,
+        'num_residual_groups': num_residual_groups,
+        'channel_reduction': channel_reduction,
+        'residual_scaling': residual_scaling,
+        'num_output_channels': num_output_channels,
+    }
+    print(f'Using config: {config}\n')
+
     if num_output_channels < 0:
         num_output_channels = input_shape[-1]
 
@@ -190,7 +199,11 @@ def build_rcan(input_shape=(16, 256, 256, 1),
     x = _conv(x, num_output_channels, 3)
     outputs = _destandardize(x)
 
-    return keras.Model(inputs, outputs)
+    model = keras.Model(inputs, outputs)
+
+    print('--------------------------------------------------------------------')
+
+    return model
 
 
 def backend_channels_last():
