@@ -62,12 +62,16 @@ def gather_data(config, data_path):
 
 def main():
     if len(sys.argv) >= 1 and sys.argv[0] == 'train':
+        print('Running in "train" mode.')
+
         (training_data, validation_data) = gather_data(config, data_path)
 
         train.train(config,
                     output_dir=model_save_path,
                     training_data=training_data,
                     validation_data=validation_data)
+
+        print('Successfully completed training.')
 
 
 try:
