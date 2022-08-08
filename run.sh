@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:a100:1
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004
-#SBATCH --mem=2g  #requesting 2GB of RAM total
+#SBATCH --mem=20g  #requesting 2GB of RAM total
 #SBATCH --output=Denoising_monorepo_test.%j.out  #saving standard output to file -- %j jobID -- %N nodename
 #SBATCH --error=Denoising_monorepo_test.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
@@ -20,5 +20,5 @@ source activate Denoising
 cd Cervical-Project 
 git pull
 echo "Starting python script..."
-echo "=========================================================="
+echo "==========================================================\n"
 python -u main.py train 
