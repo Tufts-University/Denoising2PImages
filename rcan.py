@@ -9,9 +9,11 @@ import keras.backend as K
 import tensorflow as tf
 from importlib import import_module
 from tensorflow import __version__ as _tf_version
-from tensorflow.python.client.device_lib import list_local_devices
 from packaging import version
 import tensorflow_probability as tfp
+
+# Local dependencies
+import basics
 
 # _tf_version = version.parse(_tf_version)
 # IS_TF_1 = _tf_version.major == 1
@@ -196,10 +198,6 @@ def move_channel_for_backend(X,channel):
     else:
         return np.moveaxis(X, channel,  1)
 
-def get_gpu_count():
-    '''Returns the number of available GPUs.'''
-    return len([x for x in list_local_devices() if x.device_type == 'GPU'])
-
 def convert_to_multi_gpu_model(model, gpus=None):
     '''
     Converts a model into a multi-GPU version if possible.
@@ -216,9 +214,9 @@ def convert_to_multi_gpu_model(model, gpus=None):
         Multi-GPU model.
     '''
 
-    gpus = gpus or get_gpu_count()
+    gpus = gpus or basics.get_gpu_count()
 
-    if gpus <= 1 or is_multi_gpu_model(model):
+    if gpus <= 1 or basics.is_multi_gpu_model(model):
         return model
 
     multi_gpu_model = keras.utils.multi_gpu_model(
@@ -232,10 +230,3 @@ def convert_to_multi_gpu_model(model, gpus=None):
     setattr(multi_gpu_model, 'gpus', gpus)
 
     return multi_gpu_model
-    
-def staircase_exponential_decay(n):
-    '''
-    Returns a scheduler function to drop the learning rate by half
-    every `n` epochs.
-    '''
-    return lambda epoch, lr: lr / 2 if epoch != 0 and epoch % n == 0 else lr

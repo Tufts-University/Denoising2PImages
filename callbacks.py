@@ -1,9 +1,14 @@
+import pathlib
 import keras as keras
 from tqdm.keras import TqdmCallback as _TqdmCallback
 import warnings
 import functools
 from tqdm.utils import IS_WIN
 import tqdm
+
+# Local dependencies
+from basics import is_multi_gpu_model
+
 
 class ModelCheckpoint(keras.callbacks.ModelCheckpoint):
     def on_epoch_end(self, epoch, logs=None):
@@ -48,9 +53,6 @@ class TqdmCallback(_TqdmCallback):
         self.on_batch_end = self.bar2callback(
             self.batch_bar, pop=['batch', 'size'])
 
-def is_multi_gpu_model(model):
-    '''Checks if the model supports multi-GPU data parallelism.'''
-    return hasattr(model, 'is_multi_gpu_model') and model.is_multi_gpu_model
 
 def save_model(filename, model, weights_only=False):
     if is_multi_gpu_model(model):
@@ -62,3 +64,26 @@ def save_model(filename, model, weights_only=False):
         m.save_weights(filename, overwrite=True)
     else:
         m.save(filename, overwrite=True)
+
+
+def staircase_exponential_decay(n):
+    '''
+    Returns a scheduler function to drop the learning rate by half
+    every `n` epochs.
+    '''
+    return lambda epoch, lr: lr / 2 if epoch != 0 and epoch % n == 0 else lr
+
+
+def get_callbacks(epochs, output_dir, checkpoint_filepath, validation_data):
+    return [
+        keras.callbacks.LearningRateScheduler(
+            staircase_exponential_decay(epochs // 4)),
+        keras.callbacks.TensorBoard(
+            log_dir=str(output_dir),
+            write_graph=True),
+        ModelCheckpoint(
+            str(pathlib.Path(output_dir) / checkpoint_filepath),
+            monitor='loss' if validation_data is None else 'val_loss',
+            save_best_only=True, verbose=1, mode='min'),
+        TqdmCallback()
+    ]

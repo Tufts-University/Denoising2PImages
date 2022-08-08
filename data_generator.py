@@ -7,6 +7,7 @@ import collections
 # Contains code for data loading and generation before
 # being passed into the network.
 
+
 class DataGenerator:
     '''
     Generates batches of image pairs with real-time data augmentation.
@@ -34,6 +35,7 @@ class DataGenerator:
         Scale factor for the target patch size. Positive and negative values
         mean up- and down-scaling respectively.
     '''
+
     def __init__(self,
                  shape,
                  batch_size,
@@ -119,8 +121,8 @@ class DataGenerator:
             self._x, self._y = [
                 list(m) if isinstance(m, (list, tuple)) else [m]
                 for m in [x, y]]
-            self._x = np.moveaxis(self._x,0,-1)
-            self._y = np.moveaxis(self._y,0,-1)
+            self._x = np.moveaxis(self._x, 0, -1)
+            self._y = np.moveaxis(self._y, 0, -1)
             if len(self._x) != len(self._y):
                 raise ValueError(
                     'Different number of images are given: '
@@ -164,11 +166,11 @@ class DataGenerator:
                 (batch_size, *shape, self._x[0].shape[-1]),
                 dtype=self._x[0].dtype)
             self._batch_y = np.zeros(
-                (batch_size, *self._scale(shape),self._y[0].shape[-1]),
+                (batch_size, *self._scale(shape), self._y[0].shape[-1]),
                 dtype=self._y[0].dtype)
 
         def __len__(self):
-            return len(self._x) // self._batch_size # return a dummy value
+            return len(self._x) // self._batch_size  # return a dummy value
 
         def __next__(self):
             return self.__getitem__(0)
@@ -229,35 +231,44 @@ class DataGenerator:
                               self._area_threshold,
                               self._scale_factor)
 
+
 def consume(iterator):
     collections.deque(iterator, maxlen=0)
-    
+
+
 def _raise(e):
     if isinstance(e, BaseException):
         raise e
     else:
         raise ValueError(e)
 
-def axes_check_and_normalize(axes,length=None,disallowed=None,return_allowed=False):
+
+def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=False):
     """
     S(ample), T(ime), C(hannel), Z, Y, X
     """
     allowed = 'STCZYX'
     axes is not None or _raise(ValueError('axis cannot be None.'))
     axes = str(axes).upper()
-    consume(a in allowed or _raise(ValueError("invalid axis '%s', must be one of %s."%(a,list(allowed)))) for a in axes)
-    disallowed is None or consume(a not in disallowed or _raise(ValueError("disallowed axis '%s'."%a)) for a in axes)
-    consume(axes.count(a)==1 or _raise(ValueError("axis '%s' occurs more than once."%a)) for a in axes)
-    length is None or len(axes)==length or _raise(ValueError('axes (%s) must be of length %d.' % (axes,length)))
-    return (axes,allowed) if return_allowed else axes
+    consume(a in allowed or _raise(ValueError(
+        "invalid axis '%s', must be one of %s." % (a, list(allowed)))) for a in axes)
+    disallowed is None or consume(a not in disallowed or _raise(
+        ValueError("disallowed axis '%s'." % a)) for a in axes)
+    consume(axes.count(a) == 1 or _raise(ValueError(
+        "axis '%s' occurs more than once." % a)) for a in axes)
+    length is None or len(axes) == length or _raise(
+        ValueError('axes (%s) must be of length %d.' % (axes, length)))
+    return (axes, allowed) if return_allowed else axes
+
 
 def axes_dict(axes):
     """
     from axes string to dict
     """
-    axes, allowed = axes_check_and_normalize(axes,return_allowed=True)
-    return { a: None if axes.find(a) == -1 else axes.find(a) for a in allowed }
+    axes, allowed = axes_check_and_normalize(axes, return_allowed=True)
+    return {a: None if axes.find(a) == -1 else axes.find(a) for a in allowed}
     # return collections.namedtuple('Axes',list(allowed))(*[None if axes.find(a) == -1 else axes.find(a) for a in allowed ])
+
 
 def load_training_data(file, validation_split=0, axes=None, n_images=None, verbose=False):
     """Load training data from file in ``.npz`` format.
@@ -311,7 +322,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
         n_train = n_images - n_val
         assert 0 < n_val and 0 < n_train
         X_t, Y_t = X[-n_val:],  Y[-n_val:]
-        X,   Y   = X[:n_train], Y[:n_train]
+        X,   Y = X[:n_train], Y[:n_train]
         assert X.shape[0] == n_train and X_t.shape[0] == n_val
         #X_t = move_channel_for_backend(X_t,channel=channel)
         #Y_t = move_channel_for_backend(Y_t,channel=channel)
@@ -325,19 +336,19 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
     # else:
     #     axes = axes[:1]+'C'+axes[1:]
 
-    data_val = (X_t,Y_t) if validation_split > 0 else None
+    data_val = (X_t, Y_t) if validation_split > 0 else None
 
     if verbose:
         ax = axes_dict(axes)
-        n_train, n_val = len(X), len(X_t) if validation_split>0 else 0
-        image_size = tuple( X.shape[ax[a]] for a in axes if a in 'TZYX' )
+        n_train, n_val = len(X), len(X_t) if validation_split > 0 else 0
+        image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
         n_dim = len(image_size)
         #n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
 
         print('number of training images:\t', n_train)
         print('number of validation images:\t', n_val)
-        print('image size (%dD):\t\t'%n_dim, image_size)
+        print('image size (%dD):\t\t' % n_dim, image_size)
         print('axes:\t\t\t\t', axes)
         #print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-    return (X,Y), data_val, axes
+    return (X, Y), data_val, axes
