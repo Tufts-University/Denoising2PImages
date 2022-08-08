@@ -59,13 +59,10 @@ def build_and_compile_model(model_name, strategy, config):
 
         #model = convert_to_multi_gpu_model(model, gpus)
         model = compile_model(
-            model, config['initial_learning_rate'], config['loss'], config['metrics'])
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(
-                lr=config['initial_learning_rate']),
-            loss={'mae': metrics.mae, 'mse': metrics.mse, 'SSIM_loss': metrics.ssim_loss,
-                  'SSIML1_loss': metrics.ssiml1_loss}[config['loss']],
-            metrics=[{'psnr': metrics.psnr, 'ssim': metrics.ssim}[m] for m in config['metrics']])
+            model,
+            config['initial_learning_rate'],
+            config['loss'],
+            config['metrics'])
 
     return model
 
@@ -101,6 +98,6 @@ def train(model_name, config, output_dir, training_data, validation_data):
             output_dir,
             checkpoint_filepath,
             validation_data))
-    
+
     final_weights_path = str(pathlib.Path(output_dir) / 'weights_final.hdf5')
     model.save_weights(final_weights_path)
