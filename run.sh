@@ -21,4 +21,4 @@ git pull
 echo "Starting python script..."
 echo "=========================================================="
 echo "" # empty line
-python -u main.py train
+python -u main.py train care
