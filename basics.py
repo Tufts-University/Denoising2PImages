@@ -17,6 +17,7 @@ def print_device_info():
 
     print(
         f'The number of available GPUs is: {len(tf.config.list_physical_devices("GPU"))}')
-    print(f'Cude gpu is available: {tf.test.is_gpu_available(cuda_only=True)}')
+    # FIXME: Reenable if it doesn't cause problems.
+    # print(f'Cude gpu is available: {tf.test.is_gpu_available(cuda_only=True)}')
 
     print('--------------------------------------------------------------------')
