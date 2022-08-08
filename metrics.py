@@ -14,7 +14,7 @@ def ssim(y_true, y_pred):
     https://doi.org/10.1109/TIP.2003.819861
     '''
 
-    return tf.ssim(y_true, y_pred, 1, k2=0.05)
+    return tf.image.ssim(y_true, y_pred, 1, k2=0.05)
 
 
 def SSIM_loss(y_true, y_pred):
@@ -59,8 +59,9 @@ def SSIMR2_loss(y_true, y_pred):
 
 def MSSSIM_loss(y_true, y_pred):
     w = (0.0448, 0.2856, 0.3001, 0.2363)
-    SSIM = 1 - tf.msssim(y_true, y_pred, 1, filter_size=11,
-                         power_factors=w, filter_sigma=1.5, k2=0.05)
+    # FIXME: Check arguments & call.
+    SSIM = 1 - tf.image.ssim_multiscale(y_true, y_pred, 1, filter_size=11,
+                                        power_factors=w, filter_sigma=1.5, k2=0.05)
     MAE = keras.losses.mae(
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
     alpha = 0.84
