@@ -38,11 +38,13 @@ def make_config(model_name):
 
 def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
-    print('Gathering data...')
+    print('=== Gathering data ---------------------------------------------------')
 
     (X, Y), (X_val, Y_val), axes = data_generator.load_training_data(
-        data_path, validation_split=0.15,
-        axes='SXY' if not requires_channel_dim else 'SXYC', verbose=True)
+        data_path,
+        validation_split=0.15,
+        axes='SXY' if not requires_channel_dim else 'SXYC',
+        verbose=True)
 
     data_gen = data_generator.DataGenerator(
         config['input_shape'],
@@ -51,6 +53,8 @@ def gather_data(config, data_path, requires_channel_dim):
 
     training_data = data_gen.flow(*list(zip([X, Y])))
     validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
+
+    print('----------------------------------------------------------------------')
 
     return (training_data, validation_data)
 
@@ -111,7 +115,7 @@ def main():
     basics.print_device_info()
 
     if mode == 'train':
-        print('Running in "train" mode.')
+        print('Running in "train" mode.\n')
 
         (training_data, validation_data) = gather_data(
             config, data_path, requires_channel_dim=model_name == 'care')

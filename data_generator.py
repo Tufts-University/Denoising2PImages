@@ -316,13 +316,15 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
 
     if verbose:
         print(f'Found axes: {axes}')
-        print(f'X shape is {tf.shape(X)}; Y shape is {tf.shape(Y)}')
+        print(f'Raw X shape is {tf.shape(X)}; Raw Y shape is {tf.shape(Y)}')
 
     # The inputted data has 3 channels; add one dimension if a channel
     # dimension is requested.
     if len(axes) == 4:
         X = tf.expand_dims(X, axis=-1)
         Y = tf.expand_dims(Y, axis=-1)
+
+        print(f'New X shape is {tf.shape(X)}; New Y shape is {tf.shape(Y)}')
 
     assert X.shape == Y.shape  # TODO: Check if this works.
     assert X.ndim == Y.ndim

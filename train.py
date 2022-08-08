@@ -1,10 +1,11 @@
-import pathlib
 import tensorflow as tf
+import pathlib
 
 # Local dependencies
 import basics
 import metrics
 import rcan
+import care
 import callbacks
 
 
@@ -42,14 +43,19 @@ def compile_model(model, initial_learning_rate, loss_name, metric_names):
     return model
 
 
-def build_and_compile_model(strategy, config):
+def build_and_compile_model(model_name, strategy, config):
     with strategy.scope():
-        model = rcan.build_rcan(
-            (*config['input_shape'], 1),
-            num_channels=config['num_channels'],
-            num_residual_blocks=config['num_residual_blocks'],
-            num_residual_groups=config['num_residual_groups'],
-            channel_reduction=config['channel_reduction'])
+        if model_name == 'rcan':
+            model = rcan.build_rcan(
+                (*config['input_shape'], 1),
+                num_channels=config['num_channels'],
+                num_residual_blocks=config['num_residual_blocks'],
+                num_residual_groups=config['num_residual_groups'],
+                channel_reduction=config['channel_reduction'])
+        elif model_name == 'care':
+            model = care.build_care(config, 'SXYC')
+        else:
+            raise ValueError(f'Non-implemented model: {model_name}')
 
         #model = convert_to_multi_gpu_model(model, gpus)
         model = compile_model(
@@ -69,7 +75,7 @@ def train(model_name, config, output_dir, training_data, validation_data):
     print_config_summary(config)
 
     strategy = create_strategy()
-    model = build_and_compile_model(strategy, config)
+    model = build_and_compile_model(model_name, strategy, config)
     print('Compiled model')
 
     print('Training RCAN model')
