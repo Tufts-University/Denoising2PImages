@@ -1,16 +1,10 @@
-import os
 import numpy as np
-import tifffile as tiff
 import keras
-import pathlib
-from tensorflow import ssim_multiscale as msssim
-import functools
 import keras.backend as K
 import tensorflow as tf
-from importlib import import_module
-from tensorflow import __version__ as _tf_version
-from packaging import version
-import tensorflow_probability as tfp
+# from importlib import import_module
+# from tensorflow import __version__ as _tf_version
+# from packaging import version
 
 # Local dependencies
 import basics
@@ -18,13 +12,16 @@ import basics
 # _tf_version = version.parse(_tf_version)
 # IS_TF_1 = _tf_version.major == 1
 # _KERAS = 'keras' if IS_TF_1 else 'tensorflow.keras'
-    
+
+
 def _get_spatial_ndim(x):
     return keras.backend.ndim(x) - 2
 
+
 def _get_num_channels(x):
     return keras.backend.int_shape(x)[-1]
-        
+
+
 def _conv(x, num_filters, kernel_size, padding='same', **kwargs):
     n = _get_spatial_ndim(x)
     if n not in (2, 3):
@@ -33,6 +30,7 @@ def _conv(x, num_filters, kernel_size, padding='same', **kwargs):
     return (keras.layers.Conv2D if n == 2 else
             keras.layers.Conv3D)(
         num_filters, kernel_size, padding=padding, **kwargs)(x)
+
 
 def _global_average_pooling(x):
     n = _get_spatial_ndim(x)
@@ -43,6 +41,7 @@ def _global_average_pooling(x):
     else:
         raise NotImplementedError(
             f'{n}D global average pooling is not supported')
+
 
 def _channel_attention_block(x, reduction):
     '''
@@ -65,6 +64,7 @@ def _channel_attention_block(x, reduction):
 
     return keras.layers.Multiply()([x, y])
 
+
 def _residual_channel_attention_blocks(x,
                                        repeat=1,
                                        channel_reduction=8,
@@ -86,6 +86,7 @@ def _residual_channel_attention_blocks(x,
 
     return x
 
+
 def normalize(image, p_min=2, p_max=99.9, dtype='float32'):
     '''
     Normalizes the image intensity so that the `p_min`-th and the `p_max`-th
@@ -100,6 +101,7 @@ def normalize(image, p_min=2, p_max=99.9, dtype='float32'):
     low, high = np.percentile(image, (p_min, p_max))
     return tf.cast((image - low) / (high - low + 1e-6), dtype)
 
+
 def _standardize(x):
     '''
     Standardize the signal so that the range becomes [-1, 1] (assuming the
@@ -109,12 +111,14 @@ def _standardize(x):
     name = prefix + '_' + str(keras.backend.get_uid(prefix))
     return keras.layers.Lambda(lambda x: 2 * x - 1, name=name)(x)
 
+
 def _destandardize(x):
     '''Undo standardization'''
     prefix = 'lambda_destandardize'
     name = prefix + '_' + str(keras.backend.get_uid(prefix))
     return keras.layers.Lambda(lambda x: 0.5 * x + 0.5, name=name)(x)
-        
+
+
 def build_rcan(input_shape=(16, 256, 256, 1),
                *,
                num_channels=32,
@@ -187,16 +191,19 @@ def build_rcan(input_shape=(16, 256, 256, 1),
     outputs = _destandardize(x)
 
     return keras.Model(inputs, outputs)
-    
+
+
 def backend_channels_last():
-    assert K.image_data_format() in ('channels_first','channels_last')
+    assert K.image_data_format() in ('channels_first', 'channels_last')
     return K.image_data_format() == 'channels_last'
 
-def move_channel_for_backend(X,channel):
+
+def move_channel_for_backend(X, channel):
     if backend_channels_last():
         return np.moveaxis(X, channel, -1)
     else:
         return np.moveaxis(X, channel,  1)
+
 
 def convert_to_multi_gpu_model(model, gpus=None):
     '''
