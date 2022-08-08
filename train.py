@@ -9,16 +9,6 @@ import care
 import callbacks
 
 
-def print_config_summary(config):
-    print('Building RCAN model')
-    print('  - input_shape =', config['input_shape'])
-    for s in ['num_channels',
-              'num_residual_blocks',
-              'num_residual_groups',
-              'channel_reduction']:
-        print(f'  - {s} =', config[s])
-
-
 def create_strategy():
     strategy = tf.distribute.MirroredStrategy()
     print('Number of devices: {strategy.num_replicas_in_sync}')
@@ -100,7 +90,6 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
 def train(model_name, config, output_dir, training_data, validation_data):
     print('Training...')
-    print_config_summary(config)
 
     strategy = create_strategy()
     model = build_and_compile_model(model_name, strategy, config)
