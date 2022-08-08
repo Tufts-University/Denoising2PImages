@@ -102,7 +102,7 @@ def main():
     if model_name not in ['rcan', 'care']:
         raise ValueError(f'Invalid model name: "{model_name}"')
 
-    config_flags = sys.args[3:] if len(sys.args) > 3 else []
+    config_flags = sys.argv[3:] if len(sys.argv) > 3 else []
     config = make_config(model_name)
     config = apply_config_flags(config_flags, config)
 
