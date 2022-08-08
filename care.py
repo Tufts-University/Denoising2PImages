@@ -9,7 +9,7 @@ def build_care(shared_config, axes):
     # We work with just one channel at a time.
     n_channel_in = 1
     # We are just denoising, so the output is the same shape as the input
-    n_channel_out = n_channel_out
+    n_channel_out = n_channel_in
 
     # TODO: Move more of these the shared config.
     config = Config(axes, n_channel_in, n_channel_out,
