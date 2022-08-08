@@ -17,7 +17,7 @@
 module load anaconda/2021.05
 source activate Denoising
 
-output_file = "../Denoising_monorepo_test.out"
+output_file="../Denoising_monorepo_test.out"
 
 cd Cervical-Project 
 git pull > $output_file
