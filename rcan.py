@@ -1,6 +1,6 @@
 import numpy as np
 import keras
-import keras.backend as K
+from keras import backend as kb
 import tensorflow as tf
 # from importlib import import_module
 # from tensorflow import __version__ as _tf_version
@@ -194,8 +194,8 @@ def build_rcan(input_shape=(16, 256, 256, 1),
 
 
 def backend_channels_last():
-    assert K.image_data_format() in ('channels_first', 'channels_last')
-    return K.image_data_format() == 'channels_last'
+    assert kb.image_data_format() in ('channels_first', 'channels_last')
+    return kb.image_data_format() == 'channels_last'
 
 
 def move_channel_for_backend(X, channel):
