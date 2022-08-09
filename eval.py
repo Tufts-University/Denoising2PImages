@@ -195,9 +195,9 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test)
     # based on how much noise is on the top and bottom slices, as they are
     # excluded. Thus, we use the stack ranges array to group the slices from
     # the same stack into one output file.
-    for [stack_start, stack_end] in stack_ranges:
+    for (stack_index, [stack_start, stack_end]) in enumerate(stack_ranges):
         image_mat = []
-        for n in range(stack_ranges[stack_start], stack_ranges[stack_end]+1):
+        for n in range(stack_start, stack_end+1):
             print(f'Accessing slice: {n}')
 
             raw = data_generator.stitch_patches(X_test[4*n:4*n+4])
@@ -227,7 +227,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test)
             result = np.clip(255 * result, 0, 255).astype('uint8')
             
             image_mat.append([result[0],result[1],result[2]]) 
-        scipy.io.savemat(data_type + trial_name + '_image'+ str(i) +'.mat', {'images': image_mat})    
+        scipy.io.savemat(data_type + trial_name + '_image'+ str(stack_index) +'.mat', {'images': image_mat})    
 
     print('--------------------------------------------------------------------')
 
