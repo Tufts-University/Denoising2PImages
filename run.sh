@@ -21,4 +21,4 @@ git pull
 echo "Starting python script..."
 echo "=========================================================="
 echo "" # empty line
-python -u main.py eval care loss=ssimr2_loss wavelet=True
+python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. data=NV_713_FAD_healthy.npz loss=ssimr2_loss wavelet=True

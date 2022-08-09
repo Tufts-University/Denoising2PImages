@@ -10,18 +10,11 @@ import eval
 
 #################################################################################
 
-data_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/NV_713_FAD_healthy.npz'
-trial_name = 'monorepo test log'
-main_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/'
-os.chdir(main_path)
-
-if not os.path.exists(os.path.join(main_path, trial_name)):
-    os.mkdir(os.path.join(main_path, trial_name))
-model_save_path = os.path.join(main_path, trial_name)
-
 
 def make_config(model_name):
     return {
+        'cwd': '',
+        'data': '',
         'epochs': 300,
         'wavelet': False,
         'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
@@ -69,9 +62,9 @@ def apply_config_flags(config_flags, config):
 
 
 def main():
-    if len(sys.argv) < 2:
-        print('Usage: python main.py <mode: train | eval> <name: rcan | care> <config options...>')
-        raise ValueError('Invalid arguments.')
+    if len(sys.argv) < 4:
+        print('Usage: python main.py <mode: train | eval> <name: rcan | care> <trial_name> <config options...>')
+        raise Exception('Invalid arguments.')
 
     # === Get arguments ===
 
@@ -80,17 +73,34 @@ def main():
 
     mode = sys.argv[1]
     if mode not in ['train', 'eval']:
-        raise ValueError(f'Invalid mode: "{mode}"')
+        raise Exception(f'Invalid mode: "{mode}"')
 
     model_name = sys.argv[2]
     if model_name not in ['rcan', 'care']:
-        raise ValueError(f'Invalid model name: "{model_name}"')
+        raise Exception(f'Invalid model name: "{model_name}"')
 
-    config_flags = sys.argv[3:] if len(sys.argv) > 3 else []
+    trial_name = sys.argv[3]
+
+    config_flags = sys.argv[4:] if len(sys.argv) > 4 else []
     config = make_config(model_name)
     config = apply_config_flags(config_flags, config)
 
     print(f'Using config: {config}\n')
+
+    main_path = config['cwd']
+    if main_path == '':
+        raise Exception('Please set the "cwd" config flag. To use the current directory use: cwd=.')
+    data_path = config['data']
+    if data_path == '':
+        raise Exception('Please set the "data" config flag to specify where the data is in relation to the current directory.')
+
+    # === Get right paths ===
+
+    os.chdir(main_path)
+
+    if not os.path.exists(os.path.join(main_path, trial_name)):
+        os.mkdir(os.path.join(main_path, trial_name))
+    model_save_path = os.path.join(main_path, trial_name)
 
     # === Send out jobs ===
 
@@ -109,10 +119,10 @@ def main():
         print('Running in "eval" mode.\n')
 
         eval.eval(model_name,
-                   trial_name=trial_name,
-                   config=config,
-                   output_dir=model_save_path,
-                   data_path=data_path)
+                  trial_name=trial_name,
+                  config=config,
+                  output_dir=model_save_path,
+                  data_path=data_path)
 
         print('Successfully completed evaluation.')
 
