@@ -17,7 +17,10 @@ import basics
 def load_weights(model, output_dir):
     print('=== Loading model weights ------------------------------------------')
 
-    model.load_weights(str(pathlib.Path(output_dir) / 'weights_final.hdf5'))
+    weights_path = str(pathlib.Path(output_dir) / 'weights_final.hdf5')
+    print(f'Getting weights at: {weights_path}')
+    
+    model.load_weights(weights_path)
 
     print('--------------------------------------------------------------------')
 
