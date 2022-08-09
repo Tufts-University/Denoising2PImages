@@ -243,7 +243,7 @@ def eval(model_name, trial_name, config, output_dir, data_path):
 
     # TODO: Load training data and add generate_data func.
     # Similar to 'data_generator.py'
-    _, (X_val, Y_val), _ = data_generator.default_load_data(
+    _, (X_val, Y_val) = data_generator.default_load_data(
         data_path,
         requires_channel_dim=model_name == 'care')
 
