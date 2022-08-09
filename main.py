@@ -14,7 +14,8 @@ import eval
 def make_config(model_name):
     return {
         'cwd': '',
-        'data': '',
+        'nadh_data': '',
+        'fad_data': '',
         'epochs': 300,
         'wavelet': False,
         'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
@@ -90,21 +91,30 @@ def main():
 
     main_path = config['cwd']
     if main_path == '':
-        raise Exception('Please set the "cwd" config flag. To use the current directory use: cwd=.')
+        raise Exception(
+            'Please set the "cwd" config flag. To use the current directory use: cwd=.')
     elif not os.path.isdir(main_path):
-        raise Exception(f'Could not find current working directory (cwd): "{main_path}"')
+        raise Exception(
+            f'Could not find current working directory (cwd): "{main_path}"')
 
-    data_path = config['data']
-    if data_path == '':
-        raise Exception('Please set the "data" config flag to specify where the data is in relation to the current directory.')
+    nadh_data_path = config['nadh_data']
+    fad_data_path = config['fad_data']
+    if nadh_data_path == '' and fad_data_path == '':
+        raise Exception(
+            'Please at least one of the two data-path flags "nadh_data" or "fad_data" config flag to specify where the data is in relation to the current directory.')
 
     # === Get right paths ===
 
     os.chdir(main_path)
     print(f'Changed directory: {os.getcwd()}')
-    
-    if not os.path.isfile(data_path):
-        raise Exception(f'Could not find file at data path: "{data_path}"')
+
+    # Check data paths exist.
+    if nadh_data_path != "" and not os.path.isfile(nadh_data_path):
+        raise Exception(
+            f'Could not find file at NADH data path: "{nadh_data_path}"')
+    if fad_data_path != "" and not os.path.isfile(fad_data_path):
+        raise Exception(
+            f'Could not find file at FAD data path: "{fad_data_path}"')
 
     if not os.path.exists(os.path.join(main_path, trial_name)):
         os.mkdir(os.path.join(main_path, trial_name))
@@ -115,6 +125,17 @@ def main():
     basics.print_device_info()
 
     if mode == 'train':
+        data_path = None
+        if nadh_data_path != '' and fad_data_path == '':
+            print(f'Using NADH data at: {nadh_data_path}')
+            data_path = nadh_data_path
+        elif fad_data_path != '' and nadh_data_path == '':
+            print(f'Using FAD data at: {fad_data_path}')
+            data_path = fad_data_path
+        else:
+            raise Exception(
+                'Train expects just one data set; either "nadh_data" or "fad_data".')
+
         print('Running in "train" mode.\n')
 
         train.train(model_name,
@@ -124,13 +145,20 @@ def main():
 
         print('Successfully completed training.')
     elif mode == 'eval':
+        if nadh_data_path != '':
+            print(f'Using NADH data at: {nadh_data_path}')
+        if fad_data_path != '':
+            print(f'Using FAD data at: {fad_data_path}')
+
         print('Running in "eval" mode.\n')
 
         eval.eval(model_name,
                   trial_name=trial_name,
                   config=config,
                   output_dir=model_save_path,
-                  data_path=data_path)
+                  # The above code checks that at least one is not empty.
+                  nadh_path=nadh_data_path if nadh_data_path != '' else None,
+                  fad_path=fad_data_path if fad_data_path != '' else None)
 
         print('Successfully completed evaluation.')
 

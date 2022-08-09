@@ -250,13 +250,8 @@ def _normalize_between_zero_and_one(m):
     return (m - min_val) / diff if diff > 0 else np.zeros_like(m)
 
 
-def eval(model_name, trial_name, config, output_dir, data_path):
+def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     print('Evaluating...')
-
-    # Similar to 'data_generator.py'
-    _, (X_val, Y_val) = data_generator.default_load_data(
-        data_path,
-        requires_channel_dim=model_name == 'care')
 
     strategy = model_builder.create_strategy()
     model = model_builder.build_and_compile_model(model_name, strategy, config)
@@ -266,17 +261,35 @@ def eval(model_name, trial_name, config, output_dir, data_path):
     # Go to the results directory to generate and store evaluated images.
     results_dir = os.path.join(output_dir, 'results')
     if os.path.exists(results_dir):
-        raise Exception(f'Creating a results directory may override the contents at: {results_dir}')
-    os.mkdir(results_dir) 
+        raise Exception(
+            f'Creating a results directory may override the contents at: {results_dir}')
+    os.mkdir(results_dir)
     os.chdir(results_dir)
 
-    patch_and_apply(
-        model, data_type='NADH', trial_name=trial_name,
-        wavelet_model=config['wavelet'],
-        X_test=X_val, Y_test=Y_val)
-    patch_and_apply(
-        model, data_type='FAD', trial_name=trial_name,
-        wavelet_model=config['wavelet'],
-        X_test=X_val, Y_test=Y_val)
+    if nadh_path != None:
+        print('=== Evaluating NADH -----------------------------------------------')
+        # Similar to 'data_generator.py'
+        _, (X_val, Y_val) = data_generator.default_load_data(
+            nadh_path,
+            requires_channel_dim=model_name == 'care')
+
+        patch_and_apply(
+            model, data_type='NADH', trial_name=trial_name,
+            wavelet_model=config['wavelet'],
+            X_test=X_val, Y_test=Y_val)
+        print('--------------------------------------------------------------------')
+
+    if fad_path != None:
+        print('=== Evaluating FAD -------------------------------------------------')
+        # Similar to 'data_generator.py'
+        _, (X_val, Y_val) = data_generator.default_load_data(
+            fad_path,
+            requires_channel_dim=model_name == 'care')
+
+        patch_and_apply(
+            model, data_type='FAD', trial_name=trial_name,
+            wavelet_model=config['wavelet'],
+            X_test=X_val, Y_test=Y_val)
+        print('--------------------------------------------------------------------')
 
     return model
