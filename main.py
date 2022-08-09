@@ -56,9 +56,11 @@ def apply_config_flags(config_flags, config):
             try:
                 value = float(raw_value)
             except:
-                try:
-                    value = bool(raw_value)
-                except:
+                if raw_value == 'True':
+                    value = True
+                elif raw_value == 'False':
+                    value = False
+                else:
                     value = raw_value
 
         config[key] = value
