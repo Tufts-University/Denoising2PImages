@@ -23,4 +23,8 @@ echo "=========================================================="
 echo "" # empty line
 
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
-python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
+
+# NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet:
+# python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
+
+python -u main.py eval care "FAD_model_0713_cervix_SSIML1" cwd=.. data=NV_713_FAD_healthy.npz
