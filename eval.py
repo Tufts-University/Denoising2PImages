@@ -43,18 +43,18 @@ def apply(model, data, overlap_shape=None, verbose=False):
         Result image.
     '''
 
-    model_input_image_shape = tuple(model.input.shape.as_list()[1:-1])
-    model_output_image_shape = tuple(model.output.shape.as_list()[1:-1])
-
+    model_input_image_shape = (50, 256, 256, 1)[1:-1]
+    model_output_image_shape = (50, 256, 256, 1)[1:-1]
+    print(data.shape)
     if len(model_input_image_shape) != len(model_output_image_shape):
         raise NotImplementedError
 
     image_dim = len(model_input_image_shape)
     num_input_channels = model.input.shape[-1]
-    num_output_channels = model.output.shape[-1]
+    num_output_channels = model.input.shape[-1]
 
     scale_factor = tuple(
-        fractions.Fraction(o, i) for i, o in zip(
+        fractions.Fraction(int(o), int(i)) for i, o in zip(
             model_input_image_shape, model_output_image_shape))
 
     def _scale_tuple(t):
@@ -102,7 +102,10 @@ def apply(model, data, overlap_shape=None, verbose=False):
         'linear_ramp'
     )[(slice(1, -1),) * image_dim]
 
-    batch_size = model.gpus if basics.is_multi_gpu_model(model) else 1
+    # TODO: Check if it need to be:
+    #   model.gpus if basics.is_multi_model(model) else 1
+    batch_size = 1 
+
     batch = np.zeros(
         (batch_size, *model_input_image_shape, num_input_channels),
         dtype=np.float32)
@@ -183,32 +186,38 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     return result if input_is_list else result[0]
 
+# The start and end indices (inclusive) of where different stacks begin and end.
 stack_ranges = [[0,24],[25,74],[75,114],[115,154]]
 def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test):
     print('=== Applying model ------------------------------------------------')
-    # TODO: Add print
 
-    for i in range(np.shape(stack_ranges)[0]):
+    # The size of our stacks (how many slices are in each stack) varies
+    # based on how much noise is on the top and bottom slices, as they are
+    # excluded. Thus, we use the stack ranges array to group the slices from
+    # the same stack into one output file.
+    for [stack_start, stack_end] in range(np.shape(stack_ranges)[0]):
         image_mat = []
-        for n in range(stack_ranges[i][0],stack_ranges[i][1]+1):
-            print(n)
-            raw = np.reshape(X_test[4*n:4*n+4],[2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
-            gt = np.reshape(Y_test[4*n:4*n+4],[2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
+        for n in range(stack_ranges[stack_start], stack_ranges[stack_end]+1):
+            print(f'Accessing slice: {n}')
+
+            raw = data_generator.stitch_patches(X_test[4*n:4*n+4])
+            gt  = data_generator.stitch_patches(Y_test[4*n:4*n+4])
             
+            # Apply the model to generate the restored image.
+            restored = None
             if wavelet_model:
-                X_test_input = np.copy(data_generator.wavelet_transform(X_test[4*n:4*n+4]))
-                X_test_input = np.reshape(X_test_input,[2, -1, 256, 256]).swapaxes(1,2).reshape(512, 512)
+                X_test_input = data_generator.wavelet_transform(np.copy(X_test[4*n:4*n+4]))
+                X_test_input = data_generator.stitch_patches(X_test_input)
                 restored = apply(model, X_test_input, overlap_shape=(0,0), verbose=True)
             else:
                 X_test_input = raw
                 restored = apply(model, X_test_input, overlap_shape=(32,32), verbose=True)
             
-            
             # Inverse transform.
             if wavelet_model:
-                restored = np.reshape(restored, [2, 256, 2, 256]).swapaxes(1, 2).reshape(4, 256, 256)
+                restored = data_generator.patch_slice(restored)
                 restored = data_generator.wavelet_inverse_transform(restored)
-                restored = np.reshape(restored,[2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
+                restored = data_generator.stitch_patches(restored)
                 
             result = [raw, restored, gt]
 
@@ -238,17 +247,18 @@ def eval(model_name, trial_name, config, output_dir, data_path):
         data_path,
         requires_channel_dim=model_name == 'care')
 
-    if config['wavelet'] == True:
-        data_generator.wavelet_transform(validation_data)
-
     strategy = model_builder.create_strategy()
     model = model_builder.build_and_compile_model(model_name, strategy, config)
 
     load_weights(model, output_dir=output_dir)
 
-    apply_model(
-        model,
-        model_name=model_name,
-        validation_data=validation_data)
+    patch_and_apply(
+        model, data_type='NADH', trial_name=trial_name, 
+        wavelet_model=config['wavelet'], 
+        X_test=X_val, Y_test=Y_val)
+    patch_and_apply(
+        model, data_type='FAD', trial_name=trial_name, 
+        wavelet_model=config['wavelet'], 
+        X_test=X_val, Y_test=Y_val)
 
     return model

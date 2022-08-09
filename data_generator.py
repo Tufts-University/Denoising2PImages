@@ -409,6 +409,24 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     return (X, Y), data_val, axes
 
 
+def patch_slice(slice):
+    '''Splits up the 512x512 slice into 4 256x256 patches.'''
+    assert np.shape(slice) == (512, 512)
+
+    # The axes are swapped to maintain the correct order since our patches are square 256x256
+    # and not 512x128 rectangles.
+    return np.reshape(slice, [2, 256, 2, 256]).swapaxes(1, 2).reshape(4, 256, 256)
+
+
+def stitch_patches(patches):
+    '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
+    assert np.shape(patches) == (4, 256, 256)
+
+    # The axes are swapped to maintain the correct order since our patches are square 256x256
+    # and not 512x128 rectangles.
+    return np.reshape(patches, [2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
+
+
 def default_load_data(data_path, requires_channel_dim):
     (X, Y), (X_val, Y_val), _ = load_training_data(
         data_path,
@@ -438,8 +456,10 @@ def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
         validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
     else:
         # TODO: Streamline RCAN and CARE data generation.
-        training_data = (X, Y)           # Shape: (2, n_train_patches, 256, 256, 1)
-        validation_data = (X_val, Y_val) # Shape: (2, n_valid_patches, 256, 256, 1)
+        # Shape: (2, n_train_patches, 256, 256, 1)
+        training_data = (X, Y)
+        # Shape: (2, n_valid_patches, 256, 256, 1)
+        validation_data = (X_val, Y_val)
 
     print(f'Got training data with shape {np.shape(training_data)}.')
     print(f'Got validation data with shape {np.shape(validation_data)}.')
