@@ -11,8 +11,6 @@ import pywt
 # Contains code for data loading and generation before
 # being passed into the network.
 
-import data_generator
-
 
 class DataGenerator:
     '''
@@ -304,7 +302,7 @@ def wavelet_inverse_transform(mat):
 
 
 def load_training_data(file, validation_split=0, axes=None, n_images=None,
-                       wavelet_transform=False, verbose=False):
+                       verbose=False):
     """Load training data from file in ``.npz`` format.
     The data file is expected to have the keys:
     - ``X``    : Array of training input images.
@@ -436,24 +434,23 @@ def default_load_data(data_path, requires_channel_dim):
         data_path,
         validation_split=0.15,
         axes='SXY' if not requires_channel_dim else 'SXYC',
-        wavelet_transform=wavelet_transform,
         verbose=True)
 
     return (X, Y), (X_val, Y_val)
 
 
-def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
+def gather_data(config, data_path, requires_channel_dim, wavelet_model):
     '''Gathers the data that is already normalized in local prep.'''
     print('=== Gathering data ---------------------------------------------------')
 
     # Similar to 'data_generator.py'
     (X, Y), (X_val, Y_val) = default_load_data(data_path, requires_channel_dim)
 
-    if wavelet_transform:
-        X = data_generator.wavelet_transform(X)
-        Y = data_generator.wavelet_transform(Y)
-        X_val = data_generator.wavelet_transform(X_val)
-        Y_val = data_generator.wavelet_transform(Y_val)
+    if wavelet_model:
+        X = wavelet_transform(np.array(X))
+        Y = wavelet_transform(np.array(Y))
+        X_val = wavelet_transform(np.array(X_val))
+        Y_val = wavelet_transform(np.array(Y_val))
 
     data_gen = DataGenerator(
         config['input_shape'],
