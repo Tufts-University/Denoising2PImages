@@ -4,9 +4,9 @@ import tensorflow as tf
 import sys
 
 # Local dependencies
-import data_generator
 import train
 import basics
+import eval
 
 #################################################################################
 
@@ -108,7 +108,7 @@ def main():
     elif mode == 'eval':
         print('Running in "eval" mode.\n')
 
-        train.eval(model_name,
+        eval.eval(model_name,
                    trial_name=trial_name,
                    config=config,
                    output_dir=model_save_path,
