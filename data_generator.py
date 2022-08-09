@@ -411,7 +411,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 
 def patch_slice(slice):
     '''Splits up the 512x512 slice into 4 256x256 patches.'''
-    assert np.shape(slice) == (512, 512)
+    assert np.shape(slice) == (512, 512), f'Slice must be 512x512 but instead found shape: {np.shape(slice)}'
 
     # The axes are swapped to maintain the correct order since our patches are square 256x256
     # and not 512x128 rectangles.
@@ -420,7 +420,7 @@ def patch_slice(slice):
 
 def stitch_patches(patches):
     '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
-    assert np.shape(patches) == (4, 256, 256)
+    assert np.shape(patches) == (4, 256, 256), f'Patches must be 4x256x256 but instead found shape: {np.shape(patches)}'
 
     # The axes are swapped to maintain the correct order since our patches are square 256x256
     # and not 512x128 rectangles.
