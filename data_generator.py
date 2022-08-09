@@ -281,6 +281,7 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
 
 
 def wavelet_transform(mat):
+    print(f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
     for i in range(len(mat)):
         C = pywt.dwt2(mat[i, :, :], 'bior4.4', mode='periodization')
         cA, (cH, cV, cD) = C
@@ -292,6 +293,7 @@ def wavelet_transform(mat):
 
 
 def wavelet_inverse_transform(mat):
+    print(f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
     for i in range(len(mat)):
         (cA, cH, cV, cD) = (
             mat[i, :128, :128], mat[i, :128, 128:], mat[i, 128:, :128], mat[i, 128:, 128:])
