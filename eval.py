@@ -191,14 +191,18 @@ stack_ranges = [[0,24],[25,74],[75,114],[115,154]]
 def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test):
     print('=== Applying model ------------------------------------------------')
 
+    print(f'Using wavelet model: {wavelet_model}')
+
     # The size of our stacks (how many slices are in each stack) varies
     # based on how much noise is on the top and bottom slices, as they are
     # excluded. Thus, we use the stack ranges array to group the slices from
     # the same stack into one output file.
     for (stack_index, [stack_start, stack_end]) in enumerate(stack_ranges):
+        print(f'Accessing stack: {stack_index}')
+
         image_mat = []
         for n in range(stack_start, stack_end+1):
-            print(f'Accessing slice: {n}')
+            print(f'Accessing slice: {n} of stack: {stack_index}')
 
             raw = data_generator.stitch_patches(X_test[4*n:4*n+4])
             gt  = data_generator.stitch_patches(Y_test[4*n:4*n+4])
