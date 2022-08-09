@@ -54,7 +54,7 @@ def ssimr2_loss(y_true, y_pred):
 
     SSIM = 1-((ssim(y_true, y_pred)+1)*0.5)
     R2 = R_squared(y_true, y_pred)
-    alpha = 0.2
+    alpha = 0.5
     return SSIM*alpha + (1-alpha)*R2
 
 

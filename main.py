@@ -23,6 +23,7 @@ model_save_path = os.path.join(main_path, model_name)
 def make_config(model_name):
     return {
         'epochs': 300,
+        'wavelet': False,
         'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
         'num_residual_groups': 5,
         'num_residual_blocks': 5,
@@ -35,35 +36,6 @@ def make_config(model_name):
         'channel_reduction': 4,
         'num_channels': 32,
     }
-
-
-def gather_data(config, data_path, requires_channel_dim):
-    '''Gathers the data that is already normalized in local prep.'''
-    print('=== Gathering data ---------------------------------------------------')
-
-    (X, Y), (X_val, Y_val), axes = data_generator.load_training_data(
-        data_path,
-        validation_split=0.15,
-        axes='SXY' if not requires_channel_dim else 'SXYC',
-        verbose=True)
-
-    data_gen = data_generator.DataGenerator(
-        config['input_shape'],
-        50,
-        transform_function=None)
-
-    if not requires_channel_dim:
-        # The data generator only accepts 2D data.
-        training_data = data_gen.flow(*list(zip([X, Y])))
-        validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
-    else:
-        # TODO: Streamline RCAN and CARE data generation.
-        training_data = (X, Y)
-        validation_data = (X_val, Y_val)
-
-    print('----------------------------------------------------------------------')
-
-    return (training_data, validation_data)
 
 
 def apply_config_flags(config_flags, config):
@@ -84,7 +56,10 @@ def apply_config_flags(config_flags, config):
             try:
                 value = float(raw_value)
             except:
-                value = raw_value
+                try:
+                    value = bool(raw_value)
+                except:
+                    value = raw_value
 
         config[key] = value
 
@@ -122,18 +97,21 @@ def main():
     if mode == 'train':
         print('Running in "train" mode.\n')
 
-        (training_data, validation_data) = gather_data(
-            config, data_path, requires_channel_dim=model_name == 'care')
-
         train.train(model_name,
-                    config,
+                    config=config,
                     output_dir=model_save_path,
-                    training_data=training_data,
-                    validation_data=validation_data)
+                    data_path=data_path)
 
         print('Successfully completed training.')
     elif mode == 'eval':
-        print('Not implemented.')
+        print('Running in "eval" mode.\n')
+
+        train.eval(model_name,
+                   config=config,
+                   output_dir=model_save_path,
+                   data_path=data_path)
+
+        print('Successfully completed evaluation.')
 
 
 try:

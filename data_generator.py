@@ -6,6 +6,7 @@ from keras.utils.conv_utils import normalize_tuple
 import warnings
 import collections
 from csbdeep.utils import axes_dict
+import pywt
 
 # Contains code for data loading and generation before
 # being passed into the network.
@@ -279,7 +280,29 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
     return (axes, allowed) if return_allowed else axes
 
 
-def load_training_data(file, validation_split=0, axes=None, n_images=None, verbose=False):
+def wavelet_transform(mat):
+    for i in range(len(mat)):
+        C = pywt.dwt2(mat[i, :, :], 'bior4.4', mode='periodization')
+        cA, (cH, cV, cD) = C
+        row = np.append(cA, cH, axis=1)
+        row2 = np.append(cV, cD, axis=1)
+        mat[i, :, :] = np.vstack((row, row2))
+
+    return mat
+
+
+def wavelet_inverse_transform(mat):
+    for i in range(len(mat)):
+        (cA, cH, cV, cD) = (
+            mat[i, :128, :128], mat[i, :128, 128:], mat[i, 128:, :128], mat[i, 128:, 128:])
+        C = cA, (cH, cV, cD)
+        mat[i, :, :] = pywt.idwt2(C, 'bior4.4', mode='periodization')
+
+    return mat
+
+
+def load_training_data(file, validation_split=0, axes=None, n_images=None,
+                       wavelet_transform=False, verbose=False):
     """Load training data from file in ``.npz`` format.
     The data file is expected to have the keys:
     - ``X``    : Array of training input images.
@@ -340,8 +363,10 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
     channel = axes_dict(axes).get('C', None)
 
     if validation_split > 0:
+        # TODO: Remove phantom code.
         #n_val   = int(round(n_images * validation_split))
-        ''' TODO: NEED TO SET VALIDATION SPLIT BETTER '''
+
+        # TODO: Better validation split.
         n_val = 620
         n_train = n_images - n_val
         assert 0 < n_val and 0 < n_train
@@ -382,3 +407,36 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None, verbo
             print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
     return (X, Y), data_val, axes
+
+
+def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
+    '''Gathers the data that is already normalized in local prep.'''
+    print('=== Gathering data ---------------------------------------------------')
+
+    (X, Y), (X_val, Y_val), _ = load_training_data(
+        data_path,
+        validation_split=0.15,
+        axes='SXY' if not requires_channel_dim else 'SXYC',
+        wavelet_transform=wavelet_transform,
+        verbose=True)
+
+    data_gen = DataGenerator(
+        config['input_shape'],
+        50,
+        transform_function=None)
+
+    if not requires_channel_dim:
+        # The data generator only accepts 2D data.
+        training_data = data_gen.flow(*list(zip([X, Y])))
+        validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
+    else:
+        # TODO: Streamline RCAN and CARE data generation.
+        training_data = (X, Y)
+        validation_data = (X_val, Y_val)
+
+    print(f'Got training data with shape {np.shape(training_data)}.')
+    print(f'Got validation data with shape {np.shape(validation_data)}.')
+
+    print('----------------------------------------------------------------------')
+
+    return (training_data, validation_data)
