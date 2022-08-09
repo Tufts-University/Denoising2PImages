@@ -118,7 +118,7 @@ def main():
 
     if not os.path.exists(os.path.join(main_path, trial_name)):
         os.mkdir(os.path.join(main_path, trial_name))
-    model_save_path = os.path.join(main_path, trial_name)
+    model_save_path = trial_name
 
     # === Send out jobs ===
 
