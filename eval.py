@@ -1,6 +1,6 @@
 import pathlib
 import numpy as np
-import scipy 
+import scipy.io
 import fractions
 import itertools
 import tqdm
@@ -208,10 +208,10 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test)
             if wavelet_model:
                 X_test_input = data_generator.wavelet_transform(np.copy(X_test[4*n:4*n+4]))
                 X_test_input = data_generator.stitch_patches(X_test_input)
-                restored = apply(model, X_test_input, overlap_shape=(0,0), verbose=True)
+                restored = apply(model, X_test_input, overlap_shape=(0,0), verbose=False)
             else:
                 X_test_input = raw
-                restored = apply(model, X_test_input, overlap_shape=(32,32), verbose=True)
+                restored = apply(model, X_test_input, overlap_shape=(32,32), verbose=False)
             
             # Inverse transform.
             if wavelet_model:
