@@ -4,6 +4,7 @@ import scipy.io
 import fractions
 import itertools
 import tqdm
+import os
 
 
 # Local dependencies
@@ -104,7 +105,7 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     # TODO: Check if it need to be:
     #   model.gpus if basics.is_multi_model(model) else 1
-    batch_size = 1 
+    batch_size = 1
 
     batch = np.zeros(
         (batch_size, *model_input_image_shape, num_input_channels),
@@ -186,8 +187,11 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     return result if input_is_list else result[0]
 
+
 # The start and end indices (inclusive) of where different stacks begin and end.
-stack_ranges = [[0,24],[25,74],[75,114],[115,154]]
+stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
+
+
 def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test):
     print('=== Applying model ------------------------------------------------')
 
@@ -205,33 +209,37 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test)
             print(f'Accessing slice: {n} of stack: {stack_index}')
 
             raw = data_generator.stitch_patches(X_test[4*n:4*n+4])
-            gt  = data_generator.stitch_patches(Y_test[4*n:4*n+4])
-            
+            gt = data_generator.stitch_patches(Y_test[4*n:4*n+4])
+
             # Apply the model to generate the restored image.
             restored = None
             if wavelet_model:
-                X_test_input = data_generator.wavelet_transform(np.copy(X_test[4*n:4*n+4]))
+                X_test_input = data_generator.wavelet_transform(
+                    np.copy(X_test[4*n:4*n+4]))
                 X_test_input = data_generator.stitch_patches(X_test_input)
-                restored = apply(model, X_test_input, overlap_shape=(0,0), verbose=False)
+                restored = apply(model, X_test_input,
+                                 overlap_shape=(0, 0), verbose=False)
             else:
                 X_test_input = raw
-                restored = apply(model, X_test_input, overlap_shape=(32,32), verbose=False)
-            
+                restored = apply(model, X_test_input,
+                                 overlap_shape=(32, 32), verbose=False)
+
             # Inverse transform.
             if wavelet_model:
                 restored = data_generator.patch_slice(restored)
                 restored = data_generator.wavelet_inverse_transform(restored)
                 restored = data_generator.stitch_patches(restored)
-                
+
             result = [raw, restored, gt]
 
             # TODO: Check if normalization is needed.
             # result = [normalize_between_zero_and_one(m) for m in result]
             result = np.stack(result)
             result = np.clip(255 * result, 0, 255).astype('uint8')
-            
-            image_mat.append([result[0],result[1],result[2]]) 
-        scipy.io.savemat(data_type + trial_name + '_image'+ str(stack_index) +'.mat', {'images': image_mat})    
+
+            image_mat.append([result[0], result[1], result[2]])
+        scipy.io.savemat(f'{data_type}_{trial_name}_image{stack_index}.mat', {
+                         'images': image_mat})
 
     print('--------------------------------------------------------------------')
 
@@ -245,7 +253,6 @@ def _normalize_between_zero_and_one(m):
 def eval(model_name, trial_name, config, output_dir, data_path):
     print('Evaluating...')
 
-    # TODO: Load training data and add generate_data func.
     # Similar to 'data_generator.py'
     _, (X_val, Y_val) = data_generator.default_load_data(
         data_path,
@@ -256,13 +263,14 @@ def eval(model_name, trial_name, config, output_dir, data_path):
 
     load_weights(model, output_dir=output_dir)
 
+    os.chdir(output_dir)
     patch_and_apply(
-        model, data_type='NADH', trial_name=trial_name, 
-        wavelet_model=config['wavelet'], 
+        model, data_type='NADH', trial_name=trial_name,
+        wavelet_model=config['wavelet'],
         X_test=X_val, Y_test=Y_val)
     patch_and_apply(
-        model, data_type='FAD', trial_name=trial_name, 
-        wavelet_model=config['wavelet'], 
+        model, data_type='FAD', trial_name=trial_name,
+        wavelet_model=config['wavelet'],
         X_test=X_val, Y_test=Y_val)
 
     return model
