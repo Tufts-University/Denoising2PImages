@@ -11,6 +11,8 @@ import pywt
 # Contains code for data loading and generation before
 # being passed into the network.
 
+import data_generator
+
 
 class DataGenerator:
     '''
@@ -448,10 +450,10 @@ def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
     (X, Y), (X_val, Y_val) = default_load_data(data_path, requires_channel_dim)
 
     if wavelet_transform:
-        X = wavelet_transform(X)
-        Y = wavelet_transform(Y)
-        X_val = wavelet_transform(X_val)
-        Y_val = wavelet_transform(Y_val)
+        X = data_generator.wavelet_transform(X)
+        Y = data_generator.wavelet_transform(Y)
+        X_val = data_generator.wavelet_transform(X_val)
+        Y_val = data_generator.wavelet_transform(Y_val)
 
     data_gen = DataGenerator(
         config['input_shape'],
