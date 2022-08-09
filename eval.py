@@ -263,7 +263,13 @@ def eval(model_name, trial_name, config, output_dir, data_path):
 
     load_weights(model, output_dir=output_dir)
 
-    os.chdir(output_dir)
+    # Go to the results directory to generate and store evaluated images.
+    results_dir = os.path.join(output_dir, 'results')
+    if os.path.exists(results_dir):
+        raise Exception(f'Creating a results directory may override the contents at: {results_dir}')
+    os.mkdir(results_dir) 
+    os.chdir(results_dir)
+
     patch_and_apply(
         model, data_type='NADH', trial_name=trial_name,
         wavelet_model=config['wavelet'],
