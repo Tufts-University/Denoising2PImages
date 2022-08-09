@@ -11,7 +11,7 @@ import basics
 #################################################################################
 
 data_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/NV_713_FAD_healthy.npz'
-model_name = 'monorepo test'
+model_name = 'monorepo test log'
 main_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/'
 os.chdir(main_path)
 
