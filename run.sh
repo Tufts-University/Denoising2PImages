@@ -21,4 +21,4 @@ git pull
 echo "Starting python script..."
 echo "=========================================================="
 echo "" # empty line
-python -u main.py eval care loss=ssimr2_loss
+python -u main.py eval care loss=ssimr2_loss wavelet=True
