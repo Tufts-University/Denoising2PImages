@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../Denoising_monorepo_test.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../Denoising_monorepo_test.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
@@ -21,4 +21,6 @@ git pull
 echo "Starting python script..."
 echo "=========================================================="
 echo "" # empty line
+
+# When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
 python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
