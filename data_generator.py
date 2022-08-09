@@ -409,16 +409,23 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     return (X, Y), data_val, axes
 
 
-def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
-    '''Gathers the data that is already normalized in local prep.'''
-    print('=== Gathering data ---------------------------------------------------')
-
+def default_load_data(data_path, requires_channel_dim):
     (X, Y), (X_val, Y_val), _ = load_training_data(
         data_path,
         validation_split=0.15,
         axes='SXY' if not requires_channel_dim else 'SXYC',
         wavelet_transform=wavelet_transform,
         verbose=True)
+
+    return (X, Y), (X_val, Y_val)
+
+
+def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
+    '''Gathers the data that is already normalized in local prep.'''
+    print('=== Gathering data ---------------------------------------------------')
+
+    # Similar to 'data_generator.py'
+    (X, Y), (X_val, Y_val) = default_load_data(data_path, requires_channel_dim)
 
     data_gen = DataGenerator(
         config['input_shape'],
@@ -431,8 +438,8 @@ def gather_data(config, data_path, requires_channel_dim, wavelet_transform):
         validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
     else:
         # TODO: Streamline RCAN and CARE data generation.
-        training_data = (X, Y)
-        validation_data = (X_val, Y_val)
+        training_data = (X, Y)           # Shape: (2, n_train_patches, 256, 256, 1)
+        validation_data = (X_val, Y_val) # Shape: (2, n_valid_patches, 256, 256, 1)
 
     print(f'Got training data with shape {np.shape(training_data)}.')
     print(f'Got validation data with shape {np.shape(validation_data)}.')

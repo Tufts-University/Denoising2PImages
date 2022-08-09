@@ -1,24 +1,23 @@
-import pathlib
+from __future__ import print_function, unicode_literals, absolute_import, division
+import os
 import numpy as np
-import scipy 
-import fractions
+import scipy.io
 import itertools
+import pathlib
 import tqdm
-
-
-# Local dependencies
-
-import model_builder
-import data_generator
-import basics
-
-
-def load_weights(model, output_dir):
-    print('=== Loading model weights ------------------------------------------')
-
-    model.load_weights(str(pathlib.Path(output_dir) / 'weights_final.hdf5'))
-
-    print('--------------------------------------------------------------------')
+import collections
+from importlib import import_module
+from tensorflow import __version__ as _tf_version
+from tensorflow.python.client.device_lib import list_local_devices
+from packaging import version
+import fractions
+import tensorflow as tf
+from tensorflow.image import ssim as ssim2
+import keras
+import keras.backend as K
+from csbdeep.utils import axes_dict
+from csbdeep.internals import nets
+from csbdeep.models import Config
 
 
 def apply(model, data, overlap_shape=None, verbose=False):
@@ -43,18 +42,18 @@ def apply(model, data, overlap_shape=None, verbose=False):
         Result image.
     '''
 
-    model_input_image_shape = tuple(model.input.shape.as_list()[1:-1])
-    model_output_image_shape = tuple(model.output.shape.as_list()[1:-1])
-
+    model_input_image_shape = (50, 256, 256, 1)[1:-1]
+    model_output_image_shape = (50, 256, 256, 1)[1:-1]
+    print(data.shape)
     if len(model_input_image_shape) != len(model_output_image_shape):
         raise NotImplementedError
 
     image_dim = len(model_input_image_shape)
     num_input_channels = model.input.shape[-1]
-    num_output_channels = model.output.shape[-1]
+    num_output_channels = model.input.shape[-1]
 
     scale_factor = tuple(
-        fractions.Fraction(o, i) for i, o in zip(
+        fractions.Fraction(int(o), int(i)) for i, o in zip(
             model_input_image_shape, model_output_image_shape))
 
     def _scale_tuple(t):
@@ -102,7 +101,7 @@ def apply(model, data, overlap_shape=None, verbose=False):
         'linear_ramp'
     )[(slice(1, -1),) * image_dim]
 
-    batch_size = model.gpus if basics.is_multi_gpu_model(model) else 1
+    batch_size = 1
     batch = np.zeros(
         (batch_size, *model_input_image_shape, num_input_channels),
         dtype=np.float32)
@@ -183,72 +182,69 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     return result if input_is_list else result[0]
 
-stack_ranges = [[0,24],[25,74],[75,114],[115,154]]
-def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test):
-    print('=== Applying model ------------------------------------------------')
-    # TODO: Add print
+#################################################################################
+''' Data was Normalized in Local Prep'''
 
-    for i in range(np.shape(stack_ranges)[0]):
-        image_mat = []
-        for n in range(stack_ranges[i][0],stack_ranges[i][1]+1):
-            print(n)
-            raw = np.reshape(X_test[4*n:4*n+4],[2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
-            gt = np.reshape(Y_test[4*n:4*n+4],[2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
-            
-            if wavelet_model:
-                X_test_input = np.copy(data_generator.wavelet_transform(X_test[4*n:4*n+4]))
-                X_test_input = np.reshape(X_test_input,[2, -1, 256, 256]).swapaxes(1,2).reshape(512, 512)
-                restored = apply(model, X_test_input, overlap_shape=(0,0), verbose=True)
-            else:
-                X_test_input = raw
-                restored = apply(model, X_test_input, overlap_shape=(32,32), verbose=True)
-            
-            
-            # Inverse transform.
-            if wavelet_model:
-                restored = np.reshape(restored, [2, 256, 2, 256]).swapaxes(1, 2).reshape(4, 256, 256)
-                restored = data_generator.wavelet_inverse_transform(restored)
-                restored = np.reshape(restored,[2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
+data_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/NV_713_FAD_healthy.npz'
+model_name = 'NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3'
+main_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/'
+os.chdir(main_path)
+
+if not os.path.exists(os.path.join(main_path,model_name)): os.mkdir(os.path.join(main_path,model_name))
+model_save_path = os.path.join(main_path,model_name)
+print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+
+is_cuda_gpu_available = tf.test.is_gpu_available(cuda_only=True)
+print(is_cuda_gpu_available)
+
+(X,Y), (X_val,Y_val), axes = load_training_data(data_path, validation_split=0.15, axes='SXYC', verbose=True)
+c = axes_dict(axes)['C']
+n_channel_in, n_channel_out = X.shape[c], Y.shape[c]
+
+config = Config(axes, n_channel_in, n_channel_out, 
+                train_steps_per_epoch=100, train_batch_size=50, 
+                train_epochs=300, unet_n_depth=6, 
+                unet_n_first=32, unet_kern_size=3, 
+                train_learning_rate=1e-05)
+print(config)
                 
-            result = [raw, restored, gt]
+# CALLBACKS
+# learning rate reducer callback
+reduce_lr = tf.keras.callbacks.ReduceLROnPlateau(verbose=True,factor=0.97,min_delta=0,patience=20,)
 
-            # TODO: Check if normalization is needed.
-            # result = [normalize_between_zero_and_one(m) for m in result]
-            result = np.stack(result)
-            result = np.clip(255 * result, 0, 255).astype('uint8')
-            
-            image_mat.append([result[0],result[1],result[2]]) 
-        scipy.io.savemat(data_type + trial_name + '_image'+ str(i) +'.mat', {'images': image_mat})    
+# create a callback that saves the model's weights every said amount of epochs
+epoch_freq = 10
+checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
+cp_callback = tf.keras.callbacks.ModelCheckpoint(
+    str( pathlib.Path(model_save_path) / checkpoint_filepath),
+    monitor='val_loss',
+    save_best_only=True, verbose=1, mode='min')
 
-    print('--------------------------------------------------------------------')
+# BUILD
+model = build_CARes(config)
+model = compile_model(model, config.train_learning_rate)
+model.summary()
 
-
-def _normalize_between_zero_and_one(m):
-    max_val, min_val = m.max(), m.min()
-    diff = max_val - min_val
-    return (m - min_val) / diff if diff > 0 else np.zeros_like(m)
-
-
-def eval(model_name, trial_name, config, output_dir, data_path):
-    print('Evaluating...')
-
-    # TODO: Load training data and add generate_data func.
-    # Similar to 'data_generator.py'
-    _, (X_val, Y_val), _ = data_generator.default_load_data(
-        data_path,
-        requires_channel_dim=model_name == 'care')
-
-    if config['wavelet'] == True:
-        data_generator.wavelet_transform(validation_data)
-
-    strategy = model_builder.create_strategy()
-    model = model_builder.build_and_compile_model(model_name, strategy, config)
-
-    load_weights(model, output_dir=output_dir)
-
-    apply_model(
-        model,
-        model_name=model_name,
-        validation_data=validation_data)
-
-    return model
+# EVAL
+os.chdir(model_save_path)
+if not os.path.exists(os.path.join(model_save_path,'outputs')): os.mkdir(os.path.join(model_save_path,'outputs'))
+latest = 'weights_180_0.21952377.hdf5'
+#latest = 'weights_253_0.16830541.hdf5'
+model.load_weights(latest)
+os.chdir(os.path.join(model_save_path,'outputs'))
+stack_ranges = [[0,24],[25,74],[75,114],[115,154]]
+for i in range(np.shape(stack_ranges)[0]):
+    image_mat = []
+    for n in range(stack_ranges[i][0],stack_ranges[i][1]+1):
+        print(n)
+        raw = np.reshape(X_val[4*n:4*n+4],[2, -1, 256, 256]).swapaxes(1,2).reshape(512, 512)
+        gt = np.reshape(Y_val[4*n:4*n+4],[2, -1, 256, 256]).swapaxes(1,2).reshape(512, 512)
+        print(raw)
+        restored = apply(model, raw, overlap_shape=None, verbose=True)
+        result = [raw, restored, gt]
+        result = [normalize_between_zero_and_one(m) for m in result]
+        result = np.stack(result)
+        result = np.clip(255 * result, 0, 255).astype('uint8')
+        image_mat.append([result[0],result[1],result[2]]) 
+    #scipy.io.savemat(model_name + '_image'+ str(i) +'.mat', {'images': image_mat})
+    scipy.io.savemat('FAD' + model_name[4:] + '_image'+ str(i) +'.mat', {'images': image_mat})

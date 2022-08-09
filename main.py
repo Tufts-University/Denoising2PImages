@@ -11,13 +11,13 @@ import basics
 #################################################################################
 
 data_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/NV_713_FAD_healthy.npz'
-model_name = 'monorepo test log'
+trial_name = 'monorepo test log'
 main_path = '/cluster/tufts/georgakoudi_lab01/nvora01/NV_052622_Denoising/'
 os.chdir(main_path)
 
-if not os.path.exists(os.path.join(main_path, model_name)):
-    os.mkdir(os.path.join(main_path, model_name))
-model_save_path = os.path.join(main_path, model_name)
+if not os.path.exists(os.path.join(main_path, trial_name)):
+    os.mkdir(os.path.join(main_path, trial_name))
+model_save_path = os.path.join(main_path, trial_name)
 
 
 def make_config(model_name):
@@ -109,6 +109,7 @@ def main():
         print('Running in "eval" mode.\n')
 
         train.eval(model_name,
+                   trial_name=trial_name,
                    config=config,
                    output_dir=model_save_path,
                    data_path=data_path)
