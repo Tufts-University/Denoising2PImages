@@ -21,4 +21,4 @@ git pull
 echo "Starting python script..."
 echo "=========================================================="
 echo "" # empty line
-python -u main.py train rcan loss=ssimr2_loss
+python -u main.py eval rcan loss=ssimr2_loss
