@@ -97,13 +97,14 @@ def main():
     data_path = config['data']
     if data_path == '':
         raise Exception('Please set the "data" config flag to specify where the data is in relation to the current directory.')
-    elif not os.path.isfile(data_path):
-        raise Exception(f'Could not find file at data path: "{data_path}"')
 
     # === Get right paths ===
 
     os.chdir(main_path)
-    print(f'Changed directory: os.getcwd()')
+    print(f'Changed directory: {os.getcwd()}')
+    
+    if not os.path.isfile(data_path):
+        raise Exception(f'Could not find file at data path: "{data_path}"')
 
     if not os.path.exists(os.path.join(main_path, trial_name)):
         os.mkdir(os.path.join(main_path, trial_name))
