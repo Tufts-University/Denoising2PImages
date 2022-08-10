@@ -280,7 +280,7 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
     return (axes, allowed) if return_allowed else axes
 
 
-def wavelet_transform(mat):
+def wavelet_transform(mat, verbose=False):
     '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
 
     print(f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
@@ -289,33 +289,26 @@ def wavelet_transform(mat):
            f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
     requires_extra_dim = np.shape(mat)[-1] == 1
 
-    if not requires_extra_dim:
-        for i in range(len(mat)):
-            C = pywt.dwt2(mat[i, :, :], 'bior4.4', mode='periodization')
-            cA, (cH, cV, cD) = C
-            row = np.append(cA, cH, axis=1)
-            row2 = np.append(cV, cD, axis=1)
-            mat[i, :, :] = np.vstack((row, row2))
-    else:
-        try:
-            for i in range(len(mat)):
-                C = pywt.dwt2(mat[i, :, :, :], 'bior4.4', mode='periodization')
-                cA, (cH, cV, cD) = C
-                row = np.append(cA, cH, axis=1)
-                row2 = np.append(cV, cD, axis=1)
-                mat[i, :, :, :] = np.vstack((row, row2))
-        except:
-            print('Using backup transform')
-            for i in range(len(mat)):
-                C = pywt.dwt2(np.squeeze(mat[i, :, :, :]), 'bior4.4', mode='periodization')
-                cA, (cH, cV, cD) = C
-                print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
-                row = np.append(cA, cH, axis=1)
-                print(f'Got row shaped {row.shape}')
-                row2 = np.append(cV, cD, axis=1)
-                print(f'Got row2 shaped {row.shape}')
-                print(f'Got stack shaped {np.shape(np.vstack((row, row2)))}')
-                mat[i, :, :, :] = np.expand_dims(np.vstack((row, row2)), -1)
+
+    for i in range(len(mat)):
+        C = pywt.dwt2(
+            mat[i, :, :] if not requires_extra_dim else np.squeeze(mat[i, :, :, :]),
+            'bior4.4', 
+            mode='periodization')
+
+        cA, (cH, cV, cD) = C
+        if verbose: print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+
+        row = np.append(cA, cH, axis=1)
+        row2 = np.append(cV, cD, axis=1)
+        stack = np.vstack((row, row2))
+
+        if verbose: print(f'Got stack shaped {np.shape(stack)}')
+
+        if not requires_extra_dim:
+            mat[i, :, :] = stack
+        else:
+            mat[i, :, :, :] = np.expand_dims(stack, -1)
 
     return mat
 
