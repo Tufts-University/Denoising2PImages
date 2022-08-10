@@ -26,14 +26,23 @@ echo "" # empty line
 
 ### MARK: FAD Model — NADH Eval #################################
 
+# TODO: Print model summary with train and compare against these.
+# Start with first one.
+
 # FAD RCAN SSIM
 # python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# ID: 25159649
 
 # FAD RCAN SSIML1
 # python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# ID: 25159970
 
-# FAD CARE SSIML1
-python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# FAD CARE SSIML1 
+# !!!!!!!
+# !!!!!!!!!!!!!!!!!!!!: Change back to eval after test.
+# !!!!!!!
+python -u main.py train care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# ID: 25160324 
 
 ##################################################################
 
