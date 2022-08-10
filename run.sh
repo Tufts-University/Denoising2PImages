@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_model_0713_cervix_SSIMR2_Wavelet.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_model_0713_cervix_SSIMR2_Wavelet.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../FAD_model_0629_cervix_SSIM.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../FAD_model_0629_cervix_SSIM.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
@@ -24,15 +24,30 @@ echo "" # empty line
 
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
 
+### MARK: FAD Model — NADH Eval #################################
+
+# FAD RCAN SSIM
+python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+
+# FAD RCAN SSIML1
+# python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+
+# FAD CARE SSIML1
+# python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+
+##################################################################
+
+
+### Archives #####################################################
 # NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet
 # TODO: Change to include wavelet family
-python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
+# python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
 
 # FAD_model_0713_cervix_SSIML1
 # python -u main.py eval care "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_FAD_healthy.npz
 
 # NADH_model_0713_cervix_SSIMR2_Wavelet
-python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz wavelet=True
+# python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz wavelet=True
 
 # NADH_CAREmodel_0713_cervix_SSIMR2_ap5
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss

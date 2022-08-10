@@ -52,5 +52,6 @@ def train(model_name, config, output_dir, data_path):
     model = fit_model(model, model_name, config, output_dir,
                       training_data, validation_data)
 
+    # FIXME: Look if early stopping is in effect (so we don't get overfitted weights).
     final_weights_path = str(pathlib.Path(output_dir) / 'weights_final.hdf5')
     model.save_weights(final_weights_path)
