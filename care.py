@@ -14,8 +14,8 @@ def build_care(shared_config, axes):
     # TODO: Move more of these the shared config.
     config = Config(axes, n_channel_in, n_channel_out,
                     train_steps_per_epoch=shared_config['steps_per_epoch'], train_batch_size=50,
-                    train_epochs=shared_config['epochs'], unet_n_depth=config['unet_n_depth'],
-                    unet_n_first=config['unet_n_first'], unet_kern_size=config['unet_kern_size'],
+                    train_epochs=shared_config['epochs'], unet_n_depth=shared_config['unet_n_depth'],
+                    unet_n_first=shared_config['unet_n_first'], unet_kern_size=shared_config['unet_kern_size'],
                     train_learning_rate=shared_config['initial_learning_rate'])
 
     print(f'Using config: {config}\n')
