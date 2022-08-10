@@ -264,9 +264,16 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     # Go to the results directory to generate and store evaluated images.
     results_dir = os.path.join(output_dir, 'results')
     if os.path.exists(results_dir):
-        raise Exception(
-            f'Creating a results directory may override the contents at: {results_dir}')
-    os.mkdir(results_dir)
+        subpaths = os.listdir(results_dir)
+        for subpath in subpaths:
+            if nadh_path != None and subpath.lower().find('nadh'):
+                raise Exception(
+                    f'Found existing NADH results at: {results_dir}')
+            elif fad_path != None and subpath.lower().find('fad'):
+                raise Exception(
+                    f'Found existing FAD results at: {results_dir}')
+    else:
+        os.mkdir(results_dir)
 
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
