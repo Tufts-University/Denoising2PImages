@@ -30,18 +30,15 @@ echo "" # empty line
 # Start with first one.
 
 # FAD RCAN SSIM
-# python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
-# ID: 25159649
+python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=2
+# ID1: 25159649
 
 # FAD RCAN SSIML1
 # python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 # ID: 25159970
 
 # FAD CARE SSIML1 
-# !!!!!!!
-# !!!!!!!!!!!!!!!!!!!!: Change back to eval after test.
-# !!!!!!!
-python -u main.py train care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 # ID: 25160324 
 
 ##################################################################

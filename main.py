@@ -29,6 +29,10 @@ def make_config(model_name):
         'num_residual_groups': 5,
         'channel_reduction': 4,
         'num_channels': 32,
+        # Unet config
+        'unet_n_depth': 6,
+        'unet_n_first': 32, 
+        'unet_kern_size': 3,
     }
 
 

@@ -49,7 +49,6 @@ def train(model_name, config, output_dir, data_path):
 
     strategy = model_builder.create_strategy()
     model = model_builder.build_and_compile_model(model_name, strategy, config)
-    raise Exception('Forced breakpoint; delete after experiment.')
     model = fit_model(model, model_name, config, output_dir,
                       training_data, validation_data)
 
