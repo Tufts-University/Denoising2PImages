@@ -266,12 +266,12 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if os.path.exists(results_dir):
         subpaths = os.listdir(results_dir)
         for subpath in subpaths:
-            if nadh_path != None and subpath.lower().find('nadh'):
+            if nadh_path != None and subpath.lower().find('nadh') != -1:
                 raise Exception(
-                    f'Found existing NADH results at: {results_dir}')
-            elif fad_path != None and subpath.lower().find('fad'):
+                    f'Found existing NADH results at: {results_dir}, file: {subpath}')
+            elif fad_path != None and subpath.lower().find('fad') != -1:
                 raise Exception(
-                    f'Found existing FAD results at: {results_dir}')
+                    f'Found existing FAD results at: {results_dir}, file: {subpath}')
     else:
         os.mkdir(results_dir)
 
