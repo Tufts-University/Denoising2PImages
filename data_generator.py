@@ -314,8 +314,8 @@ def wavelet_transform(mat):
                 print(f'Got row shaped {row.shape}')
                 row2 = np.append(cV, cD, axis=1)
                 print(f'Got row2 shaped {row.shape}')
-                print(f'Got stack shaped {np.vstack((row, row2))}')
-                mat[i, :, :, :] = np.vstack((row, row2))
+                print(f'Got stack shaped {np.shape(np.vstack((row, row2)))}')
+                mat[i, :, :, :] = np.expand_dims(np.vstack((row, row2)), -1)
 
     return mat
 

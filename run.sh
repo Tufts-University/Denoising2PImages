@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
