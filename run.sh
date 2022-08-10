@@ -26,9 +26,10 @@ echo "" # empty line
 
 # NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet
 # TODO: Change to include wavelet family
-# python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
+python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
 
 # FAD_model_0713_cervix_SSIML1
 # python -u main.py eval care "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_FAD_healthy.npz
 
-python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss
+# NADH_CAREmodel_0713_cervix_SSIMR2_ap5
+# python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss
