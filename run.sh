@@ -31,4 +31,4 @@ echo "" # empty line
 # FAD_model_0713_cervix_SSIML1
 # python -u main.py eval care "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_FAD_healthy.npz
 
-python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss
+python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss
