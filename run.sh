@@ -30,7 +30,7 @@ echo "" # empty line
 # Start with first one.
 
 # FAD RCAN SSIM
-python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=2
+python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=3
 # ID1: 25159649
 
 # FAD RCAN SSIML1
