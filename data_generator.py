@@ -281,24 +281,65 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
 
 
 def wavelet_transform(mat):
+    '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+
     print(f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
-    for i in range(len(mat)):
-        C = pywt.dwt2(mat[i, :, :], 'bior4.4', mode='periodization')
-        cA, (cH, cV, cD) = C
-        row = np.append(cA, cH, axis=1)
-        row2 = np.append(cV, cD, axis=1)
-        mat[i, :, :] = np.vstack((row, row2))
+
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
+           f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+    requires_extra_dim = np.shape(mat)[-1] == 1
+
+    if not requires_extra_dim:
+        for i in range(len(mat)):
+            C = pywt.dwt2(mat[i, :, :], 'bior4.4', mode='periodization')
+            cA, (cH, cV, cD) = C
+            row = np.append(cA, cH, axis=1)
+            row2 = np.append(cV, cD, axis=1)
+            mat[i, :, :] = np.vstack((row, row2))
+    else:
+        try:
+            for i in range(len(mat)):
+                C = pywt.dwt2(mat[i, :, :, :], 'bior4.4', mode='periodization')
+                cA, (cH, cV, cD) = C
+                row = np.append(cA, cH, axis=1)
+                row2 = np.append(cV, cD, axis=1)
+                mat[i, :, :, :] = np.vstack((row, row2))
+        except:
+            print('Using backup transform')
+            for i in range(len(mat)):
+                C = pywt.dwt2(np.squeeze(mat[i, :, :, :]), 'bior4.4', mode='periodization')
+                cA, (cH, cV, cD) = C
+                print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+                row = np.append(cA, cH, axis=1)
+                print(f'Got row shaped {row.shape}')
+                row2 = np.append(cV, cD, axis=1)
+                print(f'Got row2 shaped {row.shape}')
+                print(f'Got stack shaped {np.vstack((row, row2))}')
+                mat[i, :, :, :] = np.vstack((row, row2))
 
     return mat
 
 
 def wavelet_inverse_transform(mat):
+    '''Reverses the wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
     print(f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
-    for i in range(len(mat)):
-        (cA, cH, cV, cD) = (
-            mat[i, :128, :128], mat[i, :128, 128:], mat[i, 128:, :128], mat[i, 128:, 128:])
-        C = cA, (cH, cV, cD)
-        mat[i, :, :] = pywt.idwt2(C, 'bior4.4', mode='periodization')
+
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
+           f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+    requires_extra_dim = np.shape(mat)[-1] == 1
+
+    if not requires_extra_dim:
+        for i in range(len(mat)):
+            (cA, cH, cV, cD) = (
+                mat[i, :128, :128], mat[i, :128, 128:], mat[i, 128:, :128], mat[i, 128:, 128:])
+            C = cA, (cH, cV, cD)
+            mat[i, :, :] = pywt.idwt2(C, 'bior4.4', mode='periodization')
+    else:
+        for i in range(len(mat)):
+            (cA, cH, cV, cD) = (
+                mat[i, :128, :128], mat[i, :128, 128:], mat[i, 128:, :128], mat[i, 128:, 128:])
+            C = cA, (cH, cV, cD)
+            mat[i, :, :, :] = np.expand_dims(pywt.idwt2(C, 'bior4.4', mode='periodization'), -1)
 
     return mat
 

@@ -25,6 +25,7 @@ echo "" # empty line
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
 
 # NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet
+# TODO: Change to include wavelet family
 # python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet=True
 
 # FAD_model_0713_cervix_SSIML1
