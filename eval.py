@@ -267,7 +267,6 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         raise Exception(
             f'Creating a results directory may override the contents at: {results_dir}')
     os.mkdir(results_dir)
-    os.chdir(results_dir)
 
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
@@ -275,6 +274,9 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         _, (X_val, Y_val) = data_generator.default_load_data(
             nadh_path,
             requires_channel_dim=model_name == 'care')
+
+        print(f'Changing to directory: {results_dir}')
+        os.chdir(results_dir)
 
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
@@ -288,6 +290,9 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         _, (X_val, Y_val) = data_generator.default_load_data(
             fad_path,
             requires_channel_dim=model_name == 'care')
+            
+        print(f'Changing to directory: {results_dir}')
+        os.chdir(results_dir)
 
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
