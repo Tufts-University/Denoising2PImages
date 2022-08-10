@@ -5,7 +5,7 @@
 #SBATCH -N 1    #1 nodes
 #SBATCH	-n 10   #10 tasks total
 #SBATCH	-c 1   #using 1 cpu core/task
-#SBATCH --gres=gpu:a100:1
+#SBATCH --gres=gpu:v100:1
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
