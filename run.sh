@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_model_0713_cervix_SSIMR2_Wavelet.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_model_0713_cervix_SSIMR2_Wavelet.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
@@ -30,6 +30,9 @@ python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet" cwd=.. 
 
 # FAD_model_0713_cervix_SSIML1
 # python -u main.py eval care "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_FAD_healthy.npz
+
+# NADH_model_0713_cervix_SSIMR2_Wavelet
+python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_Wavelet" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz wavelet=True
 
 # NADH_CAREmodel_0713_cervix_SSIMR2_ap5
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss
