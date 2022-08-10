@@ -105,8 +105,8 @@ def main():
 
     # === Get right paths ===
 
+    print(f'Changing to directory: {main_path}')
     os.chdir(main_path)
-    print(f'Changed directory: {os.getcwd()}')
 
     # Check data paths exist.
     if nadh_data_path != "" and not os.path.isfile(nadh_data_path):
