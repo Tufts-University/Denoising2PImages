@@ -38,7 +38,7 @@ echo "" # empty line
 # ID: 25159970
 
 # FAD CARE SSIML1 
-python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=4
+python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=5
 # ID1: 25160324; New IDs: 25250404 (2), 25250493 (3), 25251195 (4), 25251219 (5)
 
 ##################################################################
