@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../FAD_model_0629_cervix_SSIM.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../FAD_model_0629_cervix_SSIM.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../FAD_model_0713_cervix_SSIML1.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../FAD_model_0713_cervix_SSIML1.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
@@ -27,10 +27,10 @@ echo "" # empty line
 ### MARK: FAD Model — NADH Eval #################################
 
 # FAD RCAN SSIM
-python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
 # FAD RCAN SSIML1
-# python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
 # FAD CARE SSIML1
 # python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz
