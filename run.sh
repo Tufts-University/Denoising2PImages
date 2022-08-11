@@ -20,7 +20,7 @@ source activate Denoising
 git pull
 echo "Starting python script..."
 echo "=========================================================="
-echo "" # empty line
+echo "" # empty line #
 
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
 
@@ -30,11 +30,10 @@ echo "" # empty line
 # Start with first one.
 
 # FAD RCAN SSIM
-# python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
-# ID1: 25159649
+python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
-# FAD RCAN SSIML1
-python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# FAD RCAN SSIML1 ✅
+# python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
 # FAD CARE SSIML1 ✅
 # python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=2
