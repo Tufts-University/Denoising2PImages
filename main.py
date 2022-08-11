@@ -19,16 +19,22 @@ def make_config(model_name):
         'epochs': 300,
         'wavelet': False,
         'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
-        'num_residual_groups': 5,
-        'num_residual_blocks': 5,
-        'input_shape': [256, 256],
+        'input_shape': [256, 256], # TODO: Remove since this is almost fixed.
         'initial_learning_rate': 1e-5,
+
+        # Metrics
         'loss': 'ssiml1_loss',
         'metrics': ['psnr', 'ssim'],
-        'num_residual_blocks': 3,
+
+        # Metric hyperparameters 
+        # TODO: Add
+
+        # RCAN config
+        'num_channels': 32,
+        'num_residual_blocks': 5,
         'num_residual_groups': 5,
         'channel_reduction': 4,
-        'num_channels': 32,
+        
         # Unet config
         'unet_n_depth': 6,
         'unet_n_first': 32, 

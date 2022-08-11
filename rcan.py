@@ -117,10 +117,10 @@ def _destandardize(x):
 
 def build_rcan(input_shape=(16, 256, 256, 1),
                *,
-               num_channels=32,
-               num_residual_blocks=3,
-               num_residual_groups=5,
-               channel_reduction=8,
+               num_channels,
+               num_residual_blocks,
+               num_residual_groups,
+               channel_reduction,
                residual_scaling=1.0,
                num_output_channels=-1):
     '''

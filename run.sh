@@ -34,12 +34,10 @@ echo "" # empty line
 # ID1: 25159649
 
 # FAD RCAN SSIML1
-# python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
-# ID: 25159970
+python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
-# FAD CARE SSIML1 
-python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=5
-# ID1: 25160324; New IDs: 25250404 (2), 25250493 (3), 25251195 (4), 25251219 (5)
+# FAD CARE SSIML1 ✅
+# python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=2
 
 ##################################################################
 
