@@ -195,7 +195,7 @@ def apply(model, data, overlap_shape=None, verbose=False):
 stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
 
 
-def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test):
+def patch_and_apply(model, data_type, trial_name, wavelet_model, wavelet_function, X_test, Y_test):
     print('=== Applying model ------------------------------------------------')
 
     print(f'Using wavelet model: {wavelet_model}')
@@ -218,7 +218,8 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, X_test, Y_test)
             restored = None
             if wavelet_model:
                 X_test_input = data_generator.wavelet_transform(
-                    np.copy(X_test[4*n:4*n+4]))
+                    np.copy(X_test[4*n:4*n+4]), 
+                    function_name=wavelet_function)
                 X_test_input = data_generator.stitch_patches(X_test_input)
                 restored = apply(model, X_test_input,
                                  overlap_shape=(0, 0), verbose=False)
@@ -288,6 +289,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
             wavelet_model=config['wavelet'],
+            wavelet_function=config['wavelet_function'],
             X_test=X_val, Y_test=Y_val)
         print('--------------------------------------------------------------------')
 
@@ -304,6 +306,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
             wavelet_model=config['wavelet'],
+            wavelet_function=config['wavelet_function'],
             X_test=X_val, Y_test=Y_val)
         print('--------------------------------------------------------------------')
 

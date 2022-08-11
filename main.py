@@ -34,11 +34,15 @@ def make_config(model_name):
         'num_residual_blocks': 5,
         'num_residual_groups': 5,
         'channel_reduction': 4,
-        
+
         # Unet config
-        'unet_n_depth': 6,
+        'unet_n_depth': 2,
         'unet_n_first': 32, 
         'unet_kern_size': 3,
+
+        # Wavelet config
+        # TODO: Validate against or merge with 'wavelet' (boolean).
+        'wavelet_function': 'bior4.4',
     }
 
 

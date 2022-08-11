@@ -26,20 +26,22 @@ echo "" # empty line #
 
 ### MARK: FAD Model — NADH Eval #################################
 
-# TODO: Print model summary with train and compare against these.
-# Start with first one.
-
-# FAD RCAN SSIM
-python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
+# FAD RCAN SSIM   ✅
+# python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
 # FAD RCAN SSIML1 ✅
 # python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
 # FAD CARE SSIML1 ✅
 # python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=2
+#                                                                                                              ^~~~~~~~~~~~~~ Optional
 
 ##################################################################
 
+### CARE + Wavelet Denoising #####################################
+
+# Train NADH CARE + SSIMR2 Wavelet Bior4.4
+python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet_Bior4.4" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2 wavelet=True wavelet_function=bior4.4
 
 ### Archives #####################################################
 # NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet
