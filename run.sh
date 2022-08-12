@@ -53,7 +53,7 @@ echo "" # empty line #
 # python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_morl" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=morl
 
 # NADH RCAN SSIMR2 ap5 Wavelet Gaus1 ⏰
-python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_gaus1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=gaus1
+# python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_gaus1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=gaus1
 
 #################################################################
 
