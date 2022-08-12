@@ -1,3 +1,4 @@
+import wave
 import numpy as np
 import tensorflow as tf
 import keras as keras
@@ -280,8 +281,10 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
     return (axes, allowed) if return_allowed else axes
 
 
-def wavelet_transform(mat, function_name, verbose=False):
+def wavelet_transform(mat, wavelet_config, verbose=False):
     '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+
+    [function_name, is_discrete] = wavelet_config
 
     if verbose: print(f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
 
@@ -291,10 +294,16 @@ def wavelet_transform(mat, function_name, verbose=False):
 
 
     for i in range(len(mat)):
-        C = pywt.dwt2(
-            mat[i, :, :] if not requires_extra_dim else np.squeeze(mat[i, :, :, :]),
-            function_name, 
-            mode='periodization')
+        if is_discrete:
+            C = pywt.dwt2(
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(mat[i, :, :, :]),
+                wavelet=function_name, 
+                mode='periodization')
+        else:
+            C = pywt.cwt2(
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(mat[i, :, :, :]),
+                wavelet=function_name, 
+                mode='periodization')
 
         cA, (cH, cV, cD) = C
         if verbose: print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
@@ -313,8 +322,10 @@ def wavelet_transform(mat, function_name, verbose=False):
     return mat
 
 
-def wavelet_inverse_transform(mat, verbose=False):
+def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
     '''Reverses the wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+
+    [function_name, is_discrete] = wavelet_config
 
     if verbose: print(f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
 
@@ -335,7 +346,10 @@ def wavelet_inverse_transform(mat, verbose=False):
         if verbose: print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
         C = cA, (cH, cV, cD)
 
-        restored = pywt.idwt2(C, function_name, mode='periodization')
+        if is_discrete:
+            restored = pywt.idwt2(C, wavelet=function_name, mode='periodization')
+        else:
+            restored = pywt.icwt2(C, wavelet=function_name, mode='periodization')
         if verbose: print(f'Got restored shape: {restored.shape}')
         
         if not requires_extra_dim:
@@ -344,6 +358,14 @@ def wavelet_inverse_transform(mat, verbose=False):
             mat[i, :, :, :] = np.expand_dims(restored, -1)
 
     return mat
+
+
+def get_wavelet_config(function_name):
+    if function_name == '': return None
+
+    is_discrete = function_name in pywt.wavelist(kind='discrete')
+
+    return [function_name, is_discrete]
 
 
 def load_training_data(file, validation_split=0, axes=None, n_images=None,
@@ -484,18 +506,20 @@ def default_load_data(data_path, requires_channel_dim):
     return (X, Y), (X_val, Y_val)
 
 
-def gather_data(config, data_path, requires_channel_dim, wavelet_model, wavelet_function):
+def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
     print('=== Gathering data ---------------------------------------------------')
 
     # Similar to 'data_generator.py'
     (X, Y), (X_val, Y_val) = default_load_data(data_path, requires_channel_dim)
 
-    if wavelet_model:
-        X = wavelet_transform(np.array(X), function_name=wavelet_function)
-        Y = wavelet_transform(np.array(Y),function_name= wavelet_function)
-        X_val = wavelet_transform(np.array(X_val), function_name=wavelet_function)
-        Y_val = wavelet_transform(np.array(Y_val), function_name=wavelet_function)
+    wavelet_config = get_wavelet_config(function_name=config['wavelet_function'])
+
+    if wavelet_config != None:
+        X = wavelet_transform(np.array(X), wavelet_config=wavelet_config)
+        Y = wavelet_transform(np.array(Y), wavelet_config= wavelet_config)
+        X_val = wavelet_transform(np.array(X_val), wavelet_config=wavelet_config)
+        Y_val = wavelet_transform(np.array(Y_val), wavelet_config=wavelet_config)
 
     data_gen = DataGenerator(
         config['input_shape'],

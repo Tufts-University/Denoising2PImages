@@ -195,9 +195,10 @@ def apply(model, data, overlap_shape=None, verbose=False):
 stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
 
 
-def patch_and_apply(model, data_type, trial_name, wavelet_model, wavelet_function, X_test, Y_test):
+def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test):
     print('=== Applying model ------------------------------------------------')
 
+    wavelet_model = wavelet_config != None
     print(f'Using wavelet model: {wavelet_model}')
 
     # The size of our stacks (how many slices are in each stack) varies
@@ -219,7 +220,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, wavelet_functio
             if wavelet_model:
                 X_test_input = data_generator.wavelet_transform(
                     np.copy(X_test[4*n:4*n+4]), 
-                    function_name=wavelet_function)
+                    wavelet_config=wavelet_config)
                 X_test_input = data_generator.stitch_patches(X_test_input)
                 restored = apply(model, X_test_input,
                                  overlap_shape=(0, 0), verbose=False)
@@ -231,7 +232,9 @@ def patch_and_apply(model, data_type, trial_name, wavelet_model, wavelet_functio
             # Inverse transform.
             if wavelet_model:
                 restored = data_generator.patch_slice(restored)
-                restored = data_generator.wavelet_inverse_transform(restored)
+                restored = data_generator.wavelet_inverse_transform(
+                    restored, 
+                    wavelet_config=wavelet_config)
                 restored = data_generator.stitch_patches(restored)
 
             result = [raw, restored, gt]
@@ -288,8 +291,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
 
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
-            wavelet_model=config['wavelet'],
-            wavelet_function=config['wavelet_function'],
+            wavelet_config=data_generator.get_wavelet_config(config),
             X_test=X_val, Y_test=Y_val)
         print('--------------------------------------------------------------------')
 
@@ -305,8 +307,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
 
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
-            wavelet_model=config['wavelet'],
-            wavelet_function=config['wavelet_function'],
+            wavelet_config=data_generator.get_wavelet_config(config),
             X_test=X_val, Y_test=Y_val)
         print('--------------------------------------------------------------------')
 

@@ -17,7 +17,6 @@ def make_config(model_name):
         'nadh_data': '',
         'fad_data': '',
         'epochs': 300,
-        'wavelet': False,
         'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
         'input_shape': [256, 256], # TODO: Remove since this is almost fixed.
         'initial_learning_rate': 1e-5,
@@ -41,8 +40,7 @@ def make_config(model_name):
         'unet_kern_size': 3,
 
         # Wavelet config
-        # TODO: Validate against or merge with 'wavelet' (boolean).
-        'wavelet_function': 'bior4.4', # One of pywt.families()
+        'wavelet_function': '', # One of pywt.wavelist()
     }
 
 
