@@ -53,14 +53,15 @@ echo "" # empty line #
 # python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_morl" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=morl
 
 # NADH RCAN SSIMR2 ap5 Wavelet Gaus1 ⏰
-# python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_gaus1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=gaus1
+python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_gaus1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=gaus1
 
 #################################################################
 
 ### CARE + Wavelet Denoising #####################################
 
 # Train NADH CARE + SSIMR2 ap5 Wavelet bior4.4 ⏰
-python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior4.4
+# Might have wrong name; look up job id: 26720136
+# python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior4.4
 
 ### Archives #####################################################
 # NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet
