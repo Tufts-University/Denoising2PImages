@@ -42,7 +42,7 @@ def make_config(model_name):
 
         # Wavelet config
         # TODO: Validate against or merge with 'wavelet' (boolean).
-        'wavelet_function': 'bior4.4',
+        'wavelet_function': 'bior4.4', # One of pywt.families()
     }
 
 
