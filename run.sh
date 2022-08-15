@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 #SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=20193005@student.anatolia.edu.gr
 
@@ -60,8 +60,8 @@ echo "" # empty line #
 
 ### CARE + Wavelet Denoising #####################################
 
-# NADH CARE + SSIMR2 ap5 Wavelet bior4.4 ✅ ⏰
-# python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior4.4
+# NADH CARE + SSIMR2 ap5 Wavelet bior4.4 ✅ ✅ (Waiting for FAD)
+python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss wavelet_function=bior4.4
 
 ### PCC ##########################################################
 
