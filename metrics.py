@@ -85,27 +85,6 @@ def mse(y_true, y_pred):
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
 
 
-def lookup_metrics(metric_names):
-    metric_dict = {
-        'psnr': psnr,
-        'ssim': ssim,
-    }
-
-    return [metric_dict[metric_name] for metric_name in metric_names]
-
-
-def lookup_loss(loss_name):
-    loss_dict = {
-        'mae': mae,
-        'mse': mse,
-        'ssim_loss': ssim_loss,
-        'ssiml1_loss': ssiml1_loss,
-        'ssimr2_loss': ssimr2_loss,
-    }
-
-    return loss_dict[loss_name]
-
-
 def pcc(y_true, y_pred):
     '''
     Computes the Pearson correlation coefficient between two images.
@@ -146,3 +125,27 @@ def ssimpcc_loss(y_true, y_pred):
     alpha = 0.84
 
     return alpha*SSIM + (1-alpha)*PCC
+
+
+def lookup_metrics(metric_names):
+    metric_dict = {
+        'psnr': psnr,
+        'ssim': ssim,
+        'pcc': pcc,
+    }
+
+    return [metric_dict[metric_name] for metric_name in metric_names]
+
+
+def lookup_loss(loss_name):
+    loss_dict = {
+        'mae': mae,
+        'mse': mse,
+        'ssim_loss': ssim_loss,
+        'ssiml1_loss': ssiml1_loss,
+        'ssimr2_loss': ssimr2_loss,
+        'pcc_loss': pcc_loss,
+        'ssimpcc_loss': ssimpcc_loss,
+    }
+
+    return loss_dict[loss_name]
