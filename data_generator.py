@@ -281,6 +281,15 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
     return (axes, allowed) if return_allowed else axes
 
 
+def get_wavelet_config(function_name):
+    if function_name == '': return None
+
+    is_discrete = function_name in pywt.wavelist(kind='discrete')
+    print(f'Wavelet using {"discrete" if is_discrete else "continuous"} function "{function_name}".')
+
+    return [function_name, is_discrete]
+
+
 def wavelet_transform(mat, wavelet_config, verbose=False):
     '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
 
@@ -358,14 +367,6 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
             mat[i, :, :, :] = np.expand_dims(restored, -1)
 
     return mat
-
-
-def get_wavelet_config(function_name):
-    if function_name == '': return None
-
-    is_discrete = function_name in pywt.wavelist(kind='discrete')
-
-    return [function_name, is_discrete]
 
 
 def load_training_data(file, validation_split=0, axes=None, n_images=None,
