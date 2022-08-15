@@ -52,7 +52,7 @@ def ssimr2_loss(y_true, y_pred):
         print(r2)
         return 1 - r2
 
-    SSIM = 1-((ssim(y_true, y_pred)+1)*0.5)
+    SSIM = ssim_loss(y_true, y_pred)
     R2 = R_squared(y_true, y_pred)
     alpha = 0.5
     return SSIM*alpha + (1-alpha)*R2
@@ -104,3 +104,45 @@ def lookup_loss(loss_name):
     }
 
     return loss_dict[loss_name]
+
+
+def pcc(y_true, y_pred):
+    '''
+    Computes the Pearson correlation coefficient between two images.
+    Returns a value in the range [-1, 1].
+    '''
+    x = y_true
+    y = y_pred
+
+    mx = tf.reduce_mean(x, axis=0)
+    my = tf.reduce_mean(y, axis=0)
+    # xm = x - x̄, ym = y - ȳ
+    xm, ym = x - mx, y - my
+
+    r_num = tf.reduce_sum(xm * ym)
+
+    x_square_sum = tf.reduce_sum(tf.square(xm))
+    y_square_sum = tf.reduce_sum(tf.square(ym))
+    r_den = tf.sqrt(x_square_sum * y_square_sum)
+    r = r_num / r_den
+
+    return tf.reduce_mean(r)
+
+
+def pcc_loss(y_true, y_pred):
+    '''
+    Computes (1 - pcc)/2, producing a value in the range [0, 1].
+    '''
+    return (1 - pcc(y_true, y_pred)) / 2
+
+
+def ssimpcc_loss(y_true, y_pred):
+    '''
+    A loss combining the ssim and pcc losses. The resulting
+    value is in the [0, 2] range.
+    '''
+    SSIM = ssim_loss(y_true, y_pred)
+    PCC = pcc_loss(y_true, y_pred)
+    alpha = 0.84
+
+    return alpha*SSIM + (1-alpha)*PCC
