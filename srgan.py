@@ -1,33 +1,42 @@
 # Based on: https://medium.com/analytics-vidhya/implementing-srresnet-srgan-super-resolution-with-tensorflow-89900d2ec9b2
+# Paper: https://arxiv.org/pdf/1609.04802.pdf (SRGAN)
 
 import tensorflow as tf
 
 
 # Local dependencies
 
+# -
 
 def residual_block_gen(ch=64, k_s=3, st=1):
+    # FIXME: Paper uses PReLU instead of LeakyReLU
     model = tf.keras.Sequential([
         tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
         tf.keras.layers.BatchNormalization(),
         tf.keras.layers.LeakyReLU(),
         tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
         tf.keras.layers.BatchNormalization(),
+
+        # FIXME: Paper doesn't have leaky RELU here;
+        # just an element-wise add with the previous skip connection
         tf.keras.layers.LeakyReLU(),
     ])
     return model
 
 
-def Upsample_block(x, ch=256, k_s=3, st=1):
+def upsample_block(x, ch=256, k_s=3, st=1):
     x = tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same')(x)
+
+    # FIXME: Paper has BN not depth_to_space
     x = tf.nn.depth_to_space(x, 2)  # Subpixel pixelshuffler
+
     x = tf.keras.layers.LeakyReLU()(x)
     return x
 
 
 # === SRResNet ===
 
-def build_SRResNet():
+def build_generator():
     '''
     Builds the SRResNet model. Because it relies on convolutions, it can
     operate on any input size.

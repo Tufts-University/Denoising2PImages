@@ -279,6 +279,8 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     else:
         os.mkdir(results_dir)
 
+    initial_path = os.getcwd()
+
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
         # Similar to 'data_generator.py'
@@ -293,6 +295,10 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
             model, data_type='NADH', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
             X_test=X_val, Y_test=Y_val)
+
+        print(f'Going back to given cwd: {initial_path}')
+        os.chdir(initial_path)
+
         print('--------------------------------------------------------------------')
 
     if fad_path != None:
@@ -309,6 +315,10 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
             model, data_type='FAD', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
             X_test=X_val, Y_test=Y_val)
+
+        print(f'Going back to given cwd: {initial_path}')
+        os.chdir(initial_path)
+
         print('--------------------------------------------------------------------')
 
     return model
