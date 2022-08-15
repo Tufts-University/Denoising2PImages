@@ -291,7 +291,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
 
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
-            wavelet_config=data_generator.get_wavelet_config(config),
+            wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
             X_test=X_val, Y_test=Y_val)
         print('--------------------------------------------------------------------')
 
@@ -307,7 +307,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
 
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
-            wavelet_config=data_generator.get_wavelet_config(config),
+            wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
             X_test=X_val, Y_test=Y_val)
         print('--------------------------------------------------------------------')
 

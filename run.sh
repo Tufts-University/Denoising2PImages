@@ -26,13 +26,13 @@ echo "" # empty line #
 
 ### MARK: FAD Model — NADH Eval ##################################
 
-# FAD RCAN SSIM   ✅
+# FAD RCAN SSIM ✅ ✅
 # python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
-# FAD RCAN SSIML1 ✅
+# FAD RCAN SSIML1 ✅ ✅
 # python -u main.py eval rcan "FAD_model_0713_cervix_SSIML1" cwd=.. nadh_data=NV_713_NADH_healthy.npz
 
-# FAD CARE SSIML1 ✅
+# FAD CARE SSIML1 ✅ ✅
 # python -u main.py eval care "FAD_CAREmodel_0713_cervix_SSIML1_BS50" cwd=.. nadh_data=NV_713_NADH_healthy.npz unet_n_depth=2
 #                                                                                                              ^~~~~~~~~~~~~~ Optional
 
@@ -41,13 +41,13 @@ echo "" # empty line #
 ### MARK: NADH CARE + SSIMR2 ap5 #################################
 
 # ✅ ⏰
-python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss 
+# python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss 
 
 ##################################################################
 
 ### MARK: Different Wavelet Functions ############################
 
-# NADH RCAN SSIMR2 ap5 Wavelet Haar ✅ ⏰
+# NADH RCAN SSIMR2 ap5 Wavelet Haar ✅ ❌ (Error: no pywt.cwt2; wait for new logs to show whether config.is_discrete is correct)
 # python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_haar" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=haar
 
 # NADH RCAN SSIMR2 ap5 Wavelet Morl ❌ continuous wavelet issue (no cwt2 func)
@@ -65,7 +65,7 @@ python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. nadh_
 
 ### PCC ##########################################################
 
-# NADH RCAN SSIMPCC ⏰
+# NADH RCAN SSIMPCC ⏰ —
 # python -u main.py train rcan "NADH_model_0713_cervix_SSIMPCC" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimpcc_loss
 
 ##################################################################
