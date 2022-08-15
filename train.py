@@ -27,10 +27,11 @@ def determine_training_strategy(model, output_dir):
     elif len(checkpoint_files) > 0:
         print(f'Found {len(checkpoint_files)} checkpoint weight files: {checkpoint_files}.')
 
-        last_modified_file = max(checkpoint_files, key=os.path.getmtime)
+        last_modified_file = max(checkpoint_files, key=lambda file: os.path.getmtime(os.path.join(output_dir, file)))
         print(f'Found last modified checkpoint file: "{last_modified_file}"')
 
         model.load_weights(os.path.join(output_dir, last_modified_file))
+        print("Successfully loaded weights from last checkpoint.")
     else:
         print('Starting training without any checkpoint weights.')
 

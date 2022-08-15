@@ -65,7 +65,7 @@ echo "" # empty line #
 
 ### PCC ##########################################################
 
-# NADH RCAN SSIMPCC ❌ (Premptied) —
+# NADH RCAN SSIMPCC ⏰ (New training strat) —
 python -u main.py train rcan "NADH_model_0713_cervix_SSIMPCC" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimpcc_loss
 
 ##################################################################
