@@ -281,11 +281,17 @@ def axes_check_and_normalize(axes, length=None, disallowed=None, return_allowed=
     return (axes, allowed) if return_allowed else axes
 
 
-def get_wavelet_config(function_name):
-    if function_name == '': return None
+def get_wavelet_config(function_name, is_discrete=None):
+    if function_name == '':
+        return None
 
     is_discrete = function_name in pywt.wavelist(kind='discrete')
-    print(f'Wavelet using {"discrete" if is_discrete else "continuous"} function "{function_name}".')
+    if (not is_discrete) and (function_name not in pywt.wavelist(kind='continuous')):
+        raise Exception(
+            f'Wavelet "{function_name}" is neither in the discrete not continuous list of pywt.wavelist().'
+        )
+    print(
+        f'Wavelet using {"discrete" if is_discrete else "continuous"} function "{function_name}".')
 
     return [function_name, is_discrete]
 
@@ -295,33 +301,39 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
 
     [function_name, is_discrete] = wavelet_config
 
-    if verbose: print(f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
+    if verbose:
+        print(
+            f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
 
     assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
-           f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
     requires_extra_dim = np.shape(mat)[-1] == 1
-
 
     for i in range(len(mat)):
         if is_discrete:
             C = pywt.dwt2(
-                mat[i, :, :] if not requires_extra_dim else np.squeeze(mat[i, :, :, :]),
-                wavelet=function_name, 
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(
+                    mat[i, :, :, :]),
+                wavelet=function_name,
                 mode='periodization')
         else:
             C = pywt.cwt2(
-                mat[i, :, :] if not requires_extra_dim else np.squeeze(mat[i, :, :, :]),
-                wavelet=function_name, 
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(
+                    mat[i, :, :, :]),
+                wavelet=function_name,
                 mode='periodization')
 
         cA, (cH, cV, cD) = C
-        if verbose: print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+        if verbose:
+            print(
+                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
 
         row = np.append(cA, cH, axis=1)
         row2 = np.append(cV, cD, axis=1)
         stack = np.vstack((row, row2))
 
-        if verbose: print(f'Got stack shaped {np.shape(stack)}')
+        if verbose:
+            print(f'Got stack shaped {np.shape(stack)}')
 
         if not requires_extra_dim:
             mat[i, :, :] = stack
@@ -336,31 +348,38 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
 
     [function_name, is_discrete] = wavelet_config
 
-    if verbose: print(f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
+    if verbose:
+        print(
+            f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
 
     assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
-           f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
     requires_extra_dim = np.shape(mat)[-1] == 1
 
     for i in range(len(mat)):
         if not requires_extra_dim:
             cA, cH, cV, cD = mat[i, :128, :128], mat[i, :128, 128:],\
-                             mat[i, 128:, :128], mat[i, 128:, 128:]
+                mat[i, 128:, :128], mat[i, 128:, 128:]
         else:
             cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
-                             np.squeeze(mat[i, :128, 128:, :]),\
-                             np.squeeze(mat[i, 128:, :128, :]),\
-                             np.squeeze(mat[i, 128:, 128:, :])
+                np.squeeze(mat[i, :128, 128:, :]),\
+                np.squeeze(mat[i, 128:, :128, :]),\
+                np.squeeze(mat[i, 128:, 128:, :])
 
-        if verbose: print(f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+        if verbose:
+            print(
+                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
         C = cA, (cH, cV, cD)
 
         if is_discrete:
-            restored = pywt.idwt2(C, wavelet=function_name, mode='periodization')
+            restored = pywt.idwt2(
+                C, wavelet=function_name, mode='periodization')
         else:
-            restored = pywt.icwt2(C, wavelet=function_name, mode='periodization')
-        if verbose: print(f'Got restored shape: {restored.shape}')
-        
+            restored = pywt.icwt2(
+                C, wavelet=function_name, mode='periodization')
+        if verbose:
+            print(f'Got restored shape: {restored.shape}')
+
         if not requires_extra_dim:
             mat[i, :, :] = restored
         else:
@@ -480,7 +499,8 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 def patch_slice(slice):
     '''Splits up the 512x512 slice into 4 256x256 patches.'''
     slice = np.squeeze(slice)
-    assert np.shape(slice) == (512, 512), f'Slice must be 512x512 but instead found shape: {np.shape(slice)}'
+    assert np.shape(slice) == (
+        512, 512), f'Slice must be 512x512 but instead found shape: {np.shape(slice)}'
 
     # The axes are swapped to maintain the correct order since our patches are square 256x256
     # and not 512x128 rectangles.
@@ -490,7 +510,8 @@ def patch_slice(slice):
 def stitch_patches(patches):
     '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
     patches = np.squeeze(patches)
-    assert np.shape(patches) == (4, 256, 256), f'Patches must be 4x256x256 but instead found shape: {np.shape(patches)}'
+    assert np.shape(patches) == (
+        4, 256, 256), f'Patches must be 4x256x256 but instead found shape: {np.shape(patches)}'
 
     # The axes are swapped to maintain the correct order since our patches are square 256x256
     # and not 512x128 rectangles.
@@ -514,13 +535,16 @@ def gather_data(config, data_path, requires_channel_dim):
     # Similar to 'data_generator.py'
     (X, Y), (X_val, Y_val) = default_load_data(data_path, requires_channel_dim)
 
-    wavelet_config = get_wavelet_config(function_name=config['wavelet_function'])
+    wavelet_config = get_wavelet_config(
+        function_name=config['wavelet_function'])
 
     if wavelet_config != None:
         X = wavelet_transform(np.array(X), wavelet_config=wavelet_config)
-        Y = wavelet_transform(np.array(Y), wavelet_config= wavelet_config)
-        X_val = wavelet_transform(np.array(X_val), wavelet_config=wavelet_config)
-        Y_val = wavelet_transform(np.array(Y_val), wavelet_config=wavelet_config)
+        Y = wavelet_transform(np.array(Y), wavelet_config=wavelet_config)
+        X_val = wavelet_transform(
+            np.array(X_val), wavelet_config=wavelet_config)
+        Y_val = wavelet_transform(
+            np.array(Y_val), wavelet_config=wavelet_config)
 
     data_gen = DataGenerator(
         config['input_shape'],
