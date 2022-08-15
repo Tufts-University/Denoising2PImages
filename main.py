@@ -40,7 +40,7 @@ def make_config(model_name):
         'unet_kern_size': 3,
 
         # Wavelet config
-        'wavelet_function': '', # One of pywt.wavelist()
+        'wavelet_function': '', # One of pywt.wavelist() or empty for non-wavelet.
     }
 
 
