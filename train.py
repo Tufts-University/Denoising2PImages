@@ -30,8 +30,10 @@ def determine_training_strategy(model, output_dir):
         last_modified_file = max(checkpoint_files, key=lambda file: os.path.getmtime(os.path.join(output_dir, file)))
         print(f'Found last modified checkpoint file: "{last_modified_file}"')
 
-        model.load_weights(os.path.join(output_dir, last_modified_file))
-        print("Successfully loaded weights from last checkpoint.")
+        raise Exception(f'Cannot continue training from checkpoints. Terminating...')
+        # TODO: Implement continued training from checkpoints. (Load correct lr, epochs, and anything else that changes.)
+        # model.load_weights(os.path.join(output_dir, last_modified_file))
+        # print("Successfully loaded weights from last checkpoint.")
     else:
         print('Starting training without any checkpoint weights.')
 
