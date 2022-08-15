@@ -13,6 +13,10 @@ import basics
 def determine_training_strategy(model, output_dir):
     print('=== Determining Training Strategy -----------------------------------')
 
+    if not os.path.exists(output_dir):
+        print(f'Creating output directory: "{output_dir}"')
+        os.makedirs(output_dir)
+
     dir_contents = os.listdir(output_dir)
 
     checkpoint_files = [filename for filename in dir_contents if 'weights' in filename.lower()]

@@ -40,14 +40,14 @@ echo "" # empty line #
 
 ### MARK: NADH CARE + SSIMR2 ap5 #################################
 
-# ✅ ✅ (⏰ Waiting for FAD)
+# ✅ ✅
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss 
 
 ##################################################################
 
 ### MARK: Different Wavelet Functions ############################
 
-# NADH RCAN SSIMR2 ap5 Wavelet Haar ✅ ⏰ 
+# NADH RCAN SSIMR2 ap5 Wavelet Haar ✅ ✅ 
 # python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_haar" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss wavelet_function=haar
 
 # NADH RCAN SSIMR2 ap5 Wavelet Morl ❌ continuous wavelet issue (no cwt2 func)
