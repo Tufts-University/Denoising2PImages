@@ -48,7 +48,7 @@ echo "" # empty line #
 ### MARK: Different Wavelet Functions ############################
 
 # NADH RCAN SSIMR2 ap5 Wavelet Haar ✅ ⏰ 
-python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_haar" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss wavelet_function=haar
+# python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_haar" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss wavelet_function=haar
 
 # NADH RCAN SSIMR2 ap5 Wavelet Morl ❌ continuous wavelet issue (no cwt2 func)
 # python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_morl" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=morl
@@ -60,12 +60,12 @@ python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_haar" cwd
 
 ### CARE + Wavelet Denoising #####################################
 
-# NADH CARE + SSIMR2 ap5 Wavelet bior4.4 ✅ ✅ (⏰ Waiting for FAD)
+# NADH CARE + SSIMR2 ap5 Wavelet bior4.4 ✅ ✅
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior4p4" cwd=.. fad_data=NV_713_FAD_healthy.npz loss=ssimr2_loss wavelet_function=bior4.4
 
 ### PCC ##########################################################
 
-# NADH RCAN SSIMPCC ⏰ —
+# NADH RCAN SSIMPCC ❌ (Premptied) —
 # python -u main.py train rcan "NADH_model_0713_cervix_SSIMPCC" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimpcc_loss
 
 ##################################################################

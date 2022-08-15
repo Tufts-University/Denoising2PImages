@@ -20,3 +20,7 @@ def print_device_info():
     print(f'Cuda gpu is available: {tf.test.is_gpu_available(cuda_only=True)}')
 
     print('--------------------------------------------------------------------')
+
+
+def final_weights_name():
+    return 'weights_final.hdf5'

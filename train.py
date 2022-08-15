@@ -1,10 +1,38 @@
+from tabnanny import check
 import tensorflow as tf
 import pathlib
+import os
 
 # Local dependencies
 import callbacks
 import model_builder
 import data_generator
+import basics
+
+
+def determine_training_strategy(model, output_dir):
+    print('=== Determining Training Strategy -----------------------------------')
+
+    dir_contents = os.listdir(output_dir)
+
+    checkpoint_files = [filename for filename in dir_contents if 'weights' in filename.lower()]
+    finished_training = basics.final_weights_name() in dir_contents
+
+    if finished_training:
+        raise Exception(f'Model has already trained and produced final weights: "{basics.final_weights_name()}"')
+    elif len(checkpoint_files) > 0:
+        print(f'Found {len(checkpoint_files)} checkpoint weight files: {checkpoint_files}.')
+
+        last_modified_file = max(checkpoint_files, key=os.path.getmtime)
+        print(f'Found last modified checkpoint file: "{last_modified_file}"')
+
+        model.load_weights(os.path.join(output_dir, last_modified_file))
+    else:
+        print('Starting training without any checkpoint weights.')
+
+    print('--------------------------------------------------------------------')
+
+    return model
 
 
 def fit_model(model, model_name, config, output_dir, training_data, validation_data):
@@ -48,9 +76,10 @@ def train(model_name, config, output_dir, data_path):
 
     strategy = model_builder.create_strategy()
     model = model_builder.build_and_compile_model(model_name, strategy, config)
+    model = determine_training_strategy(model, output_dir)
     model = fit_model(model, model_name, config, output_dir,
                       training_data, validation_data)
 
     # FIXME: Look if early stopping is in effect (so we don't get overfitted weights).
-    final_weights_path = str(pathlib.Path(output_dir) / 'weights_final.hdf5')
+    final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
     model.save_weights(final_weights_path)
