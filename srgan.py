@@ -53,8 +53,8 @@ def build_generator():
         SRRes=tf.keras.layers.Conv2D(64,9,padding='same')(SRRes)
         SRRes=tf.keras.layers.BatchNormalization()(SRRes)
         SRRes=tf.keras.layers.Add()([SRRes,input_conv])
-        SRRes=Upsample_block(SRRes)
-        SRRes=Upsample_block(SRRes)
+        SRRes=upsample_block(SRRes)
+        SRRes=upsample_block(SRRes)
         output_sr=tf.keras.layers.Conv2D(3,9,activation='tanh',padding='same')(SRRes)
         SRResnet=tf.keras.models.Model(input_lr,output_sr)
 
