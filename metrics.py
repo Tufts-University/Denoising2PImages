@@ -139,6 +139,8 @@ def lookup_metrics(metric_names):
 
 
 def lookup_loss(loss_name, alpha):
+    print(f'Found a loss alpha of {alpha}.')
+
     loss_dict = {
         'mae': mae,
         'mse': mse,
