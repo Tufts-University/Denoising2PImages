@@ -23,6 +23,7 @@ def make_config(model_name):
 
         # Metrics
         'loss': 'ssiml1_loss',
+        'loss_alpha': 0.5,
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 

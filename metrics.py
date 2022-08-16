@@ -22,11 +22,11 @@ def ssim_loss(y_true, y_pred):
     return 1-((ssim(y_true, y_pred)+1)*0.5)
 
 
-def ssiml1_loss(y_true, y_pred):
+# Default alpha was 0.84
+def ssiml1_loss(y_true, y_pred, alpha):
     SSIM = 1-((ssim(y_true, y_pred)+1)*0.5)
     MAE = keras.losses.mae(
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
-    alpha = 0.84
 
     return alpha * SSIM + (1-alpha) * MAE
 
@@ -42,7 +42,7 @@ def psnr(y_true, y_pred):
     # return -4.342944819 * kb.log(kb.mean(kb.square(p - q), axis=-1))
 
 
-def ssimr2_loss(y_true, y_pred):
+def ssimr2_loss(y_true, y_pred, alpha):
     def R_squared(y_true, y_pred):
         residual = tf.reduce_sum(tf.math.squared_difference(y_true, y_pred))
         mean = tf.reduce_mean(y_true)
@@ -54,18 +54,17 @@ def ssimr2_loss(y_true, y_pred):
 
     SSIM = ssim_loss(y_true, y_pred)
     R2 = R_squared(y_true, y_pred)
-    alpha = 0.5
     return SSIM*alpha + (1-alpha)*R2
 
 
-def MSSSIM_loss(y_true, y_pred):
+# Default alpha was 0.84
+def MSSSIM_loss(y_true, y_pred, alpha):
     w = (0.0448, 0.2856, 0.3001, 0.2363)
     # FIXME: Check arguments & call.
     SSIM = 1 - tf.image.ssim_multiscale(y_true, y_pred, 1, filter_size=11,
                                         power_factors=w, filter_sigma=1.5, k2=0.05)
     MAE = keras.losses.mae(
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
-    alpha = 0.84
     return alpha * SSIM + (1-alpha) * MAE
 
 
@@ -115,14 +114,13 @@ def pcc_loss(y_true, y_pred):
     return (1 - pcc(y_true, y_pred)) / 2
 
 
-def ssimpcc_loss(y_true, y_pred):
+def ssimpcc_loss(y_true, y_pred, alpha):
     '''
     A loss combining the ssim and pcc losses. The resulting
     value is in the [0, 2] range.
     '''
     SSIM = ssim_loss(y_true, y_pred)
     PCC = pcc_loss(y_true, y_pred)
-    alpha = 0.84
 
     return alpha*SSIM + (1-alpha)*PCC
 
@@ -140,15 +138,15 @@ def lookup_metrics(metric_names):
     return [metric_dict[metric_name] for metric_name in metric_names]
 
 
-def lookup_loss(loss_name):
+def lookup_loss(loss_name, alpha):
     loss_dict = {
         'mae': mae,
         'mse': mse,
         'ssim_loss': ssim_loss,
-        'ssiml1_loss': ssiml1_loss,
-        'ssimr2_loss': ssimr2_loss,
+        'ssiml1_loss': lambda y_true, y_pred: ssiml1_loss(y_true, y_pred, alpha),
+        'ssimr2_loss': lambda y_true, y_pred: ssimr2_loss(y_true, y_pred, alpha),
         'pcc_loss': pcc_loss,
-        'ssimpcc_loss': ssimpcc_loss,
+        'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha),
     }
 
     return loss_dict[loss_name]

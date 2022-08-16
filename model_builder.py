@@ -14,13 +14,13 @@ def create_strategy():
     return strategy
 
 
-def compile_model(model, initial_learning_rate, loss_name, metric_names):
+def compile_model(model, initial_learning_rate, loss_name, loss_alpha, metric_names):
     print('=== Compiling model ------------------------------------------------')
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(
             learning_rate=initial_learning_rate),
-        loss=metrics.lookup_loss(loss_name),
+        loss=metrics.lookup_loss(loss_name, alpha=loss_alpha),
         metrics=metrics.lookup_metrics(metric_names))
 
     print('Model summary:\n')
@@ -50,6 +50,7 @@ def build_and_compile_model(model_name, strategy, config):
             model,
             config['initial_learning_rate'],
             config['loss'],
+            config['loss_alpha'],
             config['metrics'])
 
     return model
