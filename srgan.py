@@ -1,6 +1,8 @@
 # Based on: https://medium.com/analytics-vidhya/implementing-srresnet-srgan-super-resolution-with-tensorflow-89900d2ec9b2
 # Paper: https://arxiv.org/pdf/1609.04802.pdf (SRGAN)
+# Pytorch Impl: https://github.com/Lornatang/SRGAN-PyTorch/blob/main/model.py
 
+import os
 import tensorflow as tf
 
 
@@ -9,12 +11,12 @@ import tensorflow as tf
 def residual_block_gen(ch=64, k_s=3, st=1):
     model = tf.keras.Sequential([
         tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.PReLU(),
+        tf.keras.layers.BatchNormalization(momentum=0.1),
+        tf.keras.layers.PReLU(shared_axes=[1, 2]),
 
         tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.PReLU(),
+        tf.keras.layers.BatchNormalization(momentum=0.1),
+        tf.keras.layers.PReLU(shared_axes=[1, 2]),
     ])
 
     return model
@@ -47,7 +49,7 @@ def build_generator():
 
     # Add the last convolution, BN, and skip from input.
     SRRes = tf.keras.layers.Conv2D(64, 9, padding='same')(SRRes)
-    SRRes = tf.keras.layers.BatchNormalization()(SRRes)
+    SRRes = tf.keras.layers.BatchNormalization(momentum=0.5)(SRRes)
     SRRes = tf.keras.layers.Add()([SRRes, input_conv])
 
     # Two upsample blocks.
@@ -56,7 +58,7 @@ def build_generator():
     output_sr = tf.keras.layers.Conv2D(
         3, 9, activation='tanh', padding='same')(SRRes)  # TODO: Check activation.
 
-    SRResnet = tf.keras.models.Model(input_lr, output_sr)
+    SRResnet = tf.keras.models.Model(input_lr, output_sr, name='generator')
     return SRResnet
 
 
@@ -65,8 +67,8 @@ def build_generator():
 def residual_block_disc(ch=64, k_s=3, st=1):
     model = tf.keras.Sequential([
         tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
-        tf.keras.layers.BatchNormalization(),
-        tf.keras.layers.LeakyReLU(),
+        tf.keras.layers.BatchNormalization(momentum=0.1),
+        tf.keras.layers.LeakyReLU(alpha=0.2),
     ])
     return model
 
@@ -96,102 +98,118 @@ def build_discriminator():
 
     disc = tf.keras.layers.Flatten()(disc)
     disc = tf.keras.layers.Dense(1024)(disc)
-    disc = tf.keras.layers.LeakyReLU()(disc)
+    disc = tf.keras.layers.LeakyReLU(alpha=0.2)(disc)
     disc_output = tf.keras.layers.Dense(1, activation='sigmoid')(disc)
 
-    discriminator = tf.keras.models.Model(input_lr, disc_output)
+    discriminator = tf.keras.models.Model(input_lr, disc_output, name='discriminator')
     return discriminator
+
 
 # Losses
 
+def build_vgg19(hr_shape=(128, 128, 3)):
+    vgg = tf.keras.models.VGG19(
+        weights="imagenet", include_top=False, input_shape=hr_shape
+    )
+    block3_conv4 = 10
+    block5_conv4 = 20
+    
+    model = tf.keras.Model(
+        inputs=vgg.inputs, outputs=vgg.layers[block5_conv4].output,
+        name="vgg19"
+    )
+    model.trainable = False
 
-def PSNR(y_true, y_pred):
-    mse = tf.reduce_mean((y_true - y_pred) ** 2)
-    return 20 * log10(1 / (mse ** 0.5))
-
-
-def log10(x):
-    numerator = tf.math.log(x)
-    denominator = tf.math.log(tf.constant(10, dtype=numerator.dtype))
-    return numerator / denominator
-
-
-def pixel_MSE(y_true, y_pred):
-    return tf.reduce_mean((y_true - y_pred) ** 2)
-
-
-VGG19 = tf.keras.applications.VGG19(
-    weights='imagenet', include_top=False, input_shape=(128, 128, 3))
-VGG_i, VGG_j = 2, 2
+    return model
 
 
-def VGG_loss(y_hr, y_sr, i_m=2, j_m=2):
-    i, j = 0, 0
-    accumulated_loss = 0.0
+def build_gan(generator, discriminator, vgg, lr_inputs, hr_inputs):
+    gen_img = generator(lr_inputs)
+    gen_features = vgg(gen_img)
+
+    discriminator.trainable = False
+    validity = discriminator(gen_img)
+    
+    return tf.keras.Model(
+        inputs=[lr_inputs, hr_inputs], outputs=[validity, gen_features],
+        name="gan")
+
+
+### Build & Compile
+
+
+def build_and_compile_gan():
+    # Models
+    generator = build_generator()
+    generator.summary()
+
+    discriminator = build_discriminator()
+    discriminator.summary()
+
+    vgg = build_vgg19((128, 128, 3))
+    vgg.summary()
+
+    # Build the GAN
+    lr_inputs = tf.keras.layers.Input(shape=(128, 128, 3))
+    hr_inputs = tf.keras.layers.Input(shape=(256, 256, 3))
+    gan = build_gan(
+		generator, discriminator, vgg, lr_inputs, hr_inputs
+	)
+    gan.summary()
+
+    # Compile
+    gan_opt = tf.keras.optimizers.Adam(beta_1=0.5, beta_2=0.99)
+    gan.compile(
+        loss=["binary_crossentropy", "mse"], 
+        loss_weights=[1e-3, 1],
+        optimizer=gan_opt,
+	)
+
+    return gan
+
+def VGG_loss(y_hr,y_sr,i_m=2,j_m=2):
+    VGG19=tf.keras.applications.VGG19(weights='imagenet',include_top=False,input_shape=(128,128,3))
+    VGG_i,VGG_j=2,2
+    i,j=0,0
+    accumulated_loss=0.0
     for l in VGG19.layers:
-        cl_name = l.__class__.__name__
-        if cl_name == 'Conv2D':
-            j += 1
-        if cl_name == 'MaxPooling2D':
-            i += 1
-            j = 0
-        if i == i_m and j == j_m:
+        cl_name=l.__class__.__name__
+        if cl_name=='Conv2D':
+            j+=1
+        if cl_name=='MaxPooling2D':
+            i+=1
+            j=0
+        if i==i_m and j==j_m:
             break
-        y_hr = l(y_hr)
-        y_sr = l(y_sr)
-        if cl_name == 'Conv2D':
-            accumulated_loss += tf.reduce_mean((y_hr-y_sr)**2) * 0.006
+        y_hr=l(y_hr)
+        y_sr=l(y_sr)
+        if cl_name=='Conv2D':
+            accumulated_loss+=tf.reduce_mean((y_hr-y_sr)**2) * 0.006
     return accumulated_loss
-
-
-def VGG_loss_old(y_true, y_pred):
-    accumulated_loss = 0.0
-    for l in VGG19.layers:
-        y_true = l(y_true)
-        y_pred = l(y_pred)
-        accumulated_loss += tf.reduce_mean((y_true-y_pred)**2) * 0.006
-    return accumulated_loss
-
-
-cross_entropy = tf.keras.losses.BinaryCrossentropy()
-
 
 def discriminator_loss(real_output, fake_output):
+    cross_entropy = tf.keras.losses.BinaryCrossentropy()
     real_loss = cross_entropy(tf.ones_like(real_output), real_output)
     fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
     total_loss = real_loss + fake_loss
     return total_loss
 
-
 def generator_loss(fake_output):
+    cross_entropy = tf.keras.losses.BinaryCrossentropy()
     return cross_entropy(tf.ones_like(fake_output), fake_output)
 
 
-generator_optimizer = tf.keras.optimizers.Adam(0.001)
-discriminator_optimizer = tf.keras.optimizers.Adam(0.001)
-adv_ratio = 0.001
-evaluate = ['PSNR']
-# MSE
-loss_func, adv_learning = pixel_MSE, False
-# VGG2.2
-loss_func, adv_learning = lambda y_hr, h_sr: VGG_loss(
-    y_hr, y_sr, i_m=2, j_m=2), False
-# VGG 5.4
-loss_func, adv_learning = lambda y_hr, h_sr: VGG_loss(
-    y_hr, y_sr, i_m=5, j_m=4), False
-# SRGAN-MSE
-loss_func, adv_learning = pixel_MSE, True
-# SRGAN-VGG 2.2
-loss_func, adv_learning = lambda y_hr, h_sr: VGG_loss(
-    y_hr, y_sr, i_m=2, j_m=2), True
-# SRGAN-VGG 5.4
-loss_func, adv_learning = lambda y_hr, h_sr: VGG_loss(
-    y_hr, y_sr, i_m=5, j_m=4), True
-loss_func, adv_learning = lambda y_hr, h_sr: VGG_loss(
-    y_hr, y_sr, i_m=5, j_m=4), True
-# Real loss
-loss_func, adv_learning = pixel_MSE, False
+# def main():
+#     gan = build_and_compile_gan()
 
+#     for x in range(50):
+#         train_dataset_mapped = train_data.map(build_data,num_parallel_calls=tf.data.AUTOTUNE).batch(128)
+#         val_dataset_mapped = test_data.map(build_data,num_parallel_calls=tf.data.AUTOTUNE).batch(128)
+#         for image_batch in tqdm.tqdm(train_dataset_mapped, position=0, leave=True):
+#             logs=train_step(image_batch,loss_func,adv_learning,evaluate,adv_ratio)
+#             for k in logs.keys():
+#                 print(k,':',logs[k],end='  ')
+#             print()
 
 # Training
 
@@ -207,13 +225,15 @@ loss_func, adv_learning = pixel_MSE, False
 # - Run to debug on cluster
 #
 
+import metrics
+
 @tf.function()
-def train_step(data, loss_func=pixel_MSE, adv_learning=True, evaluate=['PSNR'], adv_ratio=0.001):
+def train_step(data, generator, generator_optimizer, discriminator, discriminator_optimizer, loss_func=metrics.mse, adv_learning=True, evaluate=['PSNR'], adv_ratio=0.001):
     logs = {}
     gen_loss, disc_loss = 0, 0
     low_resolution, high_resolution = data
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-        super_resolution = SRResnet(low_resolution, training=True)
+        super_resolution = generator(low_resolution, training=True)
         gen_loss = loss_func(high_resolution, super_resolution)
         logs['reconstruction'] = gen_loss
         if adv_learning:
@@ -227,9 +247,9 @@ def train_step(data, loss_func=pixel_MSE, adv_learning=True, evaluate=['PSNR'], 
             logs['adv_g'] = adv_loss_g
             logs['adv_d'] = disc_loss
     gradients_of_generator = gen_tape.gradient(
-        gen_loss, SRResnet.trainable_variables)
+        gen_loss, generator.trainable_variables)
     generator_optimizer.apply_gradients(
-        zip(gradients_of_generator, SRResnet.trainable_variables))
+        zip(gradients_of_generator, generator.trainable_variables))
 
     if adv_learning:
         gradients_of_discriminator = disc_tape.gradient(
@@ -237,19 +257,48 @@ def train_step(data, loss_func=pixel_MSE, adv_learning=True, evaluate=['PSNR'], 
         discriminator_optimizer.apply_gradients(
             zip(gradients_of_discriminator, discriminator.trainable_variables))
 
-    for x in evaluate:
-        if x == 'PSNR':
-            logs[x] = PSNR(high_resolution, super_resolution)
+    # TODO: Uncomment
+    # for x in evaluate:
+    #     if x == 'PSNR':
+    #         logs[x] = metrics.psnr(high_resolution, super_resolution)
+
     return logs
 
+import data_generator
+import os
+import tqdm
 
-def train():
+def train(cwd='..', nadh_path='NV_713_NADH_healthy.npz', evaluate=['PSNR'], adv_learning=True, adv_ratio=0.001, loss_func=metrics.mse, batch_size=128, epochs=100, save_interval=10):
+    os.chdir(cwd)
+    train_data, (X_val, Y_val) = data_generator.default_load_data(nadh_path, True)
+    print('Loaded NADH data')
+    print('========================')
+
+    os.mkdir('NADH_SRGAN')
+    os.chdir('NADH_SRGAN')
+    print('Changed dir')
+
+    generator_optimizer=tf.keras.optimizers.SGD(0.0001)
+    discriminator_optimizer=tf.keras.optimizers.SGD(0.0001)
+    loss_func,adv_learning = lambda y_hr,y_sr:VGG_loss(y_hr,y_sr,i_m=5,j_m=4),True
+
+    generator = build_generator()
+    generator.summary()
+    discriminator = build_discriminator()
+    discriminator.summary()
+
+    print('Built models')
+    print('========================')
+
     for x in range(50):
-        train_dataset_mapped = train_data.map(build_data,num_parallel_calls=tf.data.AUTOTUNE).batch(128)
-        val_dataset_mapped = test_data.map(build_data,num_parallel_calls=tf.data.AUTOTUNE).batch(128)
-
-        for image_batch in tqdm.tqdm(train_dataset_mapped, position=0, leave=True):
-            logs=train_step(image_batch,loss_func,adv_learning,evaluate,adv_ratio)
+        for image_batch in tqdm.tqdm(train_data, position=0, leave=True):
+            logs = train_step(
+                image_batch,
+                generator, generator_optimizer,
+                discriminator, discriminator_optimizer,
+                loss_func, adv_learning, evaluate, adv_ratio)
             for k in logs.keys():
                 print(k,':',logs[k],end='  ')
                 print()
+
+train()

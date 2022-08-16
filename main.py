@@ -23,11 +23,10 @@ def make_config(model_name):
 
         # Metrics
         'loss': 'ssiml1_loss',
-        'loss_alpha': 0.5,
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 
-        # TODO: Add
+        'loss_alpha': 0.5, # How much different loss functions are weighted in the compound loss.
 
         # RCAN config
         'num_channels': 32,
