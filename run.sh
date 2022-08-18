@@ -70,7 +70,7 @@ echo "" # empty line #
 # python -u main.py eval rcan "NADH_model_0713_cervix_SSIMPCC_dup" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz loss=ssimpcc_loss loss_alpha=0.84
 
 # NADH RCAN SSIMPCC ap5 ✅ ⏰ 
-python -u main.py eval rcan "NADH_model_0713_cervix_SSIMPCC_ap5" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz loss=ssimpcc_loss loss_alpha=0.5
+# python -u main.py eval rcan "NADH_model_0713_cervix_SSIMPCC_ap5" cwd=.. nadh_data=NV_713_NADH_healthy.npz fad_data=NV_713_FAD_healthy.npz loss=ssimpcc_loss loss_alpha=0.5
 
 ##################################################################
 
