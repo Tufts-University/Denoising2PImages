@@ -247,7 +247,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             result = np.clip(255 * result, 0, 255).astype('uint8')
 
             image_mat.append([result[0], result[1], result[2]])
-        scipy.io.savemat(f'{data_type}_{trial_name}_image{stack_index}.mat', {
+        scipy.io.savemat(f'{data_type}{trial_name}_image{stack_index}.mat', {
                          'images': image_mat})
 
     print('--------------------------------------------------------------------')
