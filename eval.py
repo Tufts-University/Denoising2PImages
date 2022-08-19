@@ -253,7 +253,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
     print('--------------------------------------------------------------------')
 
 
-def _normalize_between_zero_and_one(m):
+def normalize_between_zero_and_one(m):
     max_val, min_val = m.max(), m.min()
     diff = max_val - min_val
     return (m - min_val) / diff if diff > 0 else np.zeros_like(m)
