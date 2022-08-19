@@ -12,7 +12,7 @@
 #SBATCH --output=../NADH_model_0713_cervix_SSIMPCC_ap5.%j.out  #saving standard output to file -- %j jobID -- %N nodename
 #SBATCH --error=../NADH_model_0713_cervix_SSIMPCC_ap5.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
-#SBATCH --mail-user=20193005@student.anatolia.edu.gr
+#SBATCH --mail-user=nvora01@tufts.edu
 
 module load anaconda/2021.05
 source activate Denoising

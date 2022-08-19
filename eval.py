@@ -197,7 +197,10 @@ stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
 
 def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test):
     print('=== Applying model ------------------------------------------------')
-
+    
+    # Remove Data Type from trial name for saving
+    trial_name = trial_name[trial_name.index('_'):]
+    
     wavelet_model = wavelet_config != None
     print(f'Using wavelet model: {wavelet_model}')
 
@@ -239,8 +242,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
 
             result = [raw, restored, gt]
 
-            # TODO: Check if normalization is needed.
-            # result = [normalize_between_zero_and_one(m) for m in result]
+            result = [normalize_between_zero_and_one(m) for m in result]
             result = np.stack(result)
             result = np.clip(255 * result, 0, 255).astype('uint8')
 
