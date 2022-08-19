@@ -15,7 +15,7 @@ def ssim(y_true, y_pred):
     https://doi.org/10.1109/TIP.2003.819861
     '''
 
-    return tf.image.ssim(y_true, y_pred, 1, k2=0.05)
+    return tf.image.ssim(y_true, y_pred, 1, k2=0.05, filter_size=3)
 
 
 def ssim_loss(y_true, y_pred):

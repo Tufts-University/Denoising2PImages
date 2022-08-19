@@ -2,6 +2,7 @@ from tabnanny import check
 import tensorflow as tf
 import pathlib
 import os
+import shutil
 
 # Local dependencies
 import callbacks
@@ -87,6 +88,10 @@ def train(model_name, config, output_dir, data_path):
     model = fit_model(model, model_name, config, output_dir,
                       training_data, validation_data)
 
-    # FIXME: Look if early stopping is in effect (so we don't get overfitted weights).
+    # TODO: Confirm that this actually works
+    os.chdir(output_dir)
+    model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
+    assert len(model_paths) != 0, f'No models found under {output_dir}'
+    latest = max(model_paths, key=os.path.getmtime)
     final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
-    model.save_weights(final_weights_path)
+    shutil.copy(latest, final_weights_path)
