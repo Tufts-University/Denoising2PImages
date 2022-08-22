@@ -88,11 +88,11 @@ Available options include:
     - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
     - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type.
 - `cwd`:
-    - List the path where the data (.npz) files are stored for training **(default = '')**
+    - List the path where the data (.npz) files are stored for training **(default = ' ')**
 - `nadh_data`:
-    - List the name of the NADH data file during training for NADH training **(default = '')**
+    - List the name of the NADH data file during training for NADH training **(default = ' ')**
 - `fad_data`:
-    - List the name of the NADH data file during training for FAD training **(default = '')**
+    - List the name of the NADH data file during training for FAD training **(default = ' ')**
 - `epochs`:
     - Maximum number of epochs desired **(default = 300)**
 - `steps_per_epoch`:
@@ -114,7 +114,7 @@ Available options include:
         - *psnr*
         - *ssim*
         - *pcc* 
-    **Default: ['psnr', 'ssim']**
+    - **Default: ['psnr', 'ssim']**
 - `loss_alpha`:
     - Controls how much different loss functions are weighted in the compound loss **(Default = 0.5)**
 ### RCAN config
