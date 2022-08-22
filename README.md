@@ -81,27 +81,27 @@ To train any model, you simply need to specify the run options and call the [mai
     python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
 
 Available options include:
-- `Mode`:
+- `Mode` (string):
     - *train* - used when training a new model
     - *eval* - used to evaluate with a set of trained weights. Must have `weights_final.hdf5` saved in a folder called *Model_Name*.
-- `Model_Name`:
+- `Model_Name` (string):
     - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
     - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type.
-- `cwd`:
+- `cwd` (string):
     - List the path where the data (.npz) files are stored for training **(default = ' ')**
-- `nadh_data`:
+- `nadh_data` (string):
     - List the name of the NADH data file during training for NADH training **(default = ' ')**
-- `fad_data`:
+- `fad_data` (string):
     - List the name of the NADH data file during training for FAD training **(default = ' ')**
-- `epochs`:
+- `epochs` (integer):
     - Maximum number of epochs desired **(default = 300)**
-- `steps_per_epoch`:
+- `steps_per_epoch` (integer):
     - Number of steps per epoch, this controls the batch size of the model **(default = None for rcan or 100 for care)**
-- `input_shape`:
+- `input_shape` (array of integers):
     - Set to the patch size used for your images **(default = [256 256])**
-- `initial_learning_rate`:
+- `initial_learning_rate` (integer):
     - Starting learning rate used for training **(default = 1e-5)**
-- `loss`:
+- `loss` (string):
     - Multiple options for loss functions exist:
         - *ssim_loss*
         - *ssiml1_loss* **(default)**
@@ -109,35 +109,35 @@ Available options include:
         - *MSSSIM_loss* **(must preinitalize some weights)**
         - *pcc_loss*
         - *ssimpcc_loss*
-- `metrics`: 
+- `metrics` (array of strings): 
     - Multiple options for metrics exist:
         - *psnr*
         - *ssim*
         - *pcc* 
     - **Default: ['psnr', 'ssim']**
-- `loss_alpha`:
+- `loss_alpha` (integer):
     - Controls how much different loss functions are weighted in the compound loss **(Default = 0.5)**
-- `wavelet_function`:
+- `wavelet_function` (string):
     - If analysis included wavelet transformation of the data, specify which mother wavelet to use
         - chose from `pywt.wavelist()`
     - **Default = ' '**
 ### Model Specfic Config:
 **RCAN config**
-- `num_channels`: 
+- `num_channels` (integer): 
     - Number of channels for expansion **(Default = 32)**
-- `num_residual_blocks`:
+- `num_residual_blocks` (integer):
     - Number of residual blocks in each residual group **(Default = 5)**
-- `num_residual_groups`:
+- `num_residual_groups` (integer):
     - Number of residual groups **(Default = 5)**
-- `channel_reduction`: 
+- `channel_reduction` (integer): 
     - Specifies the channel reduction factor which defines the number of filters used (`num_channels`/`channel_reduction` = `num_filters`) **(Default  = 4)**
 
 **CARE UNET config**
-- `unet_n_depth`:
+- `unet_n_depth` (integer):
     - Number of downsampling steps required before upsampling begins **(Default = 6)**
-- `unet_n_first`:
+- `unet_n_first` (integer):
     - Number of channels for expansion **(Default = 32)**
-- `unet_kern_size`:
+- `unet_kern_size` (integer):
     - Kernel size used during convolution steps **(Default = 3)**
 
 ## References
