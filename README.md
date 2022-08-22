@@ -26,6 +26,56 @@ The following code can be used to implement competing models of denoising on 2D 
 2. Pretrained model weights are stored in Trained Model Folder
 3. Preformatted data is avaiable online under Data folder
 
+## Dependencies Installation
+### (Option 1) Install dependencies in base environment
+
+1. Download the [`pip_requirements.txt`](pip_requirements.txt) from the repository
+2. In your command prompt run:
+
+    ```posh
+    pip install -r pip_requirements.txt
+    ```
+3. Download the [`conda_requirements.txt`](conda_requirements.txt) from the repository
+4. In your command prompt run:
+
+    ```posh
+    conda install --file conda_requirements.txt
+    ```
+### (Option 2) Create a new virtual environment
+
+1. Download the [`pip_requirements.txt`](pip_requirements.txt) from the repository
+2. Download the [`conda_requirements.txt`](conda_requirements.txt) from the repository
+3. Open command prompt and change folder to where you put the `pip_requirements.txt` and `conda_requirements.txt`
+4. Create a new virtual environment:
+
+    ```posh
+    python -m venv Denoising
+5. Activate the virtual environment
+
+    On Windows:
+
+    ```posh
+    .\Denoising\Scripts\activate
+    ```
+
+    On macOS and Linux:
+
+    ```bash
+    source Denoising/bin/activate
+    ```
+
+6. You should see (Denoising) in the command line.
+
+7. In your command prompt run:
+
+    ```posh
+    pip install -r pip_requirements.txt
+    ```
+    ```posh
+    conda install --file conda_requirements.txt
+    ```
+   ```
+
 ## References
 <a id="1">[1]</a>
 Chen, J., Sasaki, H., Lai, H. *et al.* Three-dimensional residual channel attention networks denoise and sharpen fluorescence microscopy image volumes. *Nat Methods* **18**, 678-687 (2021). https://doi.org/10.1038/s41592-021-01155-x
