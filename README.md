@@ -117,19 +117,28 @@ Available options include:
     - **Default: ['psnr', 'ssim']**
 - `loss_alpha`:
     - Controls how much different loss functions are weighted in the compound loss **(Default = 0.5)**
-### RCAN config
-    'num_channels': 32,
-    'num_residual_blocks': 5,
-    'num_residual_groups': 5,
-    'channel_reduction': 4,
+- `wavelet_function`:
+    - If analysis included wavelet transformation of the data, specify which mother wavelet to use
+        - chose from `pywt.wavelist()`
+    - **Default = ''**
+### Model Specfic Config:
+**RCAN config**
+- `num_channels`: 
+    - Select number of channels for expansion **(Default = 32)**
+- `num_residual_blocks`:
+    - Specify number of residual blocks in each residual group **(Default = 5)**
+- `num_residual_groups`:
+    - Specify number of residual groups **(Default = 5)**
+- `channel_reduction`: 
+    - Specify channel reduction factor, this defines the number of filters (`num_channels`/`channel_reduction` = `num_filters` **(Default  = 4)**
 
-### CARE UNET config
-    'unet_n_depth': 6,
-    'unet_n_first': 32, 
-    'unet_kern_size': 3,
+**CARE UNET config**
+- `unet_n_depth`: 6,
+- `unet_n_first`: 32, 
+- `unet_kern_size`: 3,
 
-    # Wavelet config
-    'wavelet_function': '', # One of pywt.wavelist() or empty for non-wavelet.
+### Wavelet config
+
     
 ## References
 <a id="1">[1]</a>
