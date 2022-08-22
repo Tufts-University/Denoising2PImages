@@ -77,10 +77,8 @@ The following code can be used to implement competing models of denoising on 2D 
     ```
 ## Training
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
-    
-    ```posh
     python -u main.py train *model_architecture*  "*Model_name*" cwd=*Data_Path* nadh_data=*NADH_Data_Name.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
-    ```
+    
 ## References
 <a id="1">[1]</a>
 Chen, J., Sasaki, H., Lai, H. *et al.* Three-dimensional residual channel attention networks denoise and sharpen fluorescence microscopy image volumes. *Nat Methods* **18**, 678-687 (2021). https://doi.org/10.1038/s41592-021-01155-x
