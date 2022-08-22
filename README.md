@@ -78,7 +78,7 @@ The following code can be used to implement competing models of denoising on 2D 
 ## Training
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
-    python -u main.py train *model_architecture*  "*Model_Name*" cwd=*Data_Path* nadh_data=*NADH_Data_Name.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
+    python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
 
 Available options include:
 - `Mode`:
@@ -87,20 +87,50 @@ Available options include:
 - `Model_Name`:
     - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
     - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type.
-- `Data_Path`:
-    - List the path where the data (.npz) files are stored for training
-- `NADH_DATA_NAME`:
-    - List the name of the NADH data file during training for NADH training
-- `FAD_DATA_NAME`:
-    - List the name of the NADH data file during training for FAD training 
-- `Loss_fcn`:
+- `cwd`:
+    - List the path where the data (.npz) files are stored for training **(default = '')**
+- `nadh_data`:
+    - List the name of the NADH data file during training for NADH training **(default = '')**
+- `fad_data`:
+    - List the name of the NADH data file during training for FAD training **(default = '')**
+- `epochs`:
+    - Maximum number of epochs desired **(default = 300)**
+- `steps_per_epoch`:
+    - Number of steps per epoch, this controls the batch size of the model **(default = None for rcan or 100 for care)**
+- `input_shape`:
+    - Set to the patch size used for your images **(default = [256 256])**
+- `initial_learning_rate`:
+    - Starting learning rate used for training **(default = 1e-5)**
+- `loss`:
     - Multiple options for loss functions exist:
         - *ssim_loss*
-        - *ssiml1_loss*
+        - *ssiml1_loss* **(default)**
         - *ssimr2_loss*
         - *MSSSIM_loss* **(must preinitalize some weights)**
         - *pcc_loss*
         - *ssimpcc_loss*
+- `metrics`: 
+    - Multiple options for metrics exist:
+        - *psnr*
+        - *ssim*
+        - *pcc* 
+    **Default: ['psnr', 'ssim']**
+- `loss_alpha`:
+    - Controls how much different loss functions are weighted in the compound loss **(Default = 0.5)**
+### RCAN config
+    'num_channels': 32,
+    'num_residual_blocks': 5,
+    'num_residual_groups': 5,
+    'channel_reduction': 4,
+
+### CARE UNET config
+    'unet_n_depth': 6,
+    'unet_n_first': 32, 
+    'unet_kern_size': 3,
+
+    # Wavelet config
+    'wavelet_function': '', # One of pywt.wavelist() or empty for non-wavelet.
+    
 ## References
 <a id="1">[1]</a>
 Chen, J., Sasaki, H., Lai, H. *et al.* Three-dimensional residual channel attention networks denoise and sharpen fluorescence microscopy image volumes. *Nat Methods* **18**, 678-687 (2021). https://doi.org/10.1038/s41592-021-01155-x

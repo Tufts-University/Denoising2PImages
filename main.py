@@ -10,7 +10,7 @@ import eval
 
 #################################################################################
 
-
+# TODO (Nilay): Create a config run option to simplify options and list defaults
 def make_config(model_name):
     return {
         'cwd': '',
@@ -18,7 +18,7 @@ def make_config(model_name):
         'fad_data': '',
         'epochs': 300,
         'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
-        'input_shape': [256, 256], # TODO: Remove since this is almost fixed.
+        'input_shape': [256, 256], # TODO: Remove since this is almost fixed. (Nilay) Need to check what Filip did here since we may want variable size patches
         'initial_learning_rate': 1e-5,
 
         # Metrics
