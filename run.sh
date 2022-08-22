@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 ##SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMPCC_ap5_Wavelet_bior1p1.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMPCC_ap5_Wavelet_bior1p1.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -71,9 +71,13 @@ echo "" # empty line #
 # python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_f3" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior1.1 loss_alpha=0.5
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_f3" cwd=.. fad_data=NV_713_FAD_healthy.npz nadh_data=NV_713_NADH_healthy.npz wavelet_function=bior1.1
 
-# NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIM filter_size=3 ⏰ ⏰
-python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMPCC_ap5_Wavelet_bior1p1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimpcc_loss wavelet_function=bior1.1 loss_alpha=0.5
-python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMPCC_ap5_Wavelet_bior1p1" cwd=.. fad_data=NV_713_FAD_healthy.npz nadh_data=NV_713_NADH_healthy.npz wavelet_function=bior1.1
+# NADH CARE + SSIMPCC ap5 Wavelet bior1.1 SSIM ✅ ✅
+# python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMPCC_ap5_Wavelet_bior1p1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimpcc_loss wavelet_function=bior1.1 loss_alpha=0.5
+# python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMPCC_ap5_Wavelet_bior1p1" cwd=.. fad_data=NV_713_FAD_healthy.npz nadh_data=NV_713_NADH_healthy.npz wavelet_function=bior1.1
+
+# NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIM ⏰ ⏰
+python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior1.1 loss_alpha=0.5
+python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep" cwd=.. fad_data=NV_713_FAD_healthy.npz nadh_data=NV_713_NADH_healthy.npz wavelet_function=bior1.1
 
 ### PCC ##########################################################
 
