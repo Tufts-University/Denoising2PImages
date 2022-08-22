@@ -9,7 +9,7 @@ The following code can be used to implement competing models of denoising on 2D 
 - NVIDIA A100 GPU
 - CUDA 11.2 and cuDNN 8.1
 
-Tested Enviroment:
+**Tested Enviroment**:
 1. RCAN Network
     - NVIDIA A100 GPU 40GB 
     - 50GB of RAM
