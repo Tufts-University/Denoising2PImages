@@ -74,7 +74,6 @@ The following code can be used to implement competing models of denoising on 2D 
     ```posh
     conda install --file conda_requirements.txt
     ```
-   ```
 
 ## References
 <a id="1">[1]</a>
