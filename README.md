@@ -1,8 +1,13 @@
 # Denoising Cervical-Tissue, Two-Photon Images
+
 ## Repository Summary
 The following code can be used to implement competing models of denoising on 2D images. These particular algorithms were designed for use on two-photon images acquired by a Leica SP8 microscope. Included functions allow for customization of loss functions, trianing, and eval only. All implementation for both the RCAN [[1]](https://doi.org/10.1038/s41592-021-01155-x) and CARE [[2]](https://doi.org/10.1038/s41592-018-0216-7) algorithms was done in TensorFlow. Work is currently being done to improve model performance and include novel algorithms such as SRGAN [[3]](https://doi.org/10.48550/arxiv.1609.04802) which have shown high levels of performance in other studies. For more details on RCAN, CARE, or SRGAN please review the cited papers below. We would like to thank the authors of these papers for inspiring our work and providing codes to implement these models online.
 
-
+## System Requirements
+- Code was written on a Windows 10 system but run on a Linux system with a A100 GPU installed
+- Python 3.8+
+- NVIDIA A100 GPU
+- CUDA 11.2 and cuDNN 8.1
 
 ## References
 <a id="1">[1]</a>
