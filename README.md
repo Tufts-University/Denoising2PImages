@@ -77,6 +77,7 @@ The following code can be used to implement competing models of denoising on 2D 
     ```
 ## Training
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
+
     ```posh
     python -u main.py train *model_architecture*  "*Model_name*" cwd=*Data_Path* nadh_data=*NADH_Data_Name.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
     ```
