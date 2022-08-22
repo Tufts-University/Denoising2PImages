@@ -137,7 +137,7 @@ Available options include:
     - Number of downsampling steps required before upsampling begins **(Default = 6)**
 - `unet_n_first`:
     - Number of channels for expansion **(Default = 32)**
-- `unet_kern_size`: 3,
+- `unet_kern_size`:
     - Kernel size used during convolution steps **(Default = 3)**
 
 ## References
