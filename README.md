@@ -78,8 +78,29 @@ The following code can be used to implement competing models of denoising on 2D 
 ## Training
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
-    python -u main.py train *model_architecture*  "*Model_name*" cwd=*Data_Path* nadh_data=*NADH_Data_Name.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
+    python -u main.py train *model_architecture*  "*Model_Name*" cwd=*Data_Path* nadh_data=*NADH_Data_Name.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
 
+Available options include:
+- `Mode`:
+    - *train* - used when training a new model
+    - *eval* - used to evaluate with a set of trained weights. Must have `weights_final.hdf5` saved in a folder called *Model_Name*.
+- `Model_Name`:
+    - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
+    - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type.
+- `Data_Path`:
+    - List the path where the data (.npz) files are stored for training
+- `NADH_DATA_NAME`:
+    - List the name of the NADH data file during training for NADH training
+- `FAD_DATA_NAME`:
+    - List the name of the NADH data file during training for FAD training 
+- `Loss_fcn`:
+    - Multiple options for loss functions exist:
+        - *ssim_loss*
+        - *ssiml1_loss*
+        - *ssimr2_loss*
+        - *MSSSIM_loss* **(must preinitalize some weights)**
+        - *pcc_loss*
+        - *ssimpcc_loss*
 ## References
 <a id="1">[1]</a>
 Chen, J., Sasaki, H., Lai, H. *et al.* Three-dimensional residual channel attention networks denoise and sharpen fluorescence microscopy image volumes. *Nat Methods* **18**, 678-687 (2021). https://doi.org/10.1038/s41592-021-01155-x
