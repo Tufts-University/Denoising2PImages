@@ -96,3 +96,4 @@ def train(model_name, config, output_dir, data_path):
     final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
     source = str(pathlib.Path(output_dir) / latest)
     shutil.copy(source, final_weights_path)
+    print(f'Weights are saved to: "{final_weights_path}"')
