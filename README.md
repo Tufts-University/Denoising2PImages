@@ -9,6 +9,23 @@ The following code can be used to implement competing models of denoising on 2D 
 - NVIDIA A100 GPU
 - CUDA 11.2 and cuDNN 8.1
 
+Tested Enviroment:
+    1. RCAN Network
+        - NVIDIA A100 GPU 40GB 
+        - 50GB of RAM
+        - Training Time: ~ 4.7 hrs 
+        - Evaluation Time: ~ 4 minutes
+    2. CARE Network
+        - NVIDIA A100 GPU 40GB 
+        - 50GB of RAM
+        - Training Time: ~ 40 minutes 
+        - Evaluation Time: ~ 2 minutes
+
+## Dataset
+    1. All raw data is available for at reasonable request. Contact [Professor Irene Georgakoudi](mailto: irene.georgakoudi@tufts.edu) for access to datasets. 
+    2. Pretrained model weights are stored in Trained Model Folder
+    3. Preformatted data is avaiable online under Data folder
+    
 ## References
 <a id="1">[1]</a>
 Chen, J., Sasaki, H., Lai, H. *et al.* Three-dimensional residual channel attention networks denoise and sharpen fluorescence microscopy image volumes. *Nat Methods* **18**, 678-687 (2021). https://doi.org/10.1038/s41592-021-01155-x
