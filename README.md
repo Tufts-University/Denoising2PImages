@@ -22,7 +22,7 @@ Tested Enviroment:
     - Evaluation Time: ~ 2 minutes
 
 ## Dataset
-1. All raw data is available for at reasonable request. Contact [Professor Irene Georgakoudi](mailto: irene.georgakoudi@tufts.edu) for access to datasets. 
+1. All raw data is available for at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
 2. Pretrained model weights are stored in Trained Model Folder
 3. Preformatted data is avaiable online under Data folder
 
