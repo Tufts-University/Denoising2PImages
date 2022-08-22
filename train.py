@@ -89,11 +89,12 @@ def train(model_name, config, output_dir, data_path):
                       training_data, validation_data)
 
     # TODO: Confirm that this actually works
+    initial_path = os.getcwd()
     os.chdir(output_dir)
     model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
     assert len(model_paths) != 0, f'No models found under {output_dir}'
     latest = max(model_paths, key=os.path.getmtime)
     final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
-    source = str(pathlib.Path(output_dir) / latest)
+    source = str(initial_path / pathlib.Path(output_dir) / latest)
     shutil.copy(source, final_weights_path)
     print(f'Weights are saved to: "{final_weights_path}"')
