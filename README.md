@@ -120,26 +120,26 @@ Available options include:
 - `wavelet_function`:
     - If analysis included wavelet transformation of the data, specify which mother wavelet to use
         - chose from `pywt.wavelist()`
-    - **Default = ''**
+    - **Default = ' '**
 ### Model Specfic Config:
 **RCAN config**
 - `num_channels`: 
-    - Select number of channels for expansion **(Default = 32)**
+    - Number of channels for expansion **(Default = 32)**
 - `num_residual_blocks`:
-    - Specify number of residual blocks in each residual group **(Default = 5)**
+    - Number of residual blocks in each residual group **(Default = 5)**
 - `num_residual_groups`:
-    - Specify number of residual groups **(Default = 5)**
+    - Number of residual groups **(Default = 5)**
 - `channel_reduction`: 
-    - Specify channel reduction factor, this defines the number of filters (`num_channels`/`channel_reduction` = `num_filters` **(Default  = 4)**
+    - Specifies the channel reduction factor which defines the number of filters used (`num_channels`/`channel_reduction` = `num_filters`) **(Default  = 4)**
 
 **CARE UNET config**
-- `unet_n_depth`: 6,
-- `unet_n_first`: 32, 
+- `unet_n_depth`:
+    - Number of downsampling steps required before upsampling begins **(Default = 6)**
+- `unet_n_first`:
+    - Number of channels for expansion **(Default = 32)**
 - `unet_kern_size`: 3,
+    - Kernel size used during convolution steps **(Default = 3)**
 
-### Wavelet config
-
-    
 ## References
 <a id="1">[1]</a>
 Chen, J., Sasaki, H., Lai, H. *et al.* Three-dimensional residual channel attention networks denoise and sharpen fluorescence microscopy image volumes. *Nat Methods* **18**, 678-687 (2021). https://doi.org/10.1038/s41592-021-01155-x
