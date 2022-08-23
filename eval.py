@@ -190,12 +190,12 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     return result if input_is_list else result[0]
 
-
+# TODO (nvora01): Remove this if everything work 
 # The start and end indices (inclusive) of where different stacks begin and end.
-stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
+# stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
 
 
-def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test):
+def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges):
     print('=== Applying model ------------------------------------------------')
     
     # Remove Data Type from trial name for saving
@@ -286,7 +286,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
         # Similar to 'data_generator.py'
-        _, (X_val, Y_val) = data_generator.default_load_data(
+        _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
             nadh_path,
             requires_channel_dim=model_name == 'care')
 
@@ -296,7 +296,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)
@@ -306,7 +306,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if fad_path != None:
         print('=== Evaluating FAD -------------------------------------------------')
         # Similar to 'data_generator.py'
-        _, (X_val, Y_val) = data_generator.default_load_data(
+        _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
             fad_path,
             requires_channel_dim=model_name == 'care')
             
@@ -316,7 +316,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)

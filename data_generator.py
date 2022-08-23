@@ -8,7 +8,7 @@ import warnings
 import collections
 from csbdeep.utils import axes_dict
 import pywt
-
+import random
 # Contains code for data loading and generation before
 # being passed into the network.
 
@@ -400,7 +400,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     file : str
         File name
     validation_split : float
-        Fraction of images to use as validation set during training.
+        Seed used for splitting of images to use as validation set during training.
     axes: str, optional
         Must be provided in case the loaded data does not contain ``axes`` information.
     n_images : int, optional
@@ -420,6 +420,8 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 
     f = np.load(file)
     X, Y = f['X'], f['Y']
+    SB, SE = f['SB'], f['SE']
+
     if axes is None:
         axes = f['axes']
     axes = axes_check_and_normalize(axes)
@@ -436,7 +438,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 
         print(f'New X shape is {tf.shape(X)}; New Y shape is {tf.shape(Y)}')
 
-    assert X.shape == Y.shape  # TODO: Check if this works.
+    assert X.shape == Y.shape
     assert X.ndim == Y.ndim
     assert len(axes) == X.ndim
     assert len(axes) == 3 or 'C' in axes
@@ -444,23 +446,72 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
         n_images = X.shape[0]
     assert X.shape[0] == Y.shape[0]
     assert 0 < n_images <= X.shape[0]
-    assert 0 <= validation_split < 1
+    # assert 0 <= validation_split < 1
 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
 
-    if validation_split > 0:
-        # TODO: Remove phantom code.
-        #n_val   = int(round(n_images * validation_split))
+    if validation_split is not None:
+        assert type(validation_split) is int,"validation_split must be an integer"
+        # TODO (nvora01): See if there is a more efficient way of doing this... 
+        ROIs = len(SB)
+        random.seed(validation_split)
+        print('Splitting Data using seed ' + str(validation_split))
 
-        # TODO: Better validation split.
-        n_val = 620
-        n_train = n_images - n_val
-        assert 0 < n_val and 0 < n_train
-        X_t, Y_t = X[-n_val:],  Y[-n_val:]
-        X,   Y = X[:n_train], Y[:n_train]
-        assert X.shape[0] == n_train and X_t.shape[0] == n_val
+        train_idx = sorted(random.sample(range(0,ROIs), ROIs-8))
+        validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
 
+        # Generation of Validation Set
+        X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
+        for i in range(len(validation_idx)):
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
+            np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+
+        # Remove the empty initialization image from stack
+        X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
+
+        # Generating stack ranges for validation set
+        num_stacks = [int(SE[x]-SB[x]+1) for x in validation_idx]
+        prev = 0
+        stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+        for i in range(len(num_stacks)):
+            stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+            prev += num_stacks[i]
+
+        # Generation of Training Set
+        validation_idx = np.flip(validation_idx)
+        for i in range(len(validation_idx)):
+            X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), 
+            np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
+        
+        # TODO (nvora01): Remove extra code
+        
+        # n_val = 620
+        # n_train = n_images - n_val
+        # assert 0 < n_val and 0 < n_train
+        # X_t, Y_t = X[-n_val:],  Y[-n_val:]
+        # X,   Y = X[:n_train], Y[:n_train]
+
+        # assert X.shape[0] == n_train and X_t.shape[0] == n_val
+
+        if channel != None:
+            X_t = move_channel_for_backend(X_t, channel=channel)
+            Y_t = move_channel_for_backend(Y_t, channel=channel)
+    else:
+        # TODO (nvora01): Remove if statement, only used due to initial training without stack information
+        new_test = range(0,int(SE[6])+1)
+        ranges = np.hstack((new_test,range(int(SE[-5]),len(X))))
+        X_t, Y_t = X[ranges],  Y[ranges]
+
+        validation_idx = np.hstack((range(0,7),range(-5,0)))
+        num_stacks = [int(SE[x]-SB[x]+1) for x in validation_idx]
+        prev = 0
+        stack_ranges=np.empty((len(num_stacks),2),dtype=int)
+        for i in range(len(num_stacks)):
+            stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+            prev += num_stacks[i]
+
+        X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
         if channel != None:
             X_t = move_channel_for_backend(X_t, channel=channel)
             Y_t = move_channel_for_backend(Y_t, channel=channel)
@@ -476,7 +527,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
         else:
             axes = axes[:1]+'C'+axes[1:]
 
-    data_val = (X_t, Y_t) if validation_split > 0 else None
+    data_val = (X_t, Y_t)
 
     if verbose:
         ax = axes_dict(axes)
@@ -493,7 +544,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
         if channel != None:
             print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-    return (X, Y), data_val, axes
+    return (X, Y), data_val, axes, stack_ranges
 
 
 def patch_slice(slice):
@@ -518,14 +569,14 @@ def stitch_patches(patches):
     return np.reshape(patches, [2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
 
 
-def default_load_data(data_path, requires_channel_dim):
-    (X, Y), (X_val, Y_val), _ = load_training_data(
+def default_load_data(data_path, requires_channel_dim, config):
+    (X, Y), (X_val, Y_val), _, val_ranges = load_training_data(
         data_path,
-        validation_split=0.15,
+        validation_split=config['val_seed'],
         axes='SXY' if not requires_channel_dim else 'SXYC',
         verbose=True)
 
-    return (X, Y), (X_val, Y_val)
+    return (X, Y), (X_val, Y_val), val_ranges
 
 
 def gather_data(config, data_path, requires_channel_dim):
@@ -533,7 +584,7 @@ def gather_data(config, data_path, requires_channel_dim):
     print('=== Gathering data ---------------------------------------------------')
 
     # Similar to 'data_generator.py'
-    (X, Y), (X_val, Y_val) = default_load_data(data_path, requires_channel_dim)
+    (X, Y), (X_val, Y_val), _ = default_load_data(data_path, requires_channel_dim, config)
 
     wavelet_config = get_wavelet_config(
         function_name=config['wavelet_function'])
