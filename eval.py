@@ -288,7 +288,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         # Similar to 'data_generator.py'
         _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
             nadh_path,
-            requires_channel_dim=model_name == 'care')
+            requires_channel_dim=model_name == 'care', config = config)
 
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
@@ -308,7 +308,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         # Similar to 'data_generator.py'
         _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
             fad_path,
-            requires_channel_dim=model_name == 'care')
+            requires_channel_dim=model_name == 'care', config = config)
             
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
