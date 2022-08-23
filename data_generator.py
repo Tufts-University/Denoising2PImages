@@ -428,15 +428,15 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 
     if verbose:
         print(f'Found axes: {axes}')
-        print(f'Raw X shape is {tf.shape(X)}; Raw Y shape is {tf.shape(Y)}')
+        print(f'Raw X shape is {np.shape(X)}; Raw Y shape is {np.shape(Y)}')
 
     # The inputted data has 3 channels; add one dimension if a channel
     # dimension is requested.
     if len(axes) == 4:
-        X = tf.expand_dims(X, axis=-1)
-        Y = tf.expand_dims(Y, axis=-1)
+        X = np.expand_dims(X, axis=-1)
+        Y = np.expand_dims(Y, axis=-1)
 
-        print(f'New X shape is {tf.shape(X)}; New Y shape is {tf.shape(Y)}')
+        print(f'New X shape is {np.shape(X)}; New Y shape is {np.shape(Y)}')
 
     assert X.shape == Y.shape
     assert X.ndim == Y.ndim
@@ -502,7 +502,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     ######################Testing on older models!##################################
     new_test = range(0,int(SE[6])+1)
     ranges = np.hstack((new_test,range(int(SE[-5]),len(X))))
-    X_t, Y_t = tf.gather(X,indices=ranges,axis=0),  tf.gather(Y,indices=ranges,axis=0)
+    X_t, Y_t = X[ranges],  Y[ranges]
 
     validation_idx = np.hstack((range(0,7),range(-5,0)))
     num_stacks = [int(SE[x]-SB[x]+1) for x in validation_idx]
