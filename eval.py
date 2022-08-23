@@ -197,7 +197,7 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
 def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges):
     print('=== Applying model ------------------------------------------------')
-    print(stack_ranges)
+    
     # Remove Data Type from trial name for saving
     trial_name = trial_name[trial_name.index('_'):]
     
