@@ -470,7 +470,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     # X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
 
     # # Generating stack ranges for validation set
-    # num_stacks = [int(SE[x]-SB[x]+1) for x in validation_idx]
+    # num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
     # prev = 0
     # stack_ranges=np.empty((len(num_stacks),2), dtype=int)
     # for i in range(len(num_stacks)):
@@ -505,7 +505,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     X_t, Y_t = X[ranges],  Y[ranges]
 
     validation_idx = np.hstack((range(0,7),range(-5,0)))
-    num_stacks = [int(SE[x]-SB[x]+1) for x in validation_idx]
+    num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
     prev = 0
     stack_ranges=np.empty((len(num_stacks),2),dtype=int)
     for i in range(len(num_stacks)):
