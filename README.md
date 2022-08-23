@@ -12,12 +12,12 @@ The following code can be used to implement competing models of denoising on 2D 
 **Tested Enviroment**:
 1. RCAN Network
     - NVIDIA A100 GPU 40GB 
-    - 50GB of RAM
+    - 20GB of RAM
     - Training Time: ~ 4.7 hrs 
     - Evaluation Time: ~ 4 minutes
 2. CARE Network
     - NVIDIA A100 GPU 40GB 
-    - 50GB of RAM
+    - 20GB of RAM
     - Training Time: ~ 40 minutes 
     - Evaluation Time: ~ 2 minutes
 
