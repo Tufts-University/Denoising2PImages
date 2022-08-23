@@ -533,7 +533,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 
     if verbose:
         ax = axes_dict(axes)
-        n_train, n_val = len(X), len(X_t) if validation_split > 0 else 0
+        n_train, n_val = len(X), len(X_t) 
         image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
         n_dim = len(image_size)
         if channel != None:
