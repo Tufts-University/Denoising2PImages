@@ -121,6 +121,12 @@ Available options include:
     - If analysis included wavelet transformation of the data, specify which mother wavelet to use
         - chose from `pywt.wavelist()`
     - **Default = ' '**
+- `val_seed` (integer):
+    - Controls which ROIs are included in Training and Validation 
+    - If the input is `None`, a hard-coded split will occur
+    - TODO: remove the hardcode option, currently being used for a rapid check on pretrained models
+    - Split ratio is currently 8 Validation ROIs and 35 Training ROIs
+    - **Default = 0**
 ### Model Specfic Config:
 **RCAN config**
 - `num_channels` (integer): 
