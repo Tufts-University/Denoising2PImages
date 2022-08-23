@@ -502,11 +502,11 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
     ######################Testing on older models!##################################
     new_test = range(0,int(SE[6])+1)
     ranges = np.hstack((new_test,range(int(SE[-5]),len(X))))
+    print(len(ranges))
     X_t, Y_t = X[ranges],  Y[ranges]
-    print(np.shape(X_t))
+    print(len(X_t))
     validation_idx = np.hstack((range(0,7),range(-5,0)))
     num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    print(num_stacks)
     prev = 0
     stack_ranges=np.empty((len(num_stacks),2),dtype=int)
     for i in range(len(num_stacks)):
