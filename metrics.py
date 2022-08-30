@@ -124,6 +124,45 @@ def ssimpcc_loss(y_true, y_pred, alpha):
 
     return alpha*SSIM + (1-alpha)*PCC
 
+def VGG_loss(y_true,y_pred,i_m=2,j_m=2):
+    VGG19=tf.keras.applications.VGG19(weights='imagenet',include_top=False,input_shape=(256,256,3))
+    VGG_i,VGG_j=2,2
+    i,j=0,0
+    accumulated_loss=0.0
+    for l in VGG19.layers:
+        cl_name=l.__class__.__name__
+        if cl_name=='Conv2D':
+            j+=1
+        if cl_name=='MaxPooling2D':
+            i+=1
+            j=0
+        if i==i_m and j==j_m:
+            break
+        y_true=l(y_true)
+        y_pred=l(y_pred)
+        if cl_name=='Conv2D':
+            accumulated_loss+=tf.reduce_mean((y_true-y_pred)**2) * 0.006
+    return accumulated_loss
+
+def VGG_loss_old(y_true,y_pred):
+  accumulated_loss=0.0
+  VGG19=tf.keras.applications.VGG19(weights='imagenet',include_top=False,input_shape=(256,256,3))
+  for l in VGG19.layers:
+    y_true=l(y_true)
+    y_pred=l(y_pred)
+    accumulated_loss+=tf.reduce_mean((y_true-y_pred)**2) * 0.006
+  return accumulated_loss
+
+def discriminator_loss(real_output, fake_output):
+    cross_entropy = tf.keras.losses.BinaryCrossentropy()
+    real_loss = cross_entropy(tf.ones_like(real_output), real_output)
+    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
+    total_loss = real_loss + fake_loss
+    return total_loss
+    
+def generator_loss(fake_output):
+    cross_entropy = tf.keras.losses.BinaryCrossentropy()
+    return cross_entropy(tf.ones_like(fake_output), fake_output)
 
 # Lookup --------------------------------------------------------------------
 

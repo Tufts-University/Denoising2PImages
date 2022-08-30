@@ -1,3 +1,4 @@
+from msilib.schema import Class
 import tensorflow as tf
 
 
@@ -5,7 +6,7 @@ import tensorflow as tf
 import metrics
 import rcan
 import care
-
+import srgan
 
 def create_strategy():
     strategy = tf.distribute.MirroredStrategy()
@@ -14,7 +15,7 @@ def create_strategy():
     return strategy
 
 
-def compile_model(model, initial_learning_rate, loss_name, loss_alpha, metric_names):
+def compile_model(model, initial_learning_rate, loss_name, metric_names, loss_alpha = 0):
     print('=== Compiling model ------------------------------------------------')
 
     model.compile(
@@ -42,15 +43,19 @@ def build_and_compile_model(model_name, strategy, config):
                 channel_reduction=config['channel_reduction'])
         elif model_name == 'care':
             model = care.build_care(config, 'SXYC')
+        elif model_name == 'srgan':
+            generator, discriminator, vgg = srgan.build_and_compile_srgan(config)
+            return generator, discriminator, vgg
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 
         #model = convert_to_multi_gpu_model(model, gpus)
-        model = compile_model(
-            model,
-            config['initial_learning_rate'],
-            config['loss'],
-            config['loss_alpha'],
-            config['metrics'])
+        if model_name != 'srgan':
+            model = compile_model(
+                model,
+                config['initial_learning_rate'],
+                config['loss'],
+                config['loss_alpha'],
+                config['metrics'])
 
-    return model
+        return model

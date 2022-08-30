@@ -1,15 +1,18 @@
+from cgi import test
 from tabnanny import check
 import tensorflow as tf
 import pathlib
 import os
 import shutil
+import tqdm
 
 # Local dependencies
 import callbacks
 import model_builder
 import data_generator
 import basics
-
+import metrics
+import srgan
 
 def determine_training_strategy(model, output_dir):
     print('=== Determining Training Strategy -----------------------------------')
@@ -42,10 +45,8 @@ def determine_training_strategy(model, output_dir):
 
     return model
 
-
 def fit_model(model, model_name, config, output_dir, training_data, validation_data):
     print('=== Fitting model --------------------------------------------------')
-
     steps_per_epoch = config['steps_per_epoch'] if config['steps_per_epoch'] != None else None
     validation_steps = None if validation_data is None else steps_per_epoch
     if validation_data is not None:
@@ -54,8 +55,8 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
 
     model.fit(
-        x=training_data if model_name == 'rcan' else training_data[0],
-        y=None if model_name == 'rcan' else training_data[1],
+        x=training_data if model_name != 'care' else training_data[0],
+        y=None if model_name != 'care' else training_data[1],
         epochs=config['epochs'],
         # steps_per_epoch=steps_per_epoch,
         shuffle=True,
@@ -83,12 +84,18 @@ def train(model_name, config, output_dir, data_path):
         requires_channel_dim=model_name == 'care')
 
     strategy = model_builder.create_strategy()
-    model = model_builder.build_and_compile_model(model_name, strategy, config)
-    model = determine_training_strategy(model, output_dir)
-    model = fit_model(model, model_name, config, output_dir,
-                      training_data, validation_data)
+    if model_name == 'srgan':
+        checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
+        generator, discriminator, vgg = model_builder.build_and_compile_model(model_name, strategy, config)
+        # Pretrain the generator for 100 epochs
+        generator = fit_model(generator, model_name, config, output_dir,
+                        training_data, validation_data)
+    else:
+        model = model_builder.build_and_compile_model(model_name, strategy, config)
+        model = determine_training_strategy(model, output_dir)
+        model = fit_model(model, model_name, config, output_dir,
+                        training_data, validation_data)
 
-    # TODO: Confirm that this actually works
     initial_path = os.getcwd()
     os.chdir(output_dir)
     model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]

@@ -23,7 +23,7 @@ def make_config(model_name):
         'val_seed': 0, #Controls the validation split, NONE is a special case here TODO (nvora01): remove the none class as we won't need this in the future
 
         # Metrics
-        'loss': 'ssiml1_loss',
+        'loss': {'srgan': None, 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss'}[model_name],
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 
