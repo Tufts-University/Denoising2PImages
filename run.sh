@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 ##SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_standard.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_standard.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -88,7 +88,7 @@ echo "" # empty line #
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz wavelet_function=bior1.1 val_seed=0
 
 # NADH CARE + SSIML2 ap84 SSIM deep (new_data)  ✅
-python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0
+#python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0
 
 ### PCC ##########################################################
 
@@ -105,6 +105,10 @@ python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cw
 
 # SRGAN Trial 1
 # python -u srgan.py
+
+# SRGAN Trial 2 run only
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
+
 
 ##################################################################
 

@@ -17,7 +17,7 @@ def make_config(model_name):
         'nadh_data': '',
         'fad_data': '',
         'epochs': 300,
-        'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
+        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100}[model_name],
         'input_shape': [256, 256], # TODO: Remove since this is almost fixed. (Nilay) Need to check what Filip did here since we may want variable size patches
         'initial_learning_rate': 1e-5,
         'val_seed': 0, #Controls the validation split, NONE is a special case here TODO (nvora01): remove the none class as we won't need this in the future
