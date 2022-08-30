@@ -3,7 +3,7 @@
 import keras
 from keras import backend as kb
 import tensorflow as tf
-
+import srgan
 
 def ssim(y_true, y_pred):
     '''
@@ -124,45 +124,21 @@ def ssimpcc_loss(y_true, y_pred, alpha):
 
     return alpha*SSIM + (1-alpha)*PCC
 
-def VGG_loss(y_true,y_pred,i_m=2,j_m=2):
-    VGG19=tf.keras.applications.VGG19(weights='imagenet',include_top=False,input_shape=(256,256,3))
-    VGG_i,VGG_j=2,2
-    i,j=0,0
-    accumulated_loss=0.0
-    for l in VGG19.layers:
-        cl_name=l.__class__.__name__
-        if cl_name=='Conv2D':
-            j+=1
-        if cl_name=='MaxPooling2D':
-            i+=1
-            j=0
-        if i==i_m and j==j_m:
-            break
-        y_true=l(y_true)
-        y_pred=l(y_pred)
-        if cl_name=='Conv2D':
-            accumulated_loss+=tf.reduce_mean((y_true-y_pred)**2) * 0.006
-    return accumulated_loss
+@tf.function
+def calculate_content_loss(hr, sr):
+    sr = preprocess_input(sr)
+    hr = preprocess_input(hr)
+    sr_features = perceptual_model(sr) / 12.75
+    hr_features = perceptual_model(hr) / 12.75
+    return mean_squared_error(hr_features, sr_features)
 
-def VGG_loss_old(y_true,y_pred):
-  accumulated_loss=0.0
-  VGG19=tf.keras.applications.VGG19(weights='imagenet',include_top=False,input_shape=(256,256,3))
-  for l in VGG19.layers:
-    y_true=l(y_true)
-    y_pred=l(y_pred)
-    accumulated_loss+=tf.reduce_mean((y_true-y_pred)**2) * 0.006
-  return accumulated_loss
+def calculate_generator_loss(sr_out):
+    return binary_cross_entropy(tf.ones_like(sr_out), sr_out)
 
-def discriminator_loss(real_output, fake_output):
-    cross_entropy = tf.keras.losses.BinaryCrossentropy()
-    real_loss = cross_entropy(tf.ones_like(real_output), real_output)
-    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
-    total_loss = real_loss + fake_loss
-    return total_loss
-    
-def generator_loss(fake_output):
-    cross_entropy = tf.keras.losses.BinaryCrossentropy()
-    return cross_entropy(tf.ones_like(fake_output), fake_output)
+def calculate_discriminator_loss(hr_out, sr_out):
+    hr_loss = binary_cross_entropy(tf.ones_like(hr_out), hr_out)
+    sr_loss = binary_cross_entropy(tf.zeros_like(sr_out), sr_out)
+    return hr_loss + sr_loss
 
 # Lookup --------------------------------------------------------------------
 
@@ -177,7 +153,7 @@ def lookup_metrics(metric_names):
     return [metric_dict[metric_name] for metric_name in metric_names]
 
 
-def lookup_loss(loss_name, alpha):
+def lookup_loss(loss_name, alpha = 0):
     print(f'Found a loss alpha of {alpha}.')
 
     loss_dict = {

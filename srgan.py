@@ -5,6 +5,8 @@
 import os
 import tensorflow as tf
 import keras
+import model_builder
+import metrics
 
 # === SRResNet ===
 def _get_spatial_ndim(x):
@@ -79,7 +81,7 @@ def build_generator_model(input_shape = (50,256,256,1),
   return model
 
 # Build a discriminator model
-def build_discriminator_model(input_shape = (50,256,256,1),
+def build_discriminator_model(input_shape = (50,256,256,3),
                           *,
                           num_channels,
                           num_residual_blocks,
@@ -130,40 +132,86 @@ def build_gan(generator, discriminator, vgg, raw, gt):
         inputs=[raw, gt], outputs=[validity, gen_features],
         name="gan")
 
-
-def build_and_compile_gan(config):
-    # Models
+def build_and_compile_srgan(config):
+    learning_rate = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
     generator = build_generator_model((*config['input_shape'], 1),
                 num_channels=config['num_channels'],
                 num_residual_blocks=config['num_residual_blocks'],
                 num_channel_out = 1)
     
     generator.summary()
-
-    discriminator = build_discriminator_model((*config['input_shape'], 3),
+    generator = model_builder.compile_model(generator, learning_rate, 'mse', config['metrics'])
+    
+    discriminator = build_discriminator_model((*config['input_shape'], 1),
                 num_channels=config['num_channels'],
                 num_residual_blocks=config['num_residual_blocks'],
                 num_channel_out =1)
     discriminator.summary()
-    vgg = build_vgg19((256, 256, 3))
-    vgg.summary()
+    discriminator = model_builder.compile_model(discriminator, learning_rate, 'mse', config['metrics'])
+    
+    vgg = build_vgg19(GT_shape=(256, 256, 3))
+    return generator, discriminator, vgg 
+    
+@tf.function()
+def train_step(data, generator,discriminator):
+    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
+        lr, hr = data
+        lr = tf.cast(lr, tf.float32)
+        hr = tf.cast(hr, tf.float32)
 
-    # Build the GAN
-    raw = tf.keras.layers.Input(shape=(256, 256, 1))
-    gt = tf.keras.layers.Input(shape=(256, 256, 1))
-    gan = build_gan(
-        generator, discriminator, vgg, raw, gt
-        )
-    gan.summary()
+        sr = generator(lr, training=True)
 
-    # Compile
-    gan_opt = tf.keras.optimizers.Adam(beta_1=0.5, beta_2=0.99)
-    gan.compile(
-        loss=["binary_crossentropy", "mse"], 
-        loss_weights=[1e-3, 1],
-        optimizer=gan_opt,
-        )
-    return gan
+        hr_output = discriminator([hr,hr,hr], training=True)
+        sr_output = discriminator(sr, training=True)
+
+        con_loss = metrics.calculate_content_loss(hr, sr)
+        gen_loss = metrics.calculate_generator_loss(sr_output)
+        perc_loss = con_loss + 0.001 * gen_loss
+        disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
+
+    gradients_of_generator = gen_tape.gradient(perc_loss, srgan_checkpoint.generator.trainable_variables)
+    gradients_of_discriminator = disc_tape.gradient(disc_loss, srgan_checkpoint.discriminator.trainable_variables)
+
+    generator_optimizer.apply_gradients(zip(gradients_of_generator, srgan_checkpoint.generator.trainable_variables))
+    discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, srgan_checkpoint.discriminator.trainable_variables))
+
+    return perc_loss, disc_loss
+
+
+# TODO(nvora01): DELETE?
+# def build_and_compile_gan(config):
+#     # Models
+#     generator = build_generator_model((*config['input_shape'], 1),
+#                 num_channels=config['num_channels'],
+#                 num_residual_blocks=config['num_residual_blocks'],
+#                 num_channel_out = 1)
+    
+#     generator.summary()
+
+#     discriminator = build_discriminator_model((*config['input_shape'], 3),
+#                 num_channels=config['num_channels'],
+#                 num_residual_blocks=config['num_residual_blocks'],
+#                 num_channel_out =1)
+#     discriminator.summary()
+#     vgg = build_vgg19((256, 256, 3))
+#     vgg.summary()
+
+#     # Build the GAN
+#     raw = tf.keras.layers.Input(shape=(256, 256, 1))
+#     gt = tf.keras.layers.Input(shape=(256, 256, 1))
+#     gan = build_gan(
+#         generator, discriminator, vgg, raw, gt
+#         )
+#     gan.summary()
+
+#     # Compile
+#     gan_opt = tf.keras.optimizers.Adam(beta_1=0.5, beta_2=0.99)
+#     gan.compile(
+#         loss=["binary_crossentropy", "mse"], 
+#         loss_weights=[1e-3, 1],
+#         optimizer=gan_opt,
+#         )
+#     return gan
 
 # Training
 
@@ -178,9 +226,6 @@ def build_and_compile_gan(config):
 #   - Prolly same as input but check conv to see if it makes sense
 # - Run to debug on cluster
 #
-
-import metrics
-
 @tf.function()
 def train_step(data,config,loss_func=metrics.mse,adv_learning=True,evaluate=['PSNR'],adv_ratio=0.001):
     logs={}
@@ -222,5 +267,5 @@ def train_step(data,config,loss_func=metrics.mse,adv_learning=True,evaluate=['PS
             logs[x]=metrics.psnr(high_resolution,super_resolution)
         elif x == 'ssim':
             logs[x]=metrics.ssim(high_resolution,super_resolution)
-            
+
     return logs
