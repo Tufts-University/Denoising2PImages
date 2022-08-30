@@ -5,7 +5,6 @@ import pathlib
 import os
 import shutil
 import tqdm
-import tf.keras.metrics.Mean as Mean
 
 # Local dependencies
 import callbacks
@@ -123,10 +122,10 @@ def train(model_name, config, output_dir, data_path):
         if srgan_checkpoint_manager.latest_checkpoint:
             srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
             print(f'Model restored from checkpoint at step {srgan_checkpoint.step.numpy()} with validation PSNR {srgan_checkpoint.psnr.numpy()}.')
-        perceptual_loss_metric = Mean()
-        discriminator_loss_metric = Mean()
-        psnr_metric = Mean()
-        ssim_metric = Mean()
+        perceptual_loss_metric = tf.keras.metrics.Mean()
+        discriminator_loss_metric = tf.keras.metrics.Mean()
+        psnr_metric = tf.keras.metrics.Mean()
+        ssim_metric = tf.keras.metrics.Mean()
         for i in range(config['epochs']):
             for _, batch in enumerate(training_data):
                 perceptual_loss, discriminator_loss = srgan.train_step(batch,srgan_checkpoint,vgg)
