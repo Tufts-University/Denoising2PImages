@@ -135,7 +135,7 @@ def build_and_compile_srgan(config):
                 num_residual_blocks=config['num_residual_blocks'],
                 num_channel_out =1)
     discriminator.summary()
-    discriminator = model_builder.compile_model(discriminator, learning_rate, 'mse', config['metrics'])
+    #discriminator = model_builder.compile_model(discriminator, learning_rate, 'mse', config['metrics'])
     
     vgg = build_vgg19(GT_shape=(256, 256, 3))
     return generator, discriminator, vgg 
