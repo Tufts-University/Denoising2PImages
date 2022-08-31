@@ -25,9 +25,9 @@ def print_device_info():
 def final_weights_name():
     return 'weights_final.hdf5'
 
-def SRGAN_Weight_search(output_dir):
+def SRGAN_Weight_search(initial_path, output_dir):
+    os.chdir(initial_path)
     os.chdir(output_dir)
-    print(output_dir)
     Gen_flag = 0
     CARE_flag = 0
     if os.path.exists('Pretrained.hdf5'):
