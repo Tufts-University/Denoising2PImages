@@ -128,10 +128,6 @@ def ssimpcc_loss(y_true, y_pred, alpha):
 
 @tf.function
 def calculate_content_loss(hr, sr, perceptual_model):
-    print(tf.shape(sr))
-    print(tf.shape(hr))
-    sr = tf.keras.applications.vgg19.preprocess_input(sr)
-    hr = tf.keras.applications.vgg19.preprocess_input(hr)
     sr_features = perceptual_model(sr) / 12.75
     hr_features = perceptual_model(hr) / 12.75
     return mse(hr_features, sr_features)

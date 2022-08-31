@@ -7,6 +7,10 @@ import tensorflow as tf
 import keras
 import model_builder
 import metrics
+import vgg19_simple
+import train
+import shutil
+import pathlib
 
 # === SRResNet ===
 def _get_spatial_ndim(x):
@@ -81,7 +85,7 @@ def build_generator_model(input_shape = (50,256,256,1),
   return model
 
 # Build a discriminator model
-def build_discriminator_model(input_shape = (50,256,256,3),
+def build_discriminator_model(input_shape = (50,256,256,1),
                           *,
                           num_channels,
                           num_residual_blocks,
@@ -105,20 +109,9 @@ def build_discriminator_model(input_shape = (50,256,256,3),
 
 # Losses
 
-def build_vgg19(GT_shape=(256, 256, 3)):
-    vgg = tf.keras.applications.VGG19(
-        weights="imagenet", include_top=False, input_shape=GT_shape
-    )
-    block3_conv4 = 10
-    block5_conv4 = 20
-    
-    model = keras.Model(
-        inputs=vgg.inputs, outputs=vgg.layers[block5_conv4].output,
-        name="vgg19"
-    )
-    model.trainable = False
-
-    return model
+# def build_vgg19(input_shape = (50,256,256,1),reuse=False):
+#     model = vgg19_simple.vgg19_model(input_shape,reuse)
+#     return model
 
 def build_and_compile_srgan(config):
     learning_rate = config['initial_learning_rate']
@@ -135,31 +128,23 @@ def build_and_compile_srgan(config):
                 num_residual_blocks=config['num_residual_blocks'],
                 num_channel_out =1)
     discriminator.summary()
-    #discriminator = model_builder.compile_model(discriminator, learning_rate, 'mse', config['metrics'])
-    
-    vgg = build_vgg19(GT_shape=(256, 256, 3))
-    return generator, discriminator, vgg 
+
+    return generator, discriminator
 
 learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
 generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
 
 @tf.function
-def train_step(images,srgan_checkpoint,vgg):
+def train_step(images,srgan_checkpoint,CARE):
     lr,hr = images
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-        # lr = tf.cast(lr, tf.float32)
-        # hr = tf.cast(hr, tf.float32)
-
         sr = srgan_checkpoint.generator(lr, training=True)
 
         hr_output = srgan_checkpoint.discriminator(hr, training=True)
         sr_output = srgan_checkpoint.discriminator(sr, training=True)
-        hr = tf.concat([hr,hr,hr],axis=3)
-        sr = tf.concat([sr,sr,sr],axis=3)
-        print(tf.shape(sr))
-        print(tf.shape(hr))
-        con_loss = metrics.calculate_content_loss(hr, sr,vgg)
+
+        con_loss = metrics.calculate_content_loss(hr, sr, CARE)
         gen_loss = metrics.calculate_generator_loss(sr_output)
         perc_loss = con_loss + 0.001 * gen_loss
         disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
@@ -171,3 +156,18 @@ def train_step(images,srgan_checkpoint,vgg):
     discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, srgan_checkpoint.discriminator.trainable_variables))
 
     return perc_loss, disc_loss
+
+def generator_train(generator, model_name, config, output_dir, training_data, validation_data, initial_path):
+    generator = train.fit_model(generator, model_name, config, output_dir,
+                            training_data, validation_data)
+    model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
+    assert len(model_paths) != 0, f'No models found under {output_dir}'
+    latest = max(model_paths, key=os.path.getmtime)
+    final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
+    source = str(initial_path / pathlib.Path(output_dir) / latest)
+    print(f'Location of source file: "{source}"')
+    print(f'Location of Final Weights file: "{final_weights_path}"')
+    shutil.copy(source, final_weights_path)
+    print(f'Pretrained Weights are saved to: "{final_weights_path}"')
+
+    return generator, final_weights_path

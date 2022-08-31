@@ -43,8 +43,15 @@ def build_and_compile_model(model_name, strategy, config):
         elif model_name == 'care':
             model = care.build_care(config, 'SXYC')
         elif model_name == 'srgan':
-            generator, discriminator, vgg = srgan.build_and_compile_srgan(config)
-            return generator, discriminator, vgg
+            model = care.build_care(config, 'SXYC')
+            model = compile_model(
+                model,
+                config['initial_learning_rate'],
+                config['loss'],
+                config['loss_alpha'],
+                config['metrics'])
+            generator, discriminator = srgan.build_and_compile_srgan(config)
+            return generator, discriminator, model
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 

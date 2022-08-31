@@ -81,33 +81,29 @@ def train(model_name, config, output_dir, data_path):
     (training_data, validation_data) = data_generator.gather_data(
         config, 
         data_path, 
-        requires_channel_dim=model_name == 'care')
+        requires_channel_dim=model_name != 'rcan')
 
     strategy = model_builder.create_strategy()
     #TODO (nvora01): Clean up the SRGAN implementation
     if model_name == 'srgan':
-        checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
-        generator, discriminator, vgg = model_builder.build_and_compile_model(model_name, strategy, config)
+        generator, discriminator, care = model_builder.build_and_compile_model(model_name, strategy, config)
         
         initial_path = os.getcwd()
         os.chdir(output_dir)
-        if os.path.exists('Pretrained.hdf5'):
-            print('Pretrained RESNET found in output directory')
-            final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
-        else:
-            # Pretrain the generator for 300 epochs
-            generator = fit_model(generator, model_name, config, output_dir,
-                            training_data, validation_data)
-            model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
-            assert len(model_paths) != 0, f'No models found under {output_dir}'
-            latest = max(model_paths, key=os.path.getmtime)
-            final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
-            source = str(initial_path / pathlib.Path(output_dir) / latest)
-            print(f'Location of source file: "{source}"')
-            print(f'Location of Final Weights file: "{final_weights_path}"')
-            shutil.copy(source, final_weights_path)
-            print(f'Pretrained Weights are saved to: "{final_weights_path}"')
-        generator.load_weights(final_weights_path)
+        Gen_flag, CARE_flag = basics.SRGAN_Weight_search(output_dir)
+        if Gen_flag ==1:
+            Gen_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
+        else: 
+            generator, Gen_final_weights_path = srgan.generator_train(generator, model_name, config, output_dir,
+                            training_data, validation_data, initial_path)
+        generator.load_weights(Gen_final_weights_path)
+        if CARE_flag ==1:
+            CARE_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
+        else: 
+            raise Exception('CARE Model needs to be pretrained, please confirm you have weights for standard CARE model')
+
+        care.load_weights(CARE_final_weights_path)
+
         srgan_checkpoint_dir = output_dir + '/ckpt/srgan'
         os.makedirs(srgan_checkpoint_dir, exist_ok=True)
         with strategy.scope():            
@@ -134,22 +130,20 @@ def train(model_name, config, output_dir, data_path):
             ssim_metric = tf.keras.metrics.Mean()
             for i in range(config['epochs']):
                 for _, batch in enumerate(training_data):
-                    perceptual_loss, discriminator_loss = strategy.run(srgan.train_step, args=(batch,srgan_checkpoint,vgg))
+                    perceptual_loss, discriminator_loss = strategy.run(srgan.train_step, args=(batch,srgan_checkpoint,care))
                     perceptual_loss_metric(perceptual_loss)
                     discriminator_loss_metric(discriminator_loss)
                     lr,hr = batch
                     sr = srgan_checkpoint.generator.predict(lr)
                     psnr_value = metrics.psnr(hr, sr)
-                    hr = tf.cast(hr, tf.double)
-                    sr = tf.cast(sr, tf.double)
                     ssim_value = metrics.ssim(hr, sr)
                     psnr_metric(psnr_value)
                     ssim_metric(ssim_value)
-                vgg_loss = perceptual_loss_metric.result()
+                CARE_loss = perceptual_loss_metric.result()
                 dis_loss = discriminator_loss_metric.result()
                 psnr_train = psnr_metric.result()
                 ssim_train = ssim_metric.result()
-                print(f'Training --> Epoch # {i}: VGG_loss = {vgg_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
+                print(f'Training --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
                 perceptual_loss_metric.reset_states()
                 discriminator_loss_metric.reset_states()
                 psnr_metric.reset_states()
@@ -165,7 +159,7 @@ def train(model_name, config, output_dir, data_path):
                     hr_output = srgan_checkpoint.discriminator.predict(hr)
                     sr_output = srgan_checkpoint.discriminator.predict(sr)
 
-                    con_loss = metrics.calculate_content_loss(tf.concat([hr,hr,hr],axis=-1), sr,vgg)
+                    con_loss = metrics.calculate_content_loss(hr, sr, care)
                     gen_loss = metrics.calculate_generator_loss(sr_output)
                     perc_loss = con_loss + 0.001 * gen_loss
                     disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
@@ -174,16 +168,14 @@ def train(model_name, config, output_dir, data_path):
                     discriminator_loss_metric(disc_loss)
 
                     psnr_value = metrics.psnr(hr, sr)
-                    hr = tf.cast(hr, tf.double)
-                    sr = tf.cast(sr, tf.double)
                     ssim_value = metrics.ssim(hr, sr)
                     psnr_metric(psnr_value)
                     ssim_metric(ssim_value)
-                vgg_loss = perceptual_loss_metric.result()
+                CARE_loss = perceptual_loss_metric.result()
                 dis_loss = discriminator_loss_metric.result()
                 psnr_train = psnr_metric.result()
                 ssim_train = ssim_metric.result()
-                print(f'Validation --> Epoch # {i}: VGG_loss = {vgg_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
+                print(f'Validation --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
                 perceptual_loss_metric.reset_states()
                 discriminator_loss_metric.reset_states()
                 psnr_metric.reset_states()
