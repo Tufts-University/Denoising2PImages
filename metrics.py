@@ -4,10 +4,10 @@ import keras
 from keras import backend as kb
 import tensorflow as tf
 import srgan
-from tensorflow.keras.applications.vgg19 import VGG19, preprocess_input
-from tensorflow.keras.losses import BinaryCrossentropy
+from tf.keras.applications.vgg19 import preprocess_input
+from tf.keras.losses import BinaryCrossentropy
 
-binary_cross_entropy = BinaryCrossentropy()
+binary_cross_entropy = BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
 
 def ssim(y_true, y_pred):
     '''
