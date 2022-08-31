@@ -132,7 +132,8 @@ def train(model_name, config, output_dir, data_path):
                     perceptual_loss, discriminator_loss = strategy.run(srgan.train_step, args=(batch,srgan_checkpoint,care))
                     perceptual_loss_metric(perceptual_loss)
                     discriminator_loss_metric(discriminator_loss)
-                    lr,hr = batch
+                    lr = batch[0]
+                    hr = batch[1]
                     sr = srgan_checkpoint.generator.predict(lr)
                     psnr_value = metrics.psnr(hr, sr)
                     ssim_value = metrics.ssim(hr, sr)
@@ -153,7 +154,8 @@ def train(model_name, config, output_dir, data_path):
                 srgan_checkpoint_manager.save()
 
                 for _, val_batch in enumerate(validation_data):
-                    lr,hr = val_batch
+                    lr = val_batch[0]
+                    hr = val_batch[1]
                     sr = srgan_checkpoint.generator.predict(lr)
                     hr_output = srgan_checkpoint.discriminator.predict(hr)
                     sr_output = srgan_checkpoint.discriminator.predict(sr)
