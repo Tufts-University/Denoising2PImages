@@ -54,7 +54,6 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
     else:
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
-
     model.fit(
         x=training_data if model_name != 'care' else training_data[0],
         y=None if model_name != 'care' else training_data[1],
