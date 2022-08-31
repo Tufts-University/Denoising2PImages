@@ -74,8 +74,8 @@ def build_generator_model(input_shape = (50,256,256,1),
 
   x = _conv(x,num_channel_out,3)
   # TODO(nvora01): Not a fan of this, but VGG needs 3 channels
-  outputs = keras.layers.Concatenate()([x,x,x])
-  model = keras.Model(inputs,outputs, name='Generator')
+  #outputs = keras.layers.Concatenate()([x,x,x])
+  model = keras.Model(inputs,x, name='Generator')
   print('--------------------------------------------------------------------')
 
   return model
@@ -156,7 +156,7 @@ def train_step(images,srgan_checkpoint,vgg):
         hr_output = srgan_checkpoint.discriminator(hr, training=True)
         sr_output = srgan_checkpoint.discriminator(sr, training=True)
 
-        con_loss = metrics.calculate_content_loss(tf.concat([hr,hr,hr],axis=-1), sr,vgg)
+        con_loss = metrics.calculate_content_loss(tf.concat([hr,hr,hr],axis=-1), tf.concat([sr,sr,sr],axis=-1),vgg)
         gen_loss = metrics.calculate_generator_loss(sr_output)
         perc_loss = con_loss + 0.001 * gen_loss
         disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
