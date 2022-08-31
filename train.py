@@ -139,9 +139,9 @@ def train(model_name, config, output_dir, data_path):
                     perceptual_loss_metric(perceptual_loss)
                     discriminator_loss_metric(discriminator_loss)
                     lr,hr = batch
-                    sr = srgan_checkpoint.generator.predict(lr)[0]
-                    psnr_value = metrics.psnr(hr, sr)[0]
-                    ssim_value = metrics.ssim(hr, sr)[0]
+                    sr = srgan_checkpoint.generator.predict(lr)
+                    psnr_value = metrics.psnr(hr, sr)
+                    ssim_value = metrics.ssim(hr, sr)
                     psnr_metric(psnr_value)
                     ssim_metric(ssim_value)
                 vgg_loss = perceptual_loss_metric.result()
@@ -160,9 +160,9 @@ def train(model_name, config, output_dir, data_path):
 
                 for _, val_batch in enumerate(validation_data):
                     lr,hr = val_batch
-                    sr = srgan_checkpoint.generator.predict(lr)[0]
-                    hr_output = srgan_checkpoint.discriminator.predict(hr)[0]
-                    sr_output = srgan_checkpoint.discriminator.predict(sr)[0]
+                    sr = srgan_checkpoint.generator.predict(lr)
+                    hr_output = srgan_checkpoint.discriminator.predict(hr)
+                    sr_output = srgan_checkpoint.discriminator.predict(sr)
 
                     con_loss = metrics.calculate_content_loss(tf.concat([hr,hr,hr],axis=-1), sr,vgg)
                     gen_loss = metrics.calculate_generator_loss(sr_output)

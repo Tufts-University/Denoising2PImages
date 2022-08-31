@@ -38,7 +38,7 @@ def psnr(y_true, y_pred):
     Computs the peak signal-to-noise ratio between two images. Note that the
     maximum signal value is assumed to be 1.
     '''
-    p, q = [kb.batch_flatten(y) for y in [y_true, y_pred]]
+    # p, q = [kb.batch_flatten(y) for y in [y_true, y_pred]]
     psnr2 = tf.image.psnr(y_true, y_pred, max_val=1.0)
     return psnr2
     # return -4.342944819 * kb.log(kb.mean(kb.square(p - q), axis=-1))
