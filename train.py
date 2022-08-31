@@ -57,7 +57,7 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
     print(np.shape(training_data))
     print(np.shape(validation_data))
     model.fit(
-        x= training_data
+        x= training_data,
         epochs=config['epochs'],
         # steps_per_epoch=steps_per_epoch,
         shuffle=True,
