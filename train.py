@@ -5,6 +5,7 @@ import pathlib
 import os
 import shutil
 import tqdm
+import numpy as np
 
 # Local dependencies
 import callbacks
