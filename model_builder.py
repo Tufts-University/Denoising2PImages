@@ -1,4 +1,3 @@
-from msilib.schema import Class
 import tensorflow as tf
 
 
