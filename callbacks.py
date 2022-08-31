@@ -83,6 +83,8 @@ def get_callbacks(model_name, epochs, output_dir, checkpoint_filepath, validatio
     elif model_name == 'care':
         learning_rate_callback = tf.keras.callbacks.ReduceLROnPlateau(
             verbose=True, factor=0.97, min_delta=0, patience=20)
+    elif model_name == 'srgan':
+        print('Using SRGAN')
     else:
         raise ValueError(f'Unknown model name: {model_name}')
 
