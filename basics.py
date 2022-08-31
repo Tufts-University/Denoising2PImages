@@ -27,6 +27,7 @@ def final_weights_name():
 
 def SRGAN_Weight_search(output_dir):
     os.chdir(output_dir)
+    print(output_dir)
     Gen_flag = 0
     CARE_flag = 0
     if os.path.exists('Pretrained.hdf5'):
