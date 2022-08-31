@@ -4,10 +4,8 @@ import keras
 from keras import backend as kb
 import tensorflow as tf
 import srgan
-from tf.keras.applications.vgg19 import preprocess_input
-from tf.keras.losses import BinaryCrossentropy
 
-binary_cross_entropy = BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
+binary_cross_entropy = tf.keras.losses.BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
 
 def ssim(y_true, y_pred):
     '''
@@ -130,8 +128,8 @@ def ssimpcc_loss(y_true, y_pred, alpha):
 
 @tf.function
 def calculate_content_loss(hr, sr, perceptual_model):
-    sr = preprocess_input(sr)
-    hr = preprocess_input(hr)
+    sr = tf.keras.applications.vgg19.preprocess_input(sr)
+    hr = tf.keras.applications.vgg19.preprocess_input(hr)
     sr_features = perceptual_model(sr) / 12.75
     hr_features = perceptual_model(hr) / 12.75
     return mse(hr_features, sr_features)
