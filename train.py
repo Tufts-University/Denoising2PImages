@@ -128,7 +128,6 @@ def train(model_name, config, output_dir, data_path):
         
             if srgan_checkpoint_manager.latest_checkpoint:
                 srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
-                print(f'Model restored from checkpoint at step {srgan_checkpoint.step.numpy()} with validation PSNR {srgan_checkpoint.psnr.numpy()}.')
             perceptual_loss_metric = tf.keras.metrics.Mean()
             discriminator_loss_metric = tf.keras.metrics.Mean()
             psnr_metric = tf.keras.metrics.Mean()
