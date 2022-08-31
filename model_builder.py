@@ -48,8 +48,8 @@ def build_and_compile_model(model_name, strategy, config):
                 model,
                 config['initial_learning_rate'],
                 'ssiml1_loss',
-                config['loss_alpha'],
-                config['metrics'])
+                config['metrics'],
+                config['loss_alpha'])
             generator, discriminator = srgan.build_and_compile_srgan(config)
             return generator, discriminator, model
         else:
@@ -61,7 +61,7 @@ def build_and_compile_model(model_name, strategy, config):
                 model,
                 config['initial_learning_rate'],
                 config['loss'],
-                config['loss_alpha'],
-                config['metrics'])
+                config['metrics'],
+                config['loss_alpha'])
 
         return model
