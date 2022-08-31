@@ -156,7 +156,7 @@ def train_step(images,srgan_checkpoint,vgg):
         hr_output = srgan_checkpoint.discriminator(hr, training=True)
         sr_output = srgan_checkpoint.discriminator(sr, training=True)
 
-        con_loss = metrics.calculate_content_loss(tf.stack([hr,hr,hr],axis=-1), tf.stack([sr,sr,sr],axis=-1),vgg)
+        con_loss = metrics.calculate_content_loss(tf.stack([hr,hr,hr],axis=3), tf.stack([sr,sr,sr],axis=3),vgg)
         gen_loss = metrics.calculate_generator_loss(sr_output)
         perc_loss = con_loss + 0.001 * gen_loss
         disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
