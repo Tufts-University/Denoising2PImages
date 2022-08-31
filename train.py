@@ -126,65 +126,65 @@ def train(model_name, config, output_dir, data_path):
                                     directory=srgan_checkpoint_dir,
                                     max_to_keep=3)
         
-        if srgan_checkpoint_manager.latest_checkpoint:
-            srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
-            print(f'Model restored from checkpoint at step {srgan_checkpoint.step.numpy()} with validation PSNR {srgan_checkpoint.psnr.numpy()}.')
-        perceptual_loss_metric = tf.keras.metrics.Mean()
-        discriminator_loss_metric = tf.keras.metrics.Mean()
-        psnr_metric = tf.keras.metrics.Mean()
-        ssim_metric = tf.keras.metrics.Mean()
-        for i in range(config['epochs']):
-            for _, batch in enumerate(training_data):
-                perceptual_loss, discriminator_loss = srgan.train_step(batch,srgan_checkpoint,vgg)
-                perceptual_loss_metric(perceptual_loss)
-                discriminator_loss_metric(discriminator_loss)
-                lr,hr = batch
-                sr = srgan_checkpoint.generator.predict(lr)[0]
-                psnr_value = metrics.psnr(hr, sr)[0]
-                ssim_value = metrics.ssim(hr, sr)[0]
-                psnr_metric(psnr_value)
-                ssim_metric(ssim_value)
-            vgg_loss = perceptual_loss_metric.result()
-            dis_loss = discriminator_loss_metric.result()
-            psnr_train = psnr_metric.result()
-            ssim_train = ssim_metric.result()
-            print(f'Training --> Epoch # {i}: VGG_loss = {vgg_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
-            perceptual_loss_metric.reset_states()
-            discriminator_loss_metric.reset_states()
-            psnr_metric.reset_states()
-            ssim_metric.reset_states()
+            if srgan_checkpoint_manager.latest_checkpoint:
+                srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
+                print(f'Model restored from checkpoint at step {srgan_checkpoint.step.numpy()} with validation PSNR {srgan_checkpoint.psnr.numpy()}.')
+            perceptual_loss_metric = tf.keras.metrics.Mean()
+            discriminator_loss_metric = tf.keras.metrics.Mean()
+            psnr_metric = tf.keras.metrics.Mean()
+            ssim_metric = tf.keras.metrics.Mean()
+            for i in range(config['epochs']):
+                for _, batch in enumerate(training_data):
+                    perceptual_loss, discriminator_loss = srgan.train_step(batch,srgan_checkpoint,vgg)
+                    perceptual_loss_metric(perceptual_loss)
+                    discriminator_loss_metric(discriminator_loss)
+                    lr,hr = batch
+                    sr = srgan_checkpoint.generator.predict(lr)[0]
+                    psnr_value = metrics.psnr(hr, sr)[0]
+                    ssim_value = metrics.ssim(hr, sr)[0]
+                    psnr_metric(psnr_value)
+                    ssim_metric(ssim_value)
+                vgg_loss = perceptual_loss_metric.result()
+                dis_loss = discriminator_loss_metric.result()
+                psnr_train = psnr_metric.result()
+                ssim_train = ssim_metric.result()
+                print(f'Training --> Epoch # {i}: VGG_loss = {vgg_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
+                perceptual_loss_metric.reset_states()
+                discriminator_loss_metric.reset_states()
+                psnr_metric.reset_states()
+                ssim_metric.reset_states()
 
-            srgan_checkpoint.psnr.assign(psnr_train)
-            srgan_checkpoint.ssim.assign(ssim_train)
-            srgan_checkpoint_manager.save()
+                srgan_checkpoint.psnr.assign(psnr_train)
+                srgan_checkpoint.ssim.assign(ssim_train)
+                srgan_checkpoint_manager.save()
 
-            for _, val_batch in enumerate(validation_data):
-                lr,hr = val_batch
-                sr = srgan_checkpoint.generator.predict(lr)[0]
-                hr_output = srgan_checkpoint.discriminator.predict(hr)[0]
-                sr_output = srgan_checkpoint.discriminator.predict(sr)[0]
+                for _, val_batch in enumerate(validation_data):
+                    lr,hr = val_batch
+                    sr = srgan_checkpoint.generator.predict(lr)[0]
+                    hr_output = srgan_checkpoint.discriminator.predict(hr)[0]
+                    sr_output = srgan_checkpoint.discriminator.predict(sr)[0]
 
-                con_loss = metrics.calculate_content_loss(tf.concat([hr,hr,hr],axis=-1), sr,vgg)
-                gen_loss = metrics.calculate_generator_loss(sr_output)
-                perc_loss = con_loss + 0.001 * gen_loss
-                disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
+                    con_loss = metrics.calculate_content_loss(tf.concat([hr,hr,hr],axis=-1), sr,vgg)
+                    gen_loss = metrics.calculate_generator_loss(sr_output)
+                    perc_loss = con_loss + 0.001 * gen_loss
+                    disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
 
-                perceptual_loss_metric(perc_loss)
-                discriminator_loss_metric(disc_loss)
+                    perceptual_loss_metric(perc_loss)
+                    discriminator_loss_metric(disc_loss)
 
-                psnr_value = metrics.psnr(hr, sr)[0]
-                ssim_value = metrics.ssim(hr, sr)[0]
-                psnr_metric(psnr_value)
-                ssim_metric(ssim_value)
-            vgg_loss = perceptual_loss_metric.result()
-            dis_loss = discriminator_loss_metric.result()
-            psnr_train = psnr_metric.result()
-            ssim_train = ssim_metric.result()
-            print(f'Validation --> Epoch # {i}: VGG_loss = {vgg_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
-            perceptual_loss_metric.reset_states()
-            discriminator_loss_metric.reset_states()
-            psnr_metric.reset_states()
-            ssim_metric.reset_states()
+                    psnr_value = metrics.psnr(hr, sr)[0]
+                    ssim_value = metrics.ssim(hr, sr)[0]
+                    psnr_metric(psnr_value)
+                    ssim_metric(ssim_value)
+                vgg_loss = perceptual_loss_metric.result()
+                dis_loss = discriminator_loss_metric.result()
+                psnr_train = psnr_metric.result()
+                ssim_train = ssim_metric.result()
+                print(f'Validation --> Epoch # {i}: VGG_loss = {vgg_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
+                perceptual_loss_metric.reset_states()
+                discriminator_loss_metric.reset_states()
+                psnr_metric.reset_states()
+                ssim_metric.reset_states()
         os.chdir(output_dir)
         model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
         assert len(model_paths) != 0, f'No models found under {output_dir}'
