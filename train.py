@@ -135,7 +135,7 @@ def train(model_name, config, output_dir, data_path):
             ssim_metric = tf.keras.metrics.Mean()
             for i in range(config['epochs']):
                 for _, batch in enumerate(training_data):
-                    perceptual_loss, discriminator_loss = srgan.train_step(batch,srgan_checkpoint,vgg)
+                    perceptual_loss, discriminator_loss = strategy.run(srgan.train_step, args=(batch,srgan_checkpoint,vgg))
                     perceptual_loss_metric(perceptual_loss)
                     discriminator_loss_metric(discriminator_loss)
                     lr,hr = batch
