@@ -156,3 +156,8 @@ Weigert, M., Schmidt, U., Boothe, T. *et al.* Content-aware image restoration: p
 <a id="3">[3]</a>
 Ledig, C., Theis, L., Huszar, F. *et al.* Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network. *arXiv* (2016). https://doi.org/10.48550/arxiv.1609.04802
 
+<a id="4">[4]</a>
+K.B., SRGAN: Super Resolution Generative Adversarial Networks. *PaperspaceBlog* (2021). https://blog.paperspace.com/super-resolution-generative-adversarial-networks/. Date Accessed: 08/30/2022
+
+<a id="5">[5]</a>
+Laihong, J., Image Super-Resolution using SRResNet and SRGAN, (2021), GitHub repository, https://github.com/jlaihong/image-super-resolution
