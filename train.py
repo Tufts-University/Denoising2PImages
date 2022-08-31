@@ -101,7 +101,6 @@ def train(model_name, config, output_dir, data_path):
             CARE_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
         else: 
             raise Exception('CARE Model needs to be pretrained, please confirm you have weights for standard CARE model')
-
         care.load_weights(CARE_final_weights_path)
 
         srgan_checkpoint_dir = output_dir + '/ckpt/srgan'

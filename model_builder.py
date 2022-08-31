@@ -47,7 +47,7 @@ def build_and_compile_model(model_name, strategy, config):
             model = compile_model(
                 model,
                 config['initial_learning_rate'],
-                config['loss'],
+                'ssiml1_loss',
                 config['loss_alpha'],
                 config['metrics'])
             generator, discriminator = srgan.build_and_compile_srgan(config)
