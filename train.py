@@ -57,7 +57,8 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
     print(np.shape(training_data))
     print(np.shape(validation_data))
     model.fit(
-        x= training_data,
+        x= training_data if model_name != 'care' else training_data[0],
+        y=None if model_name != 'care' else training_data[1],
         epochs=config['epochs'],
         # steps_per_epoch=steps_per_epoch,
         shuffle=True,
@@ -82,7 +83,7 @@ def train(model_name, config, output_dir, data_path):
     (training_data, validation_data) = data_generator.gather_data(
         config, 
         data_path, 
-        requires_channel_dim=model_name != 'rcan')
+        requires_channel_dim=model_name == 'care')
 
     strategy = model_builder.create_strategy()
     #TODO (nvora01): Clean up the SRGAN implementation
