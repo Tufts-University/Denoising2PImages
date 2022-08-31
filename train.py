@@ -87,25 +87,29 @@ def train(model_name, config, output_dir, data_path):
     if model_name == 'srgan':
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
         generator, discriminator, vgg = model_builder.build_and_compile_model(model_name, strategy, config)
-        # Pretrain the generator for 100 epochs
-        generator = fit_model(generator, model_name, config, output_dir,
-                        training_data, validation_data)
-
+        
         initial_path = os.getcwd()
         os.chdir(output_dir)
-        model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
-        assert len(model_paths) != 0, f'No models found under {output_dir}'
-        latest = max(model_paths, key=os.path.getmtime)
-        final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
-        source = str(initial_path / pathlib.Path(output_dir) / latest)
-        print(f'Location of source file: "{source}"')
-        print(f'Location of Final Weights file: "{final_weights_path}"')
-        shutil.copy(source, final_weights_path)
-        print(f'Pretrained Weights are saved to: "{final_weights_path}"')            
+        if os.path.exists('Pretrained.hdf5'):
+            print('Pretrained RESNET found in output directory')
+            final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
+        else:
+            # Pretrain the generator for 300 epochs
+            generator = fit_model(generator, model_name, config, output_dir,
+                            training_data, validation_data)
+            model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
+            assert len(model_paths) != 0, f'No models found under {output_dir}'
+            latest = max(model_paths, key=os.path.getmtime)
+            final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
+            source = str(initial_path / pathlib.Path(output_dir) / latest)
+            print(f'Location of source file: "{source}"')
+            print(f'Location of Final Weights file: "{final_weights_path}"')
+            shutil.copy(source, final_weights_path)
+            print(f'Pretrained Weights are saved to: "{final_weights_path}"')            
         learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
         generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
         discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
-        generator = generator.load_weights(final_weights_path)
+        generator.load_weights(final_weights_path)
         srgan_checkpoint_dir = output_dir + '/ckpt/srgan'
         os.makedirs(srgan_checkpoint_dir, exist_ok=True)
         srgan_checkpoint = tf.train.Checkpoint(psnr=tf.Variable(0.0),
