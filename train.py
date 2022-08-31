@@ -54,10 +54,10 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
     else:
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
-
+    print(np.shape(training_data))
+    print(np.shape(validation_data))
     model.fit(
-        x=training_data if model_name != 'care' else training_data[0],
-        y=None if model_name != 'care' else training_data[1],
+        x= training_data
         epochs=config['epochs'],
         # steps_per_epoch=steps_per_epoch,
         shuffle=True,
@@ -95,8 +95,7 @@ def train(model_name, config, output_dir, data_path):
         if Gen_flag == 1:
             Gen_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
         else: 
-            generator, Gen_final_weights_path = srgan.generator_train(generator, model_name, config, output_dir,
-                            training_data, validation_data, initial_path)
+            generator, Gen_final_weights_path = srgan.generator_train(generator, model_name, config, output_dir, training_data, validation_data, initial_path)
         generator.load_weights(Gen_final_weights_path)
         if CARE_flag == 1:
             CARE_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
