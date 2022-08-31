@@ -106,23 +106,25 @@ def train(model_name, config, output_dir, data_path):
             print(f'Location of source file: "{source}"')
             print(f'Location of Final Weights file: "{final_weights_path}"')
             shutil.copy(source, final_weights_path)
-            print(f'Pretrained Weights are saved to: "{final_weights_path}"')            
-        learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
-        generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-        discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
+            print(f'Pretrained Weights are saved to: "{final_weights_path}"')
         generator.load_weights(final_weights_path)
         srgan_checkpoint_dir = output_dir + '/ckpt/srgan'
         os.makedirs(srgan_checkpoint_dir, exist_ok=True)
-        srgan_checkpoint = tf.train.Checkpoint(psnr=tf.Variable(0.0),
-                                            ssim=tf.Variable(0.0), 
-                                            generator_optimizer=generator_optimizer,
-                                            discriminator_optimizer=discriminator_optimizer,
-                                            generator=generator,
-                                            discriminator=discriminator)
+        with strategy.scope():            
+            learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
+            generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+            discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
 
-        srgan_checkpoint_manager = tf.train.CheckpointManager(checkpoint=srgan_checkpoint,
-                                directory=srgan_checkpoint_dir,
-                                max_to_keep=3)
+            srgan_checkpoint = tf.train.Checkpoint(psnr=tf.Variable(0.0),
+                                                ssim=tf.Variable(0.0), 
+                                                generator_optimizer=generator_optimizer,
+                                                discriminator_optimizer=discriminator_optimizer,
+                                                generator=generator,
+                                                discriminator=discriminator)
+
+            srgan_checkpoint_manager = tf.train.CheckpointManager(checkpoint=srgan_checkpoint,
+                                    directory=srgan_checkpoint_dir,
+                                    max_to_keep=3)
         
         if srgan_checkpoint_manager.latest_checkpoint:
             srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
