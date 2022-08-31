@@ -148,8 +148,8 @@ discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 def train_step(images,srgan_checkpoint,vgg):
     lr,hr = images
     with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-        lr = tf.cast(lr, tf.float32)
-        hr = tf.cast(hr, tf.float32)
+        # lr = tf.cast(lr, tf.float32)
+        # hr = tf.cast(hr, tf.float32)
 
         sr = srgan_checkpoint.generator(lr, training=True)
 
