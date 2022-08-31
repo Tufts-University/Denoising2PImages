@@ -121,7 +121,7 @@ def build_vgg19(GT_shape=(256, 256, 3)):
     return model
 
 def build_and_compile_srgan(config):
-    learning_rate = tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
+    learning_rate = config['initial_learning_rate']
     generator = build_generator_model((*config['input_shape'], 1),
                 num_channels=config['num_channels'],
                 num_residual_blocks=config['num_residual_blocks'],
