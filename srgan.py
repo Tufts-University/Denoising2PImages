@@ -11,6 +11,7 @@ import vgg19_simple
 import train
 import shutil
 import pathlib
+import numpy as np
 
 # === SRResNet ===
 def _get_spatial_ndim(x):
