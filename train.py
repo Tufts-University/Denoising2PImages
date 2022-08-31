@@ -84,6 +84,7 @@ def train(model_name, config, output_dir, data_path):
         requires_channel_dim=model_name == 'care')
 
     strategy = model_builder.create_strategy()
+    #TODO (nvora01): Clean up the SRGAN implementation
     if model_name == 'srgan':
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
         generator, discriminator, vgg = model_builder.build_and_compile_model(model_name, strategy, config)
