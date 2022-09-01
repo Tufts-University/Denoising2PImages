@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp072
 ##SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_Resnet_0823_cervix_SSIMR2_ap5.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_Resnet_0823_cervix_SSIMR2_ap5.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_mse.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_mse.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -106,19 +106,19 @@ echo "" # empty line #
 # SRGAN Trial 1
 # python -u srgan.py
 
-# SRGAN Trial 2 run only
+# SRGAN Trial 2 run only ⏰
 # python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
 
+# NADH resnet + SSIMR2 ⏰ ⏰
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=16 loss_alpha=0
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
 
 ##################################################################
 ### Resnet ########################################################
-# NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIM deep ✅ ✅
-# python -u main.py train care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior1.1 loss_alpha=0.5
-# python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep" cwd=.. fad_data=NV_713_FAD_healthy.npz nadh_data=NV_713_NADH_healthy.npz wavelet_function=bior1.1
 
-# NADH resnet + SSIMR2
-python -u main.py train resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss loss_alpha=0.5 num_residual_blocks=16
-python -u main.py eval resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
+# NADH resnet + SSIMR2 ⏰ ⏰
+# python -u main.py train resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss loss_alpha=0.5 num_residual_blocks=16
+# python -u main.py eval resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
 
 ### Archives #####################################################
 # NADH_CAREmodel_0713_cervix_SSIMR2_Wavelet
