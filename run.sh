@@ -107,7 +107,7 @@ echo "" # empty line #
 # python -u srgan.py
 
 # SRGAN Trial 2 run only
-python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
+# python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
 
 
 ##################################################################
