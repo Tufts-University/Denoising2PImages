@@ -87,9 +87,7 @@ def train(model_name, config, output_dir, data_path):
     #TODO (nvora01): Clean up the SRGAN implementation
     if model_name == 'srgan':
         generator, discriminator, care = model_builder.build_and_compile_model(model_name, strategy, config)
-        
         initial_path = os.getcwd()
-        os.chdir(output_dir)
         Gen_flag, CARE_flag = basics.SRGAN_Weight_search(initial_path, output_dir)
         if Gen_flag == 1:
             Gen_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
@@ -102,7 +100,7 @@ def train(model_name, config, output_dir, data_path):
             raise Exception('CARE Model needs to be pretrained, please confirm you have weights for standard CARE model')
         care.load_weights(CARE_final_weights_path)
 
-        srgan_checkpoint_dir = output_dir + '/ckpt/srgan'
+        srgan_checkpoint_dir = '/ckpt/srgan'
         os.makedirs(srgan_checkpoint_dir, exist_ok=True)
         with strategy.scope():            
             learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
