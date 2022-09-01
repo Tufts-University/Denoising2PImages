@@ -17,19 +17,19 @@ def make_config(model_name):
         'nadh_data': '',
         'fad_data': '',
         'epochs': 300,
-        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100}[model_name],
+        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None}[model_name],
         'input_shape': [256, 256], # TODO: Remove since this is almost fixed. (Nilay) Need to check what Filip did here since we may want variable size patches
         'initial_learning_rate': 1e-5,
         'val_seed': 0, #Controls the validation split, NONE is a special case here TODO (nvora01): remove the none class as we won't need this in the future
 
         # Metrics
-        'loss': {'srgan': None, 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss'}[model_name],
+        'loss': {'srgan': 'mse', 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 
         'loss_alpha': 0.5, # How much different loss functions are weighted in the compound loss.
 
-        # RCAN config
+        # RCAN and Resnet config
         'num_channels': 32,
         'num_residual_blocks': 5,
         'num_residual_groups': 5,
@@ -90,7 +90,7 @@ def main():
         raise Exception(f'Invalid mode: "{mode}"')
 
     model_name = sys.argv[2]
-    if model_name not in ['rcan', 'care', 'srgan']:
+    if model_name not in ['rcan', 'care', 'srgan','resnet']:
         raise Exception(f'Invalid model name: "{model_name}"')
 
     trial_name = sys.argv[3]

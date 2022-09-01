@@ -53,7 +53,7 @@ def build_and_compile_model(model_name, strategy, config):
                 config['loss_alpha'])
             generator, discriminator = srgan.build_and_compile_srgan(config)
             return generator, discriminator, model
-        elif model_name == 'ResNet':
+        elif model_name == 'resnet':
             model = RESNET.build_and_compile_RESNET(config)
             return model
         else:

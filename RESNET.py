@@ -79,5 +79,5 @@ def build_and_compile_RESNET(config):
                 num_residual_blocks=config['num_residual_blocks'],
                 num_channel_out = 1)
 
-    generator = model_builder.compile_model(generator, config['initial_learning_rate'], 'mse', config['metrics'])
+    generator = model_builder.compile_model(generator, config['initial_learning_rate'], config['loss'], config['metrics'])
     return generator
