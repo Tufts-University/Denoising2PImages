@@ -6,6 +6,7 @@ import metrics
 import rcan
 import care
 import srgan
+import RESNET
 
 def create_strategy():
     strategy = tf.distribute.MirroredStrategy()
@@ -52,6 +53,9 @@ def build_and_compile_model(model_name, strategy, config):
                 config['loss_alpha'])
             generator, discriminator = srgan.build_and_compile_srgan(config)
             return generator, discriminator, model
+        elif model_name == 'ResNet':
+            model = RESNET.build_and_compile_RESNET(config)
+            return model
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 

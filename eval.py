@@ -263,8 +263,11 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     print('Evaluating...')
 
     strategy = model_builder.create_strategy()
-    model = model_builder.build_and_compile_model(model_name, strategy, config)
-
+    if model_name == 'srgan':
+        model = model_builder.build_and_compile_model('ResNet',strategy,config)
+    else:
+        model = model_builder.build_and_compile_model(model_name, strategy, config)
+    
     load_weights(model, output_dir=output_dir)
 
     # Go to the results directory to generate and store evaluated images.
