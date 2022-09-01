@@ -90,7 +90,7 @@ def main():
         raise Exception(f'Invalid mode: "{mode}"')
 
     model_name = sys.argv[2]
-    if model_name not in ['rcan', 'care', 'srgan','resnet']:
+    if model_name not in ['rcan', 'care', 'srgan', 'resnet']:
         raise Exception(f'Invalid model name: "{model_name}"')
 
     trial_name = sys.argv[3]
