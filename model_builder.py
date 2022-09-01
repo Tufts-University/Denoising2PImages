@@ -10,7 +10,7 @@ import RESNET
 
 def create_strategy():
     strategy = tf.distribute.MirroredStrategy()
-    print('Number of devices: {strategy.num_replicas_in_sync}')
+    print(f'Number of devices: {strategy.num_replicas_in_sync}')
 
     return strategy
 

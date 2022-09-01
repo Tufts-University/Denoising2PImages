@@ -32,24 +32,6 @@ def _residual_blocks(x, repeat):
     x = keras.layers.Add()([x, short_skip])
   return x
 
-def _residual_disc_blocks(x):
-  num_channels = _get_num_channels(x)
-  channels = [num_channels * n for n in range(1,5)]
-  print(channels)
-
-  x = _conv(x,num_channels,3,strides = 2)
-  x = keras.layers.BatchNormalization()(x)
-  x = keras.layers.LeakyReLU()(x)
-  
-  for i in range(len(channels)):
-    x = _conv(x,channels[i],3,strides = 1)
-    x = keras.layers.BatchNormalization()(x)
-    x = keras.layers.LeakyReLU()(x)
-    x = _conv(x,channels[i],3,strides = 2)
-    x = keras.layers.BatchNormalization()(x)
-    x = keras.layers.LeakyReLU()(x)
-  return x
-
 # Build a generator model
 def build_generator_model(input_shape = (50,256,256,1),
                           *,

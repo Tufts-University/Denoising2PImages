@@ -120,6 +120,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,traini
     care.load_weights(CARE_final_weights_path)
 
     srgan_checkpoint_dir = str(initial_path /pathlib.Path(output_dir) / 'ckpt' / 'srgan')
+    print(f'Checkpoints saved in {srgan_checkpoint_dir}')
     os.makedirs(srgan_checkpoint_dir, exist_ok=True)
     with strategy.scope():            
         learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])

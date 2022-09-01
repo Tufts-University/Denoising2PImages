@@ -86,7 +86,7 @@ def train(model_name, config, output_dir, data_path):
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':
         initial_path = os.getcwd()
-        if not os.path.exists(output_dir):
+        if not os.path.exists(str(initial_path /pathlib.Path(output_dir))):
             print(f'Creating output directory: "{output_dir}"')
             os.makedirs(output_dir)
         srgan_checkpoint, srgan_checkpoint_manager = srgan.SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,training_data, validation_data)
