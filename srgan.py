@@ -141,8 +141,6 @@ def train_step(images,srgan_checkpoint,CARE):
         lr = images[0]
         hr = images[1]
         sr = srgan_checkpoint.generator(lr, training=True)
-        print(np.shape(hr))
-        print(np.shape(sr))
         hr_output = srgan_checkpoint.discriminator(hr, training=True)
         sr_output = srgan_checkpoint.discriminator(sr, training=True)
 
