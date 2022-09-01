@@ -134,6 +134,8 @@ def train(model_name, config, output_dir, data_path):
                     hr = batch[1]
                     sr = srgan_checkpoint.generator.predict(lr)
                     psnr_value = metrics.psnr(hr, sr)
+                    hr = tf.cast(hr,tf.double)
+                    sr = tf.cast(sr,tf.double)
                     ssim_value = metrics.ssim(hr, sr)
                     psnr_metric(psnr_value)
                     ssim_metric(ssim_value)
@@ -167,6 +169,8 @@ def train(model_name, config, output_dir, data_path):
                     discriminator_loss_metric(disc_loss)
 
                     psnr_value = metrics.psnr(hr, sr)
+                    hr = tf.cast(hr,tf.double)
+                    sr = tf.cast(sr,tf.double)
                     ssim_value = metrics.ssim(hr, sr)
                     psnr_metric(psnr_value)
                     ssim_metric(ssim_value)
