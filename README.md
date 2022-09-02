@@ -22,7 +22,7 @@ The following code can be used to implement competing models of denoising on 2D 
     - Evaluation Time: ~ 2 minutes
 
 ## Dataset
-1. All raw data is available for at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
+1. All raw data is available at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
 2. Pretrained model weights are stored in Trained Model Folder
 3. Preformatted data is avaiable online under Data folder
 
