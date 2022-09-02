@@ -9,8 +9,8 @@
 #SBATCH --nodelist=p1cmp110
 ##SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_SRGAN_0823_cervix_mse.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_SRGAN_0823_cervix_mse.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_standard.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_standard.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -107,11 +107,11 @@ echo "" # empty line #
 # python -u srgan.py
 
 # SRGAN Trial 2 run only ⏰
-# python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
 
 # NADH resnet + MSE ⏰ ⏰
-python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=6 loss_alpha=0
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
+# python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=6 loss_alpha=0
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
 
 ##################################################################
 ### Resnet ########################################################
