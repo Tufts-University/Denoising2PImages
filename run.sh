@@ -110,7 +110,7 @@ echo "" # empty line #
 # python -u main.py train srgan "NADH_SRGAN_0823_cervix_standard" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0
 
 # NADH resnet + MSE ⏰ ⏰
-#python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=6 loss_alpha=0
+#python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=6 loss_alpha=0 
 python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=6
 
 ##################################################################
