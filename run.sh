@@ -116,8 +116,8 @@ echo "" # empty line #
 ##################################################################
 ### Resnet ########################################################
 
-# NADH resnet + SSIMR2 ⏰ ⏰
-python -u main.py train resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss loss_alpha=0.5 num_residual_blocks=6
+# NADH resnet + SSIMR2 ✅ ⏰
+# python -u main.py train resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss loss_alpha=0.5 num_residual_blocks=6
 python -u main.py eval resnet "NADH_Resnet_0823_cervix_SSIMR2_ap5" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=6
 
 ### Archives #####################################################
