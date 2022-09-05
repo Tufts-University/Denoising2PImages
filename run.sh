@@ -9,8 +9,8 @@
 #SBATCH --nodelist=p1cmp110
 ##SBATCH --exclude=cc1gpu004,cc1gpu002
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_SRGAN_0823_cervix_mse.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_SRGAN_0823_cervix_mse.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_standard.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_standard.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -19,7 +19,7 @@ source activate Denoising
 
 git pull
 echo "Starting python script..."
-echo "=========================================================="
+echo "==========================================================" 
 echo "" # empty line #
 
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
