@@ -46,8 +46,10 @@ def determine_training_strategy(model, output_dir):
 
     return model
 
-def fit_model(model, model_name, config, output_dir, training_data, validation_data):
+def fit_model(model, model_name, config, output_dir, training_data, validation_data, initial_path):
     print('=== Fitting model --------------------------------------------------')
+    final_dir = str(initial_path,pathlib.Path(output_dir))
+    os.chdir(final_dir)
     steps_per_epoch = config['steps_per_epoch'] if config['steps_per_epoch'] != None else None
     validation_steps = None if validation_data is None else steps_per_epoch
     if validation_data is not None:
@@ -66,7 +68,7 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         callbacks=callbacks.get_callbacks(
             model_name,
             config['epochs'],
-            output_dir,
+            final_dir,
             checkpoint_filepath,
             validation_data))
 
@@ -100,7 +102,7 @@ def train(model_name, config, output_dir, data_path):
         model = model_builder.build_and_compile_model(model_name, strategy, config)
         model = determine_training_strategy(model, output_dir)
         model = fit_model(model, model_name, config, output_dir,
-                        training_data, validation_data)
+                        training_data, validation_data,os.getcwd())
 
         initial_path = os.getcwd()
         os.chdir(output_dir)
