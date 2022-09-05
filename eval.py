@@ -264,7 +264,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
 
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':
-        model = model_builder.build_and_compile_model('ResNet',strategy,config)
+        model = model_builder.build_and_compile_model('resnet',strategy,config)
     else:
         model = model_builder.build_and_compile_model(model_name, strategy, config)
     
