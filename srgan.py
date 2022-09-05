@@ -112,7 +112,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,traini
     if CARE_flag == 1:
         CARE_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
     else: 
-        if os.path.exists(str(initial_path / 'Denoising2PImages' / 'CARE_Pretrained.hdf5')):
+        if os.path.exists((initial_path + '/Denoising2PImages/' + 'CARE_Pretrained.hdf5')):
             CARE_final_weights_path = str(initial_path / 'Denoising2PImages' / 'CARE_Pretrained.hdf5')
             print(f'CARE Pretrained weights found in GitLab Repository path :{CARE_final_weights_path}')
         else:
