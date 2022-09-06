@@ -656,7 +656,7 @@ def default_load_data(data_path, requires_channel_dim, config):
         validation_split= config(['val_split']),
         split_seed = config['val_seed'],
         testing_split= config(['test_split']),
-        test_set_flag = config(['test_flag']),
+        test_set_flag = bool(config(['test_flag'])),
         axes='SXY' if not requires_channel_dim else 'SXYC',
         verbose=True)
     return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
