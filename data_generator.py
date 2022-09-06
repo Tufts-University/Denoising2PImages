@@ -388,19 +388,31 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
     return mat
 
 
-def load_training_data(file, validation_split=0, axes=None, n_images=None,
-                       verbose=False):
+def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, test_set_flag = True,
+                        axes=None, n_images=None,verbose=False):
     """Load training data from file in ``.npz`` format.
     The data file is expected to have the keys:
     - ``X``    : Array of training input images.
     - ``Y``    : Array of corresponding target images.
+    - ``X_val``: Array of validation input images.
+    - ``Y_val``: Array of corresponding target images.
+    - ``X_test``: Array of test input images.
+    - ``Y_test``: Array of corresponding target images.
     - ``axes`` : Axes of the training images.
+    - ``stack_ranges`` : Array of where a stack starts and ends.
+
     Parameters
     ----------
     file : str
         File name
     validation_split : int
-        Seed used for splitting of images to use as validation set during training.
+        Number of image stacks to include in the validation set
+    split_seed : int
+        Seed used for splitting of images stacks into training, validation, and test sets
+    testing_split : int
+        Number of image stacks to include in the test set
+    test_set_flag : bool
+        Can be used to generate a test set or put all test set images into validation set
     axes: str, optional
         Must be provided in case the loaded data does not contain ``axes`` information.
     n_images : int, optional
@@ -409,6 +421,7 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
         Can be used to display information about the loaded images.
     Returns
     -------
+    TODO (nvora01): Update this section with new fcn return 
     tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str )
         Returns two tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`) of training and validation sets
         and the axes of the input images.
@@ -450,71 +463,120 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
+    
+    # TODO (nvora01): See if there is a more efficient way of doing this... 
+    ROIs = len(SB)
+    # Set splitting seed for all splits
+    random.seed(split_seed)
+    print(f'Splitting data using seed {split_seed}')
 
-    # assert type(validation_split) is int,"validation_split must be an integer"
-    # # TODO (nvora01): See if there is a more efficient way of doing this... 
-    # ROIs = len(SB)
-    # random.seed(validation_split)
-    # print('Splitting Data using seed ' + str(validation_split))
+    assert type(validation_split) is int,"validation_split must be an integer"
+    if test_set_flag:
+        print('Test Set is also generated for evaluation')
+        assert type(testing_split) is int,"testing_split must be an integer"
+        total_split = testing_split + validation_split
+        train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
+        temp_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
+        validation_idx = sorted(random.sample(range(0,len(temp_idx)), len(temp_idx)-testing_split))
+        test_idx = sorted([x for x in list(range(0,len(temp_idx))) if x not in validation_idx])
 
-    # train_idx = sorted(random.sample(range(0,ROIs), ROIs-8))
-    # validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
+        # Generation of Validation Set
+        X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
+        for i in range(len(validation_idx)):
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
+            np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+        
+        # Remove the empty initialization image from stack
+        X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
+        
+        # Generating stack ranges for validation set
+        num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
+        prev = 0
+        stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+        for i in range(len(num_stacks)):
+            stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+            prev += num_stacks[i]
 
-    # # Generation of Validation Set
-    # X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
-    # for i in range(len(validation_idx)):
-    #     X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
-    #     np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+        # Generation of Test Set
+        X_te, Y_te = np.empty((1,256,256)), np.empty((1,256,256))
+        for i in range(len(test_idx)):
+            X_te, Y_te = np.concatenate((X_te,X[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0),
+            np.concatenate((Y_te,Y[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0)
+        
+        # Remove the empty initialization image from stack
+        X_te, Y_te = np.delete(X_te,0,axis=0), np.delete(Y_te,0,axis=0)
 
-    # # Remove the empty initialization image from stack
-    # X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
+        # Generating stack ranges for test set
+        te_num_stacks = [int(SE[x]-SB[x]+1)/4 for x in test_idx]
+        prev = 0
+        te_stack_ranges=np.empty((len(te_num_stacks),2), dtype=int)
+        for i in range(len(te_num_stacks)):
+            te_stack_ranges[i] = [prev, prev + te_num_stacks[i]-1]
+            prev += te_num_stacks[i]
 
-    # # Generating stack ranges for validation set
+        # Generation of Training Set
+        temp_idx = np.flip(temp_idx)
+        for i in range(len(temp_idx)):
+            X, Y = np.delete(X,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0), 
+            np.delete(Y,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0)
+
+        if channel != None:
+            X_t = move_channel_for_backend(X_t, channel=channel)
+            Y_t = move_channel_for_backend(Y_t, channel=channel)
+            X_te = move_channel_for_backend(X_te, channel=channel)
+            Y_te = move_channel_for_backend(Y_te, channel=channel)
+    else: 
+        print('No Test Set was generated')
+        total_split = validation_split
+        train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
+        validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
+
+        # Generation of Validation Set
+        X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
+        for i in range(len(validation_idx)):
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
+            np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+
+        # Remove the empty initialization image from stack
+        X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
+
+        # Generating stack ranges for validation set
+        num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
+        prev = 0
+        stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+        for i in range(len(num_stacks)):
+            stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+            prev += num_stacks[i]
+
+        # Generation of Training Set
+        validation_idx = np.flip(validation_idx)
+        for i in range(len(validation_idx)):
+            X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), 
+            np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
+        
+        if channel != None:
+            X_t = move_channel_for_backend(X_t, channel=channel)
+            Y_t = move_channel_for_backend(Y_t, channel=channel)
+
+    # TODO (nvora01): Remove this section
+    ################################################################################
+    ############################Testing on older models!############################
+    # new_test = range(0,int(SE[6])+1)
+    # ranges = np.hstack((new_test,range(int(SB[-5]),len(X))))
+    # X_t, Y_t = X[ranges],  Y[ranges]
+    # validation_idx = np.hstack((range(0,7),range(-5,0)))
     # num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
     # prev = 0
-    # stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+    # stack_ranges=np.empty((len(num_stacks),2),dtype=int)
     # for i in range(len(num_stacks)):
     #     stack_ranges[i] = [prev, prev + num_stacks[i]-1]
     #     prev += num_stacks[i]
 
-    # # Generation of Training Set
-    # validation_idx = np.flip(validation_idx)
-    # for i in range(len(validation_idx)):
-    #     X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), 
-    #     np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
-    
-    # # TODO (nvora01): Remove extra code
-    
-    # # n_val = 620
-    # # n_train = n_images - n_val
-    # # assert 0 < n_val and 0 < n_train
-    # # X_t, Y_t = X[-n_val:],  Y[-n_val:]
-    # # X,   Y = X[:n_train], Y[:n_train]
-
-    # # assert X.shape[0] == n_train and X_t.shape[0] == n_val
-
+    # X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
     # if channel != None:
     #     X_t = move_channel_for_backend(X_t, channel=channel)
     #     Y_t = move_channel_for_backend(Y_t, channel=channel)
-
-    # TODO (nvora01): Remove this section
     ################################################################################
-    ######################Testing on older models!##################################
-    new_test = range(0,int(SE[6])+1)
-    ranges = np.hstack((new_test,range(int(SB[-5]),len(X))))
-    X_t, Y_t = X[ranges],  Y[ranges]
-    validation_idx = np.hstack((range(0,7),range(-5,0)))
-    num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    prev = 0
-    stack_ranges=np.empty((len(num_stacks),2),dtype=int)
-    for i in range(len(num_stacks)):
-        stack_ranges[i] = [prev, prev + num_stacks[i]-1]
-        prev += num_stacks[i]
-
-    X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
-    if channel != None:
-        X_t = move_channel_for_backend(X_t, channel=channel)
-        Y_t = move_channel_for_backend(Y_t, channel=channel)
     ################################################################################
     if channel != None:
         X = move_channel_for_backend(X, channel=channel)
@@ -528,23 +590,43 @@ def load_training_data(file, validation_split=0, axes=None, n_images=None,
             axes = axes[:1]+'C'+axes[1:]
 
     data_val = (X_t, Y_t)
+    if test_set_flag:
+        data_test = (X_te,Y_t)
+        if verbose:
+            ax = axes_dict(axes)
+            n_train, n_val, n_test = len(X), len(X_t), len(X_te) 
+            image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
+            n_dim = len(image_size)
+            if channel != None:
+                n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
 
-    if verbose:
-        ax = axes_dict(axes)
-        n_train, n_val = len(X), len(X_t) 
-        image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
-        n_dim = len(image_size)
-        if channel != None:
-            n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
+            print('number of training images:\t', n_train)
+            print('number of validation images:\t', n_val)
+            print('number of test images:\t', n_test)
+            print('image size (%dD):\t\t' % n_dim, image_size)
+            print('axes:\t\t\t\t', axes)
+            if channel != None:
+                print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-        print('number of training images:\t', n_train)
-        print('number of validation images:\t', n_val)
-        print('image size (%dD):\t\t' % n_dim, image_size)
-        print('axes:\t\t\t\t', axes)
-        if channel != None:
-            print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
+        return (X, Y), data_val, axes, stack_ranges, data_test, te_stack_ranges
 
-    return (X, Y), data_val, axes, stack_ranges
+    else:
+        if verbose:
+            ax = axes_dict(axes)
+            n_train, n_val = len(X), len(X_t) 
+            image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
+            n_dim = len(image_size)
+            if channel != None:
+                n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
+
+            print('number of training images:\t', n_train)
+            print('number of validation images:\t', n_val)
+            print('image size (%dD):\t\t' % n_dim, image_size)
+            print('axes:\t\t\t\t', axes)
+            if channel != None:
+                print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
+
+        return (X, Y), data_val, axes, stack_ranges, [], []
 
 
 def patch_slice(slice):
@@ -570,21 +652,25 @@ def stitch_patches(patches):
 
 
 def default_load_data(data_path, requires_channel_dim, config):
-    (X, Y), (X_val, Y_val), _, val_ranges = load_training_data(
+    (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
         data_path,
-        validation_split=config['val_seed'],
+        validation_split= config(['val_split']),
+        split_seed = config['val_seed'],
+        testing_split= config(['test_split']),
+        test_set_flag = config(['test_flag']),
         axes='SXY' if not requires_channel_dim else 'SXYC',
         verbose=True)
-
-    return (X, Y), (X_val, Y_val), val_ranges
-
+    if config(['test_flag']):
+        return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+    else: 
+        return (X, Y), (X_val, Y_val), val_ranges
 
 def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
     print('=== Gathering data ---------------------------------------------------')
 
     # Similar to 'data_generator.py'
-    (X, Y), (X_val, Y_val), _ = default_load_data(data_path, requires_channel_dim, config)
+    (X, Y), (X_val, Y_val), _, _, _ = default_load_data(data_path, requires_channel_dim, config)
 
     wavelet_config = get_wavelet_config(
         function_name=config['wavelet_function'])
