@@ -483,8 +483,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         # Generation of Validation Set
         X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
         for i in range(len(validation_idx)):
-            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
-            np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
         
         # Remove the empty initialization image from stack
         X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
@@ -500,8 +499,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         # Generation of Test Set
         X_te, Y_te = np.empty((1,256,256,1)), np.empty((1,256,256,1))
         for i in range(len(test_idx)):
-            X_te, Y_te = np.concatenate((X_te,X[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0),
-            np.concatenate((Y_te,Y[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0)
+            X_te, Y_te = np.concatenate((X_te,X[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0), np.concatenate((Y_te,Y[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0)
         
         # Remove the empty initialization image from stack
         X_te, Y_te = np.delete(X_te,0,axis=0), np.delete(Y_te,0,axis=0)
@@ -517,8 +515,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         # Generation of Training Set
         temp_idx = np.flip(temp_idx)
         for i in range(len(temp_idx)):
-            X, Y = np.delete(X,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0), 
-            np.delete(Y,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0)
+            X, Y = np.delete(X,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0), np.delete(Y,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0)
 
         if channel != None:
             X_t = move_channel_for_backend(X_t, channel=channel)
@@ -533,8 +530,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         # Generation of Validation Set
         X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
         for i in range(len(validation_idx)):
-            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
-            np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
 
         # Remove the empty initialization image from stack
         X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
@@ -550,8 +546,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         # Generation of Training Set
         validation_idx = np.flip(validation_idx)
         for i in range(len(validation_idx)):
-            X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), 
-            np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
+            X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
         
         if channel != None:
             X_t = move_channel_for_backend(X_t, channel=channel)
