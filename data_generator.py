@@ -473,109 +473,109 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     assert type(validation_split) is int,"validation_split must be an integer"
     assert type(testing_split) is int,"testing_split must be an integer"
     total_split = testing_split + validation_split
-    # if test_set_flag:
-    #     print(f'A Test set of {testing_split} image stacks and Validation set of {validation_split} image stacks is being generated')
-    #     train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
-    #     temp_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
-    #     validation_idx = sorted(random.sample(temp_idx, len(temp_idx)-testing_split))
-    #     test_idx = sorted([x for x in temp_idx if x not in validation_idx])
-    #     print(f'ROI# Used for Training: {train_idx}')
-    #     print(f'ROI# Used for Validation: {validation_idx}')
-    #     print(f'ROI# Used for Testing: {test_idx}')
-    #     # Generation of Validation Set
-    #     X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
-    #     for i in range(len(validation_idx)):
-    #         X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+    if test_set_flag:
+        print(f'A Test set of {testing_split} image stacks and Validation set of {validation_split} image stacks is being generated')
+        train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
+        temp_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
+        validation_idx = sorted(random.sample(temp_idx, len(temp_idx)-testing_split))
+        test_idx = sorted([x for x in temp_idx if x not in validation_idx])
+        print(f'ROI# Used for Training: {train_idx}')
+        print(f'ROI# Used for Validation: {validation_idx}')
+        print(f'ROI# Used for Testing: {test_idx}')
+        # Generation of Validation Set
+        X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+        for i in range(len(validation_idx)):
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
         
-    #     # Remove the empty initialization image from stack
-    #     X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
+        # Remove the empty initialization image from stack
+        X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
         
-    #     # Generating stack ranges for validation set
-    #     num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    #     prev = 0
-    #     stack_ranges=np.empty((len(num_stacks),2), dtype=int)
-    #     for i in range(len(num_stacks)):
-    #         stack_ranges[i] = [prev, prev + num_stacks[i]-1]
-    #         prev += num_stacks[i]
+        # Generating stack ranges for validation set
+        num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
+        prev = 0
+        stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+        for i in range(len(num_stacks)):
+            stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+            prev += num_stacks[i]
 
-    #     # Generation of Test Set
-    #     X_te, Y_te = np.empty((1,256,256,1)), np.empty((1,256,256,1))
-    #     for i in range(len(test_idx)):
-    #         X_te, Y_te = np.concatenate((X_te,X[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0), np.concatenate((Y_te,Y[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0)
+        # Generation of Test Set
+        X_te, Y_te = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+        for i in range(len(test_idx)):
+            X_te, Y_te = np.concatenate((X_te,X[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0), np.concatenate((Y_te,Y[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0)
         
-    #     # Remove the empty initialization image from stack
-    #     X_te, Y_te = np.delete(X_te,0,axis=0), np.delete(Y_te,0,axis=0)
+        # Remove the empty initialization image from stack
+        X_te, Y_te = np.delete(X_te,0,axis=0), np.delete(Y_te,0,axis=0)
 
-    #     # Generating stack ranges for test set
-    #     te_num_stacks = [int(SE[x]-SB[x]+1)/4 for x in test_idx]
-    #     prev = 0
-    #     te_stack_ranges=np.empty((len(te_num_stacks),2), dtype=int)
-    #     for i in range(len(te_num_stacks)):
-    #         te_stack_ranges[i] = [prev, prev + te_num_stacks[i]-1]
-    #         prev += te_num_stacks[i]
+        # Generating stack ranges for test set
+        te_num_stacks = [int(SE[x]-SB[x]+1)/4 for x in test_idx]
+        prev = 0
+        te_stack_ranges=np.empty((len(te_num_stacks),2), dtype=int)
+        for i in range(len(te_num_stacks)):
+            te_stack_ranges[i] = [prev, prev + te_num_stacks[i]-1]
+            prev += te_num_stacks[i]
 
-    #     # Generation of Training Set
-    #     temp_idx = np.flip(temp_idx)
-    #     for i in range(len(temp_idx)):
-    #         X, Y = np.delete(X,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0), np.delete(Y,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0)
+        # Generation of Training Set
+        temp_idx = np.flip(temp_idx)
+        for i in range(len(temp_idx)):
+            X, Y = np.delete(X,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0), np.delete(Y,list(range(int(SB[temp_idx[i]]),int(SE[temp_idx[i]])+1)),axis=0)
 
-    #     if channel != None:
-    #         X_t = move_channel_for_backend(X_t, channel=channel)
-    #         Y_t = move_channel_for_backend(Y_t, channel=channel)
-    #         X_te = move_channel_for_backend(X_te, channel=channel)
-    #         Y_te = move_channel_for_backend(Y_te, channel=channel)
-    # else: 
-    #     print(f'A Validation set of {total_split} image stacks is being generated')
-    #     train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
-    #     validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
-    #     print(f'ROI# Used for Training: {train_idx}')
-    #     print(f'ROI# Used for Validation: {validation_idx}')
-    #     # Generation of Validation Set
-    #     X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
-    #     for i in range(len(validation_idx)):
-    #         X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
+        if channel != None:
+            X_t = move_channel_for_backend(X_t, channel=channel)
+            Y_t = move_channel_for_backend(Y_t, channel=channel)
+            X_te = move_channel_for_backend(X_te, channel=channel)
+            Y_te = move_channel_for_backend(Y_te, channel=channel)
+    else: 
+        print(f'A Validation set of {total_split} image stacks is being generated')
+        train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
+        validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
+        print(f'ROI# Used for Training: {train_idx}')
+        print(f'ROI# Used for Validation: {validation_idx}')
+        # Generation of Validation Set
+        X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+        for i in range(len(validation_idx)):
+            X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
 
-    #     # Remove the empty initialization image from stack
-    #     X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
+        # Remove the empty initialization image from stack
+        X_t, Y_t = np.delete(X_t,0,axis=0), np.delete(Y_t,0,axis=0)
 
-    #     # Generating stack ranges for validation set
-    #     num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    #     prev = 0
-    #     stack_ranges=np.empty((len(num_stacks),2), dtype=int)
-    #     for i in range(len(num_stacks)):
-    #         stack_ranges[i] = [prev, prev + num_stacks[i]-1]
-    #         prev += num_stacks[i]
+        # Generating stack ranges for validation set
+        num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
+        prev = 0
+        stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+        for i in range(len(num_stacks)):
+            stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+            prev += num_stacks[i]
 
-    #     # Generation of Training Set
-    #     validation_idx = np.flip(validation_idx)
-    #     for i in range(len(validation_idx)):
-    #         X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
+        # Generation of Training Set
+        validation_idx = np.flip(validation_idx)
+        for i in range(len(validation_idx)):
+            X, Y = np.delete(X,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0), np.delete(Y,list(range(int(SB[validation_idx[i]]),int(SE[validation_idx[i]])+1)),axis=0)
         
-    #     if channel != None:
-    #         X_t = move_channel_for_backend(X_t, channel=channel)
-    #         Y_t = move_channel_for_backend(Y_t, channel=channel)
+        if channel != None:
+            X_t = move_channel_for_backend(X_t, channel=channel)
+            Y_t = move_channel_for_backend(Y_t, channel=channel)
 
     # TODO (nvora01): Remove this section
     ################################################################################
     ############################Testing on older models!############################
-    new_test = range(0,int(SE[6])+1)
-    ranges = np.hstack((new_test,range(int(SB[-5]),len(X))))
-    X_t, Y_t = X[ranges],  Y[ranges]
-    validation_idx = np.hstack((range(0,7),range(-5,0)))
-    num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    prev = 0
-    stack_ranges=np.empty((len(num_stacks),2),dtype=int)
-    for i in range(len(num_stacks)):
-        stack_ranges[i] = [prev, prev + num_stacks[i]-1]
-        prev += num_stacks[i]
+    # new_test = range(0,int(SE[6])+1)
+    # ranges = np.hstack((new_test,range(int(SB[-5]),len(X))))
+    # X_t, Y_t = X[ranges],  Y[ranges]
+    # validation_idx = np.hstack((range(0,7),range(-5,0)))
+    # num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
+    # prev = 0
+    # stack_ranges=np.empty((len(num_stacks),2),dtype=int)
+    # for i in range(len(num_stacks)):
+    #     stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+    #     prev += num_stacks[i]
 
-    X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
-    if channel != None:
-        X_t = move_channel_for_backend(X_t, channel=channel)
-        Y_t = move_channel_for_backend(Y_t, channel=channel)
-    X_te = []
-    Y_te = []
-    te_stack_ranges = []
+    # X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
+    # if channel != None:
+    #     X_t = move_channel_for_backend(X_t, channel=channel)
+    #     Y_t = move_channel_for_backend(Y_t, channel=channel)
+    # X_te = []
+    # Y_te = []
+    # te_stack_ranges = []
     ################################################################################
     ################################################################################
     if channel != None:
