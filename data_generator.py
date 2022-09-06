@@ -588,7 +588,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
 
     data_val = (X_t, Y_t)
     if test_set_flag:
-        data_test = (X_te,Y_t)
+        data_test = (X_te,Y_te)
         if verbose:
             ax = axes_dict(axes)
             n_train, n_val, n_test = len(X), len(X_t), len(X_te) 
