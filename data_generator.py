@@ -531,7 +531,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
 
         # Generation of Validation Set
-        X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
+        X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
         for i in range(len(validation_idx)):
             X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0),
             np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
