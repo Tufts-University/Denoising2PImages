@@ -20,7 +20,10 @@ def make_config(model_name):
         'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None}[model_name],
         'input_shape': [256, 256], # TODO: Remove since this is almost fixed. (Nilay) Need to check what Filip did here since we may want variable size patches
         'initial_learning_rate': 1e-5,
-        'val_seed': 0, #Controls the validation split, NONE is a special case here TODO (nvora01): remove the none class as we won't need this in the future
+        'val_seed': 0, # Controls the validation split
+        'val_split': 4, # Controls how many stacks to include in the validation set
+        'test_split': 8, # Controls how many stack to include in the test set
+        'test_flag' : True, # Controls if a test set is generated
 
         # Metrics
         'loss': {'srgan': 'mse', 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],

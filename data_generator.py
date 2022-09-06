@@ -471,10 +471,10 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     print(f'Splitting data using seed {split_seed}')
 
     assert type(validation_split) is int,"validation_split must be an integer"
+    assert type(testing_split) is int,"testing_split must be an integer"
+    total_split = testing_split + validation_split
     if test_set_flag:
-        print('Test Set is also generated for evaluation')
-        assert type(testing_split) is int,"testing_split must be an integer"
-        total_split = testing_split + validation_split
+        print(f'A Test set of {testing_split} image stacks and Validation set of {validation_split} image stacks is being generated')
         train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
         temp_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
         validation_idx = sorted(random.sample(range(0,len(temp_idx)), len(temp_idx)-testing_split))
@@ -526,8 +526,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             X_te = move_channel_for_backend(X_te, channel=channel)
             Y_te = move_channel_for_backend(Y_te, channel=channel)
     else: 
-        print('No Test Set was generated')
-        total_split = validation_split
+        print(f'A Validation set of {total_split} image stacks is being generated')
         train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
         validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
 
