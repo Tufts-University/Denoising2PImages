@@ -49,7 +49,6 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     model_input_image_shape = (50, 256, 256, 1)[1:-1]
     model_output_image_shape = (50, 256, 256, 1)[1:-1]
-    print(data.shape)
     if len(model_input_image_shape) != len(model_output_image_shape):
         raise NotImplementedError
 
@@ -123,7 +122,6 @@ def apply(model, data, overlap_shape=None, verbose=False):
     result = []
     for image in data:
         # add the channel dimension if necessary
-        print(image.shape)
         if len(image.shape) == image_dim:
             image = image[..., np.newaxis]
 
