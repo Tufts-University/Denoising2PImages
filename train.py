@@ -48,7 +48,7 @@ def determine_training_strategy(model, output_dir):
 
 def fit_model(model, model_name, config, output_dir, training_data, validation_data, initial_path):
     print('=== Fitting model --------------------------------------------------')
-    final_dir = str(initial_path,pathlib.Path(output_dir))
+    final_dir = str(initial_path / pathlib.Path(output_dir))
     os.chdir(final_dir)
     steps_per_epoch = config['steps_per_epoch'] if config['steps_per_epoch'] != None else None
     validation_steps = None if validation_data is None else steps_per_epoch

@@ -31,10 +31,10 @@ def SRGAN_Weight_search(data_path):
     Gen_flag = 0
     CARE_flag = 0
     if os.path.exists('Pretrained.hdf5'):
-            print('Pretrained RESNET found in output directory')
+            print(f'Pretrained RESNET found in {data_path}')
             Gen_flag = 1
     if os.path.exists('CARE_Pretrained.hdf5'):
-            print('Pretrained CARE found in output directory')
+            print(f'Pretrained CARE found in {data_path}')
             CARE_flag = 1
     return Gen_flag, CARE_flag
             
