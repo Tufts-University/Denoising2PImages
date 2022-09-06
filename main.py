@@ -23,7 +23,7 @@ def make_config(model_name):
         'val_seed': 0, # Controls the validation split
         'val_split': 4, # Controls how many stacks to include in the validation set
         'test_split': 8, # Controls how many stack to include in the test set
-        'test_flag' : True, # Controls if a test set is generated
+        'test_flag' : 1, # Controls if a test set is generated
 
         # Metrics
         'loss': {'srgan': 'mse', 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
