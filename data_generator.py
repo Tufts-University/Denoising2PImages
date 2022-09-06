@@ -479,7 +479,9 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         temp_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
         validation_idx = sorted(random.sample(range(0,len(temp_idx)), len(temp_idx)-testing_split))
         test_idx = sorted([x for x in list(range(0,len(temp_idx))) if x not in validation_idx])
-
+        print(f'ROI# Used for Training: {train_idx}')
+        print(f'ROI# Used for Validation: {validation_idx}')
+        print(f'ROI# Used for Testing: {test_idx}')
         # Generation of Validation Set
         X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
         for i in range(len(validation_idx)):
@@ -526,7 +528,8 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         print(f'A Validation set of {total_split} image stacks is being generated')
         train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
         validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
-
+        print(f'ROI# Used for Training: {train_idx}')
+        print(f'ROI# Used for Validation: {validation_idx}')
         # Generation of Validation Set
         X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
         for i in range(len(validation_idx)):

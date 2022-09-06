@@ -90,7 +90,7 @@ echo "" # empty line #
 # NADH CARE + SSIML2 ap84 SSIM deep (new_data)  ✅
 #python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0
 
-# NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIM deep (new_data) ✅ ✅
+# NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIMR2 deep (new_data loader) ✅ ✅
 python -u main.py train care "NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior1.1 loss_alpha=0.5 val_seed=0 val_split=4 test_split=8 test_flag=1
 python -u main.py eval care "NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=1
 
