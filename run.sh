@@ -57,7 +57,7 @@ echo "" # empty line #
 # python -u main.py train rcan "NADH_model_0713_cervix_SSIMR2_ap5_Wavelet_gaus1" cwd=.. nadh_data=NV_713_NADH_healthy.npz loss=ssimr2_loss wavelet_function=gaus1
 
 # NADH RCAN + SSIMR2 ap5 Wavelet bior1.1 SSIMR2 (new_data loader) ⏰
-python -u main.py eval care "NADH_model_0713_cervix_SSIMR2_Wavelet_bior" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=0
+python -u main.py eval rcan "NADH_model_0713_cervix_SSIMR2_Wavelet_bior" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=0
 ##################################################################
 
 ### CARE + Wavelet Denoising #####################################
