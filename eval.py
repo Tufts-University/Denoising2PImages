@@ -287,7 +287,12 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
         # Similar to 'data_generator.py'
-        _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
+        if config(['test_flag']):
+            _, _, _, (X_val,Y_val), stack_ranges = data_generator.default_load_data(
+                nadh_path,
+                requires_channel_dim=model_name == 'care', config = config)
+        else:
+            _, (X_val, Y_val), stack_ranges, _, _ = data_generator.default_load_data(
             nadh_path,
             requires_channel_dim=model_name == 'care', config = config)
 
@@ -307,7 +312,12 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if fad_path != None:
         print('=== Evaluating FAD -------------------------------------------------')
         # Similar to 'data_generator.py'
-        _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
+        if config(['test_flag']):
+            _, _, _, (X_val,Y_val), stack_ranges = data_generator.default_load_data(
+                fad_path,
+                requires_channel_dim=model_name == 'care', config = config)
+        else:
+            _, (X_val, Y_val), stack_ranges, _, _ = data_generator.default_load_data(
             fad_path,
             requires_channel_dim=model_name == 'care', config = config)
             

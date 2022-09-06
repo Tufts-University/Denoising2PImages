@@ -626,7 +626,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             if channel != None:
                 print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-        return (X, Y), data_val, axes, stack_ranges, [], []
+        return (X, Y), data_val, axes, stack_ranges, ([],[]), []
 
 
 def patch_slice(slice):
@@ -660,10 +660,8 @@ def default_load_data(data_path, requires_channel_dim, config):
         test_set_flag = config(['test_flag']),
         axes='SXY' if not requires_channel_dim else 'SXYC',
         verbose=True)
-    if config(['test_flag']):
-        return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
-    else: 
-        return (X, Y), (X_val, Y_val), val_ranges
+    return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+
 
 def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
