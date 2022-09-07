@@ -24,7 +24,8 @@ def make_config(model_name):
         'val_split': 4, # Controls how many stacks to include in the validation set
         'test_split': 8, # Controls how many stack to include in the test set
         'test_flag' : 1, # Controls if a test set is generated
-
+        'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
+        
         # Metrics
         'loss': {'srgan': 'mse', 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],

@@ -647,6 +647,111 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
 
         return (X, Y), data_val, axes, stack_ranges, ([],[]), []
 
+def load_testing_data(file,axes=None, n_images=None,verbose=False):
+    """Load training data from file in ``.npz`` format.
+    The data file is expected to have the keys:
+    - ``X``    : Array of training input images.
+    - ``Y``    : Array of corresponding target images.
+    - ``X_val``: Array of validation input images.
+    - ``Y_val``: Array of corresponding target images.
+    - ``X_test``: Array of test input images.
+    - ``Y_test``: Array of corresponding target images.
+    - ``axes`` : Axes of the training images.
+    - ``stack_ranges`` : Array of where a stack starts and ends.
+
+    Parameters
+    ----------
+    file : str
+        File name
+    axes: str, optional
+        Must be provided in case the loaded data does not contain ``axes`` information.
+    n_images : int, optional
+        Can be used to limit the number of images loaded from data.
+    verbose : bool, optional
+        Can be used to display information about the loaded images.
+    Returns
+    -------
+    TODO (nvora01): Update this section with new fcn return 
+    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str )
+        Returns two tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`) of training and validation sets
+        and the axes of the input images.
+        The tuple of validation data will be ``None`` if ``validation_split = 0``.
+    """
+
+    if verbose:
+        print('Loading data...')
+
+    f = np.load(file)
+    X, Y = f['X'], f['Y']
+    SB, SE = f['SB'], f['SE']
+
+    if axes is None:
+        axes = f['axes']
+    axes = axes_check_and_normalize(axes)
+
+    if verbose:
+        print(f'Found axes: {axes}')
+        print(f'Raw X shape is {np.shape(X)}; Raw Y shape is {np.shape(Y)}')
+
+    # The inputted data has 3 channels; add one dimension if a channel
+    # dimension is requested.
+    if len(axes) == 4:
+        X = np.expand_dims(X, axis=-1)
+        Y = np.expand_dims(Y, axis=-1)
+
+        print(f'New X shape is {np.shape(X)}; New Y shape is {np.shape(Y)}')
+
+    assert X.shape == Y.shape
+    assert X.ndim == Y.ndim
+    assert len(axes) == X.ndim
+    assert len(axes) == 3 or 'C' in axes
+    if n_images is None:
+        n_images = X.shape[0]
+    assert X.shape[0] == Y.shape[0]
+    assert 0 < n_images <= X.shape[0]
+    # assert 0 <= validation_split < 1
+
+    X, Y = X[:n_images], Y[:n_images]
+    channel = axes_dict(axes).get('C', None)
+    
+    # TODO (nvora01): See if there is a more efficient way of doing this... 
+    ROIs = len(SB)
+    print(f'A Eval set of {ROIs} image stacks is being generated')
+        
+    # Generating stack ranges for validation set
+    num_stacks = [int(SE[x]-SB[x]+1)/4 for x in range(ROIs)]
+    prev = 0
+    stack_ranges=np.empty((len(num_stacks),2), dtype=int)
+    for i in range(len(num_stacks)):
+        stack_ranges[i] = [prev, prev + num_stacks[i]-1]
+        prev += num_stacks[i]
+    
+    if channel != None:
+        X = move_channel_for_backend(X, channel=channel)
+        Y = move_channel_for_backend(Y, channel=channel)
+
+    if channel != None:
+        axes = axes.replace('C', '')  # remove channel
+        if backend_channels_last():
+            axes = axes+'C'
+        else:
+            axes = axes[:1]+'C'+axes[1:]
+
+
+    if verbose:
+        ax = axes_dict(axes)
+        n_test = len(X)
+        image_size = tuple(X.shape[ax[a]] for a in axes if a in 'TZYX')
+        n_dim = len(image_size)
+        if channel != None:
+            n_channel_in, n_channel_out = X.shape[ax['C']], Y.shape[ax['C']]
+
+        print('number of test images:\t', n_test)
+        print('image size (%dD):\t\t' % n_dim, image_size)
+        print('axes:\t\t\t\t', axes)
+        if channel != None:
+            print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
+    return (X, Y), axes, stack_ranges
 
 def patch_slice(slice):
     '''Splits up the 512x512 slice into 4 256x256 patches.'''
@@ -671,15 +776,22 @@ def stitch_patches(patches):
 
 
 def default_load_data(data_path, requires_channel_dim, config):
-    (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
-        data_path,
-        validation_split= config['val_split'],
-        split_seed = config['val_seed'],
-        testing_split= config['test_split'],
-        test_set_flag = bool(config['test_flag']),
-        axes='SXY' if not requires_channel_dim else 'SXYC',
-        verbose=True)
-    return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+    if bool(config['train_mode']):
+        (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
+            data_path,
+            validation_split= config['val_split'],
+            split_seed = config['val_seed'],
+            testing_split= config['test_split'],
+            test_set_flag = bool(config['test_flag']),
+            axes='SXY' if not requires_channel_dim else 'SXYC',
+            verbose=True)
+        return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+    else:
+        (X, Y), _, stack_ranges = load_testing_data(
+            data_path,
+            axes='SXY' if not requires_channel_dim else 'SXYC',
+            verbose=True)
+        return (X, Y), stack_ranges
 
 
 def gather_data(config, data_path, requires_channel_dim):
