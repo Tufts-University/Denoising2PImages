@@ -105,6 +105,10 @@ echo "" # empty line #
 # NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIMR2 deep (new_data loader) ⏰ ⏰ 
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_fs3" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 # python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_fs3" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
+
+# NADH CARE + SSIMR2 ap5 deep (new_data loader) ⏰ ⏰ 
+python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 ### PCC ##########################################################
 
 # NADH RCAN SSIMPCC (ap84) ✅ (Though Premptied) ⏰
@@ -133,9 +137,9 @@ echo "" # empty line #
 # python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse_rb8" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=8 loss_alpha=0 
 # python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse_rb8" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=8
 
-# NADH SRGAN 5 residual blocks⏰ ⏰
-python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed1" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0 val_seed=1 val_split=4 test_split=8 test_flag=1
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=1 val_split=4 test_split=8 test_flag=1
+# # NADH SRGAN 5 residual blocks⏰ ⏰
+# python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed1" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0 val_seed=1 val_split=4 test_split=8 test_flag=1
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=1 val_split=4 test_split=8 test_flag=1
 ##################################################################
 ### Resnet ########################################################
 
