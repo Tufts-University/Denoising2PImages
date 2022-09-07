@@ -483,7 +483,11 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         print(f'ROI# Used for Validation: {validation_idx}')
         print(f'ROI# Used for Testing: {test_idx}')
         # Generation of Validation Set
-        X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+        if len(axes) == 3:
+            X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
+        else:
+            X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+
         for i in range(len(validation_idx)):
             X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
         
@@ -499,7 +503,11 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             prev += num_stacks[i]
 
         # Generation of Test Set
-        X_te, Y_te = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+        if len(axes) == 3:
+            X_te, Y_te = np.empty((1,256,256)), np.empty((1,256,256))
+        else:
+            X_te, Y_te = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+
         for i in range(len(test_idx)):
             X_te, Y_te = np.concatenate((X_te,X[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0), np.concatenate((Y_te,Y[int(SB[test_idx[i]]):int(SE[test_idx[i]])+1]),axis=0)
         
@@ -531,7 +539,11 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         print(f'ROI# Used for Training: {train_idx}')
         print(f'ROI# Used for Validation: {validation_idx}')
         # Generation of Validation Set
-        X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+        if len(axes) == 3:
+            X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
+        else:
+            X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
+            
         for i in range(len(validation_idx)):
             X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
 
