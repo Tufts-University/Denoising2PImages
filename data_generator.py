@@ -466,22 +466,26 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     
     # TODO (nvora01): See if there is a more efficient way of doing this... 
     ROIs = len(SB)
-    # Set splitting seed for all splits
-    random.seed(split_seed)
-    print(f'Splitting data using seed {split_seed}')
 
     assert type(validation_split) is int,"validation_split must be an integer"
     assert type(testing_split) is int,"testing_split must be an integer"
     total_split = testing_split + validation_split
+    assert ROIs > total_split, "Requested Validation split is greater than the number of ROIs available"
     if test_set_flag:
         print(f'A Test set of {testing_split} image stacks and Validation set of {validation_split} image stacks is being generated')
-        train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
-        temp_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
-        validation_idx = sorted(random.sample(temp_idx, len(temp_idx)-testing_split))
-        test_idx = sorted([x for x in temp_idx if x not in validation_idx])
+        # Set splitting seed for all test splits (These stacks will ALWAYS be in the Test Set)
+        random.seed(0)
+        temp_idx = sorted(random.sample(range(0,ROIs), ROIs-testing_split))
+        test_idx = sorted([x for x in list(range(0,ROIs)) if x not in temp_idx])
+        # For k-fold validation, we set the splitting seed for what we want in the validation set and training set
+        random.seed(split_seed)
+        print(f'Splitting data using seed {split_seed}')
+        train_idx = sorted(random.sample(temp_idx, len(temp_idx)-validation_split))
+        validation_idx = sorted([x for x in temp_idx if x not in train_idx])
         print(f'ROI# Used for Training: {train_idx}')
         print(f'ROI# Used for Validation: {validation_idx}')
         print(f'ROI# Used for Testing: {test_idx}')
+
         # Generation of Validation Set
         if len(axes) == 3:
             X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
@@ -533,6 +537,9 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             X_te = move_channel_for_backend(X_te, channel=channel)
             Y_te = move_channel_for_backend(Y_te, channel=channel)
     else: 
+        # Set splitting seed for all splits
+        random.seed(split_seed)
+        print(f'Splitting data using seed {split_seed}')
         print(f'A Validation set of {total_split} image stacks is being generated')
         train_idx = sorted(random.sample(range(0,ROIs), ROIs-total_split))
         validation_idx = sorted([x for x in list(range(0,ROIs)) if x not in train_idx])
@@ -543,7 +550,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             X_t,Y_t = np.empty((1,256,256)), np.empty((1,256,256))
         else:
             X_t,Y_t = np.empty((1,256,256,1)), np.empty((1,256,256,1))
-            
+
         for i in range(len(validation_idx)):
             X_t, Y_t = np.concatenate((X_t,X[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0), np.concatenate((Y_t,Y[int(SB[validation_idx[i]]):int(SE[validation_idx[i]])+1]),axis=0)
 
