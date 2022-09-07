@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../Eval_CARE_SRGAN.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../Eval_CARE_SRGAN.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -93,7 +93,7 @@ echo "" # empty line #
 #python -u main.py eval care "NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0
 
 # NADH CARE + SSIMR2 ap5 Wavelet bior1.1 SSIMR2 deep (new_data loader) ⏰ ⏰
-python -u main.py train care "NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior1.1 loss_alpha=0.5 val_seed=0 val_split=4 test_split=8 test_flag=1
+# python -u main.py train care "NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss=ssimr2_loss wavelet_function=bior1.1 loss_alpha=0.5 val_seed=0 val_split=4 test_split=8 test_flag=1
 python -u main.py eval care "NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p1_deep_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz wavelet_function=bior1.1 val_seed=0 val_split=4 test_split=8 test_flag=1
 
 
@@ -123,7 +123,7 @@ python -u main.py eval care "NADH_CAREmodel_823_cervix_SSIMR2_ap5_Wavelet_bior1p
 
 # NADH resnet + 8 residual blocks ✅ ✅
 # python -u main.py train srgan "NADH_SRGAN_0823_cervix_mse_rb8" cwd=.. nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=8 loss_alpha=0 
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse_rb8" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=8
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_mse_rb8" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz num_residual_blocks=8
 
 
 ##################################################################
