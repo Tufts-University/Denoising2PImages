@@ -193,12 +193,13 @@ def apply(model, data, overlap_shape=None, verbose=False):
 # stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
 
 
-def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges):
+def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges, config):
     print('=== Applying model ------------------------------------------------')
     
     # Remove Data Type from trial name for saving
     trial_name = trial_name[trial_name.index('_'):]
-    
+    nadh_data  = config['nadh_data']
+    sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
     wavelet_model = wavelet_config != None
     print(f'Using wavelet model: {wavelet_model}')
 
@@ -245,7 +246,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             result = np.clip(255 * result, 0, 255).astype('uint8')
 
             image_mat.append([result[0], result[1], result[2]])
-        scipy.io.savemat(f'{data_type}{trial_name}_image{stack_index}.mat', {
+        scipy.io.savemat(f'{sample_name}_{data_type}{trial_name}_image{stack_index}.mat', {
                          'images': image_mat})
 
     print('--------------------------------------------------------------------')
@@ -306,7 +307,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges, config=config)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)
@@ -336,7 +337,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges,config=config)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)
