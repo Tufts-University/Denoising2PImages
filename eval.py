@@ -270,7 +270,10 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     load_weights(model, output_dir=output_dir)
 
     # Go to the results directory to generate and store evaluated images.
-    results_dir = os.path.join(output_dir, 'results')
+    nadh_data  = config['nadh_data']
+    sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
+    results_folder = sample_name + '/results'
+    results_dir = os.path.join(output_dir, results_folder)
     if os.path.exists(results_dir):
         subpaths = os.listdir(results_dir)
         for subpath in subpaths:
