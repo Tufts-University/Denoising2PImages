@@ -105,7 +105,7 @@ def train(model_name, config, output_dir, data_path):
         model = fit_model(model, model_name, config, output_dir,
                         training_data, validation_data,initial_path)
 
-        os.chdir(output_dir)
+        os.chdir(str(initial_path /pathlib.Path(output_dir)))
         model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
         assert len(model_paths) != 0, f'No models found under {output_dir}'
         latest = max(model_paths, key=os.path.getmtime)
