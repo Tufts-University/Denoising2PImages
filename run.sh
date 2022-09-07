@@ -9,8 +9,8 @@
 #SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed1.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed1.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../COLPO_LEEP_NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../COLPO_LEEP_NADH_CAREmodel_0713_cervix_SSIML2_BS50_Deep_fs3.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
