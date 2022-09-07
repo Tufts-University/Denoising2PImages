@@ -99,12 +99,12 @@ def train(model_name, config, output_dir, data_path):
         final_model.save_weights(final_weights_path)
         print(f'Weights are saved to: "{final_weights_path}"')
     else:
+        initial_path = os.getcwd()
         model = model_builder.build_and_compile_model(model_name, strategy, config)
         model = determine_training_strategy(model, output_dir)
         model = fit_model(model, model_name, config, output_dir,
-                        training_data, validation_data,os.getcwd())
+                        training_data, validation_data,initial_path)
 
-        initial_path = os.getcwd()
         os.chdir(output_dir)
         model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
         assert len(model_paths) != 0, f'No models found under {output_dir}'
