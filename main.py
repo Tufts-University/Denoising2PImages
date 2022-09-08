@@ -27,9 +27,9 @@ def make_config(model_name):
         'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
         'ssim_FSize': 11, # SSIM Filter Size
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
-        
+
         # Metrics
-        'loss': {'srgan': 'mse', 'care': 'ssiml1_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
+        'loss': {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 
