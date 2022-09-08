@@ -110,7 +110,7 @@ def train(model_name, config, output_dir, data_path):
         assert len(model_paths) != 0, f'No models found under {output_dir}'
         latest = max(model_paths, key=os.path.getmtime)
         final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
-        source = str(output_dir / latest)
+        source = output_dir + '/' + latest
         print(f'Location of source file: "{source}"')
         print(f'Location of Final Weights file: "{final_weights_path}"')
         shutil.copy(source, final_weights_path)
