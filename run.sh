@@ -18,7 +18,7 @@ module load anaconda/2021.05
 source activate Denoising
 
 git pull
-echo "Starting python script..."
+echo "Starting python script..." 
 echo "==========================================================" 
 echo "" # empty line #
 
