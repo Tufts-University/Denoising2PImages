@@ -46,9 +46,9 @@ def determine_training_strategy(model, output_dir):
 
     return model
 
-def fit_model(model, model_name, config, output_dir, training_data, validation_data, initial_path):
+def fit_model(model, model_name, config, output_dir, training_data, validation_data):
     print('=== Fitting model --------------------------------------------------')
-    final_dir = str(initial_path / pathlib.Path(output_dir))
+    final_dir = pathlib.Path(output_dir)
     os.chdir(final_dir)
     steps_per_epoch = config['steps_per_epoch'] if config['steps_per_epoch'] != None else None
     validation_steps = None if validation_data is None else steps_per_epoch
@@ -88,14 +88,14 @@ def train(model_name, config, output_dir, data_path):
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':
         initial_path = os.getcwd()
-        if not os.path.exists(str(initial_path /pathlib.Path(output_dir))):
+        if not os.path.exists(pathlib.Path(output_dir)):
             print(f'Creating output directory: "{output_dir}"')
             os.makedirs(output_dir)
         srgan_checkpoint, srgan_checkpoint_manager = srgan.SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,training_data, validation_data)
-        os.chdir(str(initial_path /pathlib.Path(output_dir)/ 'ckpt' / 'srgan'))
+        os.chdir(pathlib.Path(output_dir)/ 'ckpt' / 'srgan')
         srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
         final_model = srgan_checkpoint.generator
-        final_weights_path = str(initial_path /pathlib.Path(output_dir) / basics.final_weights_name())
+        final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
         final_model.save_weights(final_weights_path)
         print(f'Weights are saved to: "{final_weights_path}"')
     else:
@@ -103,14 +103,14 @@ def train(model_name, config, output_dir, data_path):
         model = model_builder.build_and_compile_model(model_name, strategy, config)
         model = determine_training_strategy(model, output_dir)
         model = fit_model(model, model_name, config, output_dir,
-                        training_data, validation_data,initial_path)
+                        training_data, validation_data)
 
-        os.chdir(str(initial_path /pathlib.Path(output_dir)))
+        os.chdir(output_dir)
         model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
         assert len(model_paths) != 0, f'No models found under {output_dir}'
         latest = max(model_paths, key=os.path.getmtime)
-        final_weights_path = str(initial_path /pathlib.Path(output_dir) / basics.final_weights_name())
-        source = str(initial_path / pathlib.Path(output_dir) / latest)
+        final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
+        source = str(output_dir / latest)
         print(f'Location of source file: "{source}"')
         print(f'Location of Final Weights file: "{final_weights_path}"')
         shutil.copy(source, final_weights_path)

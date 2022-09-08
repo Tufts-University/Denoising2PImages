@@ -102,16 +102,16 @@ def build_and_compile_srgan(config):
 
     return generator, discriminator
 
-def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,training_data, validation_data):
+def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,training_data, validation_data):
     generator, discriminator, care = model_builder.build_and_compile_model(model_name, strategy, config)
-    Gen_flag, CARE_flag = basics.SRGAN_Weight_search(str(initial_path /pathlib.Path(output_dir)))
+    Gen_flag, CARE_flag = basics.SRGAN_Weight_search(pathlib.Path(output_dir))
     if Gen_flag == 1:
-        Gen_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
+        Gen_final_weights_path = str(pathlib.Path(output_dir) / 'Pretrained.hdf5')
     else: 
-        generator, Gen_final_weights_path = generator_train(generator, model_name, config, output_dir, training_data, validation_data, initial_path)
+        generator, Gen_final_weights_path = generator_train(generator, model_name, config, output_dir, training_data, validation_data)
     generator.load_weights(Gen_final_weights_path)
     if CARE_flag == 1:
-        CARE_final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
+        CARE_final_weights_path = str(pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
     else: 
         if os.path.exists((initial_path + '/Denoising2PImages/' + 'CARE_Pretrained.hdf5')):
             CARE_final_weights_path = (initial_path + '/Denoising2PImages/' + 'CARE_Pretrained.hdf5')
@@ -120,7 +120,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,traini
             raise Exception('CARE Model needs to be pretrained, please confirm you have weights for standard CARE model')
     care.load_weights(CARE_final_weights_path)
 
-    srgan_checkpoint_dir = str(initial_path /pathlib.Path(output_dir) / 'ckpt' / 'srgan')
+    srgan_checkpoint_dir = str(pathlib.Path(output_dir) / 'ckpt' / 'srgan')
     print(f'Checkpoints saved in {srgan_checkpoint_dir}')
     os.makedirs(srgan_checkpoint_dir, exist_ok=True)
     with strategy.scope():            
@@ -236,14 +236,14 @@ def train_step(images,srgan_checkpoint,CARE):
 
     return perc_loss, disc_loss
 
-def generator_train(generator, model_name, config, output_dir, training_data, validation_data, initial_path):
-    generator = train.fit_model(generator, model_name, config, output_dir,training_data, validation_data, initial_path)
-    os.chdir(str(initial_path /pathlib.Path(output_dir)))
+def generator_train(generator, model_name, config, output_dir, training_data, validation_data):
+    generator = train.fit_model(generator, model_name, config, output_dir,training_data, validation_data)
+    os.chdir(pathlib.Path(output_dir))
     model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
     assert len(model_paths) != 0, f'No models found under {output_dir}'
     latest = max(model_paths, key=os.path.getmtime)
-    final_weights_path = str(initial_path /pathlib.Path(output_dir) / 'Pretrained.hdf5')
-    source = str(initial_path / pathlib.Path(output_dir) / latest)
+    final_weights_path = str(pathlib.Path(output_dir) / 'Pretrained.hdf5')
+    source = str(pathlib.Path(output_dir) / latest)
     print(f'Location of source file: "{source}"')
     print(f'Location of Final Weights file: "{final_weights_path}"')
     shutil.copy(source, final_weights_path)
