@@ -49,7 +49,7 @@ def psnr(y_true, y_pred):
     # return -4.342944819 * kb.log(kb.mean(kb.square(p - q), axis=-1))
 
 
-def ssimr2_loss(y_true, y_pred, alpha):
+def ssimr2_loss(y_true, y_pred, alpha, filter_size,filter_sigma):
     def R_squared(y_true, y_pred):
         residual = tf.reduce_sum(tf.math.squared_difference(y_true, y_pred))
         mean = tf.reduce_mean(y_true)
@@ -59,7 +59,7 @@ def ssimr2_loss(y_true, y_pred, alpha):
         print(r2)
         return 1 - r2
 
-    SSIM = ssim_loss(y_true, y_pred)
+    SSIM = ssim_loss(y_true, y_pred, filter_size,filter_sigma)
     R2 = R_squared(y_true, y_pred)
     return SSIM*alpha + (1-alpha)*R2
 
