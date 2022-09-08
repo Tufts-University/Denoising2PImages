@@ -62,12 +62,12 @@ echo "" # empty line #
 # NADH RCAN + SSIMR2 ap5 seed 1 ⏰ ⏰
 # python -u main.py train rcan "NADH_RCAN_0823_cervix_SSIMR2_seed1" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=1 val_split=4 test_split=8 test_flag=1 
 # python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=1 val_split=4 test_split=8 test_flag=1 
-python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_FAD_Colpo.npz val_seed=1 val_split=4 test_split=8 test_flag=1 python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_FAD_Colpo.npz val_seed=1 val_split=4 test_split=8 test_flag=1 
+python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=1 val_split=4 test_split=8 test_flag=1 python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=1 val_split=4 test_split=8 test_flag=1 
 
 # NADH RCAN + SSIMR2 ap5 seed 0 ⏰ ⏰
 python -u main.py train rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=0 val_split=4 test_split=8 test_flag=1 
 python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=1 val_split=4 test_split=8 test_flag=1 
-python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_FAD_Colpo.npz val_seed=1 val_split=4 test_split=8 test_flag=1 python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_FAD_Leep.npz val_seed=1 val_split=4 test_split=8 test_flag=1 
+python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=1 val_split=4 test_split=8 test_flag=1 python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=1 val_split=4 test_split=8 test_flag=1 
 
 ##################################################################
 
