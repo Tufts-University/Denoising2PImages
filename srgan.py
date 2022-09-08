@@ -144,6 +144,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,traini
         discriminator_loss_metric = tf.keras.metrics.Mean()
         psnr_metric = tf.keras.metrics.Mean()
         ssim_metric = tf.keras.metrics.Mean()
+        best_val_loss = None
         for i in range(config['epochs']):
             for _, batch in enumerate(training_data):
                 perceptual_loss, discriminator_loss = strategy.run(train_step, args=(batch,srgan_checkpoint,care))
@@ -170,7 +171,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,traini
 
             srgan_checkpoint.psnr.assign(psnr_train)
             srgan_checkpoint.ssim.assign(ssim_train)
-            srgan_checkpoint_manager.save()
+
 
             for _, val_batch in enumerate(validation_data):
                 lr = val_batch[0]
@@ -195,8 +196,13 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path,output_dir,traini
                 ssim_metric(ssim_value)
             CARE_loss = perceptual_loss_metric.result()
             dis_loss = discriminator_loss_metric.result()
+            total_loss = CARE_loss + dis_loss
             psnr_train = psnr_metric.result()
             ssim_train = ssim_metric.result()
+            if best_val_loss == None or total_loss < best_val_loss:
+                print('New Checkpoint Saved')
+                srgan_checkpoint_manager.save()
+                best_val_loss = total_loss
             print(f'Validation --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
             perceptual_loss_metric.reset_states()
             discriminator_loss_metric.reset_states()
