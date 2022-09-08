@@ -262,7 +262,6 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     print('Evaluating...')
 
     initial_path = os.getcwd()
-    output_dir = initial_path + '/' + output_dir
     
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':
