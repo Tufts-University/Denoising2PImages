@@ -527,7 +527,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             prev += te_num_stacks[i]
 
         # Generation of Training Set
-        temp_idx = sorted(np.concatenate([validation_idx,train_idx],axis=0))
+        temp_idx = sorted(np.concatenate([validation_idx,test_idx],axis=0))
         print(f'Removing Test and Validation Set from loaded data: {temp_idx}')
         temp_idx = np.flip(temp_idx)
         for i in range(len(temp_idx)):
