@@ -158,18 +158,18 @@ def lookup_metrics(metric_names):
     return [metric_dict[metric_name] for metric_name in metric_names]
 
 
-def lookup_loss(loss_name, alpha = 0, filter_size=11,filter_sigma=1.5):
+def lookup_loss(loss_name, alpha = 0, filter_size=11 , filter_sigma=1.5):
     print(f'Found a loss alpha of {alpha}.')
     
     loss_dict = {
         'mae': mae,
         'mse': mse,
         'ssim_loss': ssim_loss,
-        'ssiml1_loss': lambda y_true, y_pred: ssiml1_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
-        'ssiml2_loss': lambda y_true, y_pred: ssiml2_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
-        'ssimr2_loss': lambda y_true, y_pred: ssimr2_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
+        'ssiml1_loss': lambda y_true, y_pred: ssiml1_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
+        'ssiml2_loss': lambda y_true, y_pred: ssiml2_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
+        'ssimr2_loss': lambda y_true, y_pred: ssimr2_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
         'pcc_loss': pcc_loss,
-        'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
+        'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
     }
 
     return loss_dict[loss_name]
