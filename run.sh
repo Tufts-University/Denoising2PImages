@@ -6,7 +6,7 @@
 #SBATCH	-n 10   #10 tasks total
 #SBATCH	-c 1   #using 1 cpu core/task
 #SBATCH --gres=gpu:a100:1
-#SBATCH --nodelist=p1cmp110
+##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total
 #SBATCH --output=../NADH_CARE_0823_cervix_SSIML2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
