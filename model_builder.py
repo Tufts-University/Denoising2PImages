@@ -15,13 +15,13 @@ def create_strategy():
     return strategy
 
 
-def compile_model(model, initial_learning_rate, loss_name, metric_names, loss_alpha = 0):
+def compile_model(model, initial_learning_rate, loss_name, metric_names, loss_alpha = 0, filter_size=11,filter_sigma=1.5):
     print('=== Compiling model ------------------------------------------------')
 
     model.compile(
         optimizer=tf.keras.optimizers.Adam(
             learning_rate=initial_learning_rate),
-        loss=metrics.lookup_loss(loss_name, alpha=loss_alpha),
+        loss=metrics.lookup_loss(loss_name, alpha=loss_alpha,filter_size=filter_size,filter_sigma=filter_sigma),
         metrics=metrics.lookup_metrics(metric_names))
 
     print('Model summary:\n')
@@ -50,7 +50,9 @@ def build_and_compile_model(model_name, strategy, config):
                 config['initial_learning_rate'],
                 'ssiml1_loss',
                 config['metrics'],
-                config['loss_alpha'])
+                config['loss_alpha'],
+                config['ssim_FSize'],
+                config['ssim_FSig'])
             generator, discriminator = srgan.build_and_compile_srgan(config)
             return generator, discriminator, model
         elif model_name == 'resnet':
@@ -66,6 +68,8 @@ def build_and_compile_model(model_name, strategy, config):
                 config['initial_learning_rate'],
                 config['loss'],
                 config['metrics'],
-                config['loss_alpha'])
+                config['loss_alpha'],
+                config['ssim_FSize'],
+                config['ssim_FSig'])
 
         return model

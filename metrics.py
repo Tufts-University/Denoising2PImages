@@ -7,7 +7,7 @@ import srgan
 
 binary_cross_entropy = tf.keras.losses.BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
 
-def ssim(y_true, y_pred):
+def ssim(y_true, y_pred,filter_size=11,filter_sigma=1.5):
     '''
     Computes the structural similarity index between two images. Note that the
     maximum signal value is assumed to be 1.
@@ -16,22 +16,27 @@ def ssim(y_true, y_pred):
     Image Quality Assessment: From Error Visibility to Structural Similarity
     https://doi.org/10.1109/TIP.2003.819861
     '''
+    print(f'Using a Filter Size {filter_size} and a Filter Sigma of {filter_sigma}')
+    return tf.image.ssim(y_true, y_pred, 1, filter_size, filter_sigma, k2=0.05)
 
-    return tf.image.ssim(y_true, y_pred, 1, k2=0.05)
 
-
-def ssim_loss(y_true, y_pred):
-    return 1-((ssim(y_true, y_pred)+1)*0.5)
+def ssim_loss(y_true, y_pred, filter_size,filter_sigma):
+    return 1-((ssim(y_true, y_pred, filter_size, filter_sigma)+1)*0.5)
 
 
 # Default alpha was 0.84
-def ssiml1_loss(y_true, y_pred, alpha):
-    SSIM = 1-((ssim(y_true, y_pred)+1)*0.5)
+def ssiml1_loss(y_true, y_pred, alpha, filter_size,filter_sigma):
+    SSIM = 1-((ssim(y_true, y_pred,filter_size,filter_sigma)+1)*0.5)
     MAE = keras.losses.mae(
         *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
 
     return alpha * SSIM + (1-alpha) * MAE
 
+def ssiml2_loss(y_true, y_pred,alpha,filter_size,filter_sigma):
+    SSIM = 1-((ssim(y_true, y_pred,filter_size,filter_sigma)+1)*0.5)
+    MSE = keras.losses.mse(
+        *[keras.backend.batch_flatten(y) for y in [y_true, y_pred]])
+    return alpha * SSIM + (1-alpha) * MSE
 
 def psnr(y_true, y_pred):
     '''
@@ -116,12 +121,12 @@ def pcc_loss(y_true, y_pred):
     return (1 - pcc(y_true, y_pred)) / 2
 
 
-def ssimpcc_loss(y_true, y_pred, alpha):
+def ssimpcc_loss(y_true, y_pred, alpha, filter_size,filter_sigma):
     '''
     A loss combining the ssim and pcc losses. The resulting
     value is in the [0, 2] range.
     '''
-    SSIM = ssim_loss(y_true, y_pred)
+    SSIM = ssim_loss(y_true, y_pred, filter_size,filter_sigma)
     PCC = pcc_loss(y_true, y_pred)
 
     return alpha*SSIM + (1-alpha)*PCC
@@ -153,17 +158,18 @@ def lookup_metrics(metric_names):
     return [metric_dict[metric_name] for metric_name in metric_names]
 
 
-def lookup_loss(loss_name, alpha = 0):
+def lookup_loss(loss_name, alpha = 0, filter_size=11,filter_sigma=1.5):
     print(f'Found a loss alpha of {alpha}.')
-
+    
     loss_dict = {
         'mae': mae,
         'mse': mse,
         'ssim_loss': ssim_loss,
-        'ssiml1_loss': lambda y_true, y_pred: ssiml1_loss(y_true, y_pred, alpha),
-        'ssimr2_loss': lambda y_true, y_pred: ssimr2_loss(y_true, y_pred, alpha),
+        'ssiml1_loss': lambda y_true, y_pred: ssiml1_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
+        'ssiml2_loss': lambda y_true, y_pred: ssiml2_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
+        'ssimr2_loss': lambda y_true, y_pred: ssimr2_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
         'pcc_loss': pcc_loss,
-        'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha),
+        'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha, filter_size,filter_sigma),
     }
 
     return loss_dict[loss_name]
