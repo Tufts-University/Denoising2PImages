@@ -135,7 +135,7 @@ def main():
         raise Exception(
             f'Could not find file at FAD data path: "{fad_data_path}"')
 
-    if not os.path.exists(os.path.join(main_path, trial_name)):
+    if not os.path.exists(os.getcwd() + '/'+ trial_name):
         os.mkdir(os.getcwd() + '/'+ trial_name)
     model_save_path = os.getcwd() + '/'+ trial_name
 
