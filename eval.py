@@ -261,6 +261,9 @@ def normalize_between_zero_and_one(m):
 def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     print('Evaluating...')
 
+    initial_path = os.getcwd()
+    output_dir = initial_path + '/' + output_dir
+    
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':
         model = model_builder.build_and_compile_model('resnet',strategy,config)
@@ -286,7 +289,6 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     else:
         os.mkdir(results_dir)
 
-    initial_path = os.getcwd()
 
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')

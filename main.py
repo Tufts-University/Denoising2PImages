@@ -134,8 +134,8 @@ def main():
             f'Could not find file at FAD data path: "{fad_data_path}"')
 
     if not os.path.exists(os.path.join(main_path, trial_name)):
-        os.mkdir(os.path.join(main_path, trial_name))
-    model_save_path = trial_name
+        os.mkdir(main_path + '/'+ trial_name)
+    model_save_path = main_path + '/'+ trial_name
 
     # === Send out jobs ===
 
