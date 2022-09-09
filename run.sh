@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_RCAN_0823_cervix_SSIMR2_seed2.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_RCAN_0823_cervix_SSIMR2_seed2.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -71,11 +71,11 @@ echo "" # empty line #
 # python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 # python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 
-# NADH RCAN + SSIMR2 ap5 seed 2 ⏰ ⏰ ⏰ ⏰ cc1gpu003 39713045   
-python -u main.py train rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=2 val_split=4 test_split=8 test_flag=1 
-python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=2 val_split=4 test_split=8 test_flag=1 
-python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=2 val_split=4 test_split=8 test_flag=1 train_mode=0
-python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=2 val_split=4 test_split=8 test_flag=1 train_mode=0
+# NADH RCAN + SSIMR2 ap5 seed 2 ⏰ ⏰ ⏰ ⏰ cc1gpu003 39713045  39719886  
+# python -u main.py train rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=2 val_split=4 test_split=8 test_flag=1 
+# python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=2 val_split=4 test_split=8 test_flag=1 
+# python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=2 val_split=4 test_split=8 test_flag=1 train_mode=0
+# python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=2 val_split=4 test_split=8 test_flag=1 train_mode=0
 ##################################################################
 
 ### CARE + Wavelet Denoising #####################################
@@ -186,10 +186,10 @@ python -u main.py eval rcan "NADH_RCAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data
 # python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed1" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=1 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH SRGAN 5 residual blocks⏰ ⏰ ⏰ ⏰ sent to cc1gpu004 39712921   
-# python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=0 val_split=4 test_split=8 test_flag=1 epochs=1000
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0 val_split=4 test_split=8 test_flag=1
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=0 val_split=4 test_split=8 test_flag=1 epochs=1000
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0 val_split=4 test_split=8 test_flag=1
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 ##################################################################
 ### Resnet ########################################################
 
