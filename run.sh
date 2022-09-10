@@ -215,8 +215,8 @@ echo "" # empty line #
 # python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
 # python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
 
-# NADH SRGAN 5 residual blocks seed 4⏰ ⏰ ⏰ ⏰ 39730537 
-python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=4 val_split=4 test_split=8 test_flag=1 epochs=1000
+# NADH SRGAN 5 residual blocks seed 4⏰ ⏰ ⏰ ⏰ 39741376 
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=4 val_split=4 test_split=8 test_flag=1 epochs=20
 python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1
 python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
 python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
