@@ -17,19 +17,25 @@ def make_config(model_name):
         'nadh_data': '',
         'fad_data': '',
         'epochs': 300,
-        'steps_per_epoch': {'rcan': None, 'care': 100}[model_name],
+        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None}[model_name],
         'input_shape': [256, 256], # TODO: Remove since this is almost fixed. (Nilay) Need to check what Filip did here since we may want variable size patches
         'initial_learning_rate': 1e-5,
-        'val_seed': 0, #Controls the validation split, NONE is a special case here TODO (nvora01): remove the none class as we won't need this in the future
+        'val_seed': 0, # Controls the validation split
+        'val_split': 4, # Controls how many stacks to include in the validation set
+        'test_split': 8, # Controls how many stack to include in the test set
+        'test_flag' : 1, # Controls if a test set is generated
+        'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
+        'ssim_FSize': 11, # SSIM Filter Size
+        'ssim_FSig': 1.5, # SSIM Filter Sigma 
 
         # Metrics
-        'loss': 'ssiml1_loss',
+        'loss': {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 
         'loss_alpha': 0.5, # How much different loss functions are weighted in the compound loss.
 
-        # RCAN config
+        # RCAN and Resnet config
         'num_channels': 32,
         'num_residual_blocks': 5,
         'num_residual_groups': 5,
@@ -90,7 +96,7 @@ def main():
         raise Exception(f'Invalid mode: "{mode}"')
 
     model_name = sys.argv[2]
-    if model_name not in ['rcan', 'care', 'srgan']:
+    if model_name not in ['rcan', 'care', 'srgan', 'resnet']:
         raise Exception(f'Invalid model name: "{model_name}"')
 
     trial_name = sys.argv[3]
@@ -120,7 +126,7 @@ def main():
 
     print(f'Changing to directory: {main_path}')
     os.chdir(main_path)
-
+    print(f'Current directory: {os.getcwd()}')
     # Check data paths exist.
     if nadh_data_path != "" and not os.path.isfile(nadh_data_path):
         raise Exception(
@@ -129,9 +135,9 @@ def main():
         raise Exception(
             f'Could not find file at FAD data path: "{fad_data_path}"')
 
-    if not os.path.exists(os.path.join(main_path, trial_name)):
-        os.mkdir(os.path.join(main_path, trial_name))
-    model_save_path = trial_name
+    if not os.path.exists(os.getcwd() + '/'+ trial_name):
+        os.mkdir(os.getcwd() + '/'+ trial_name)
+    model_save_path = os.getcwd() + '/'+ trial_name
 
     # === Send out jobs ===
 
