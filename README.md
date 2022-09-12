@@ -22,7 +22,7 @@ The following code can be used to implement competing models of denoising on 2D 
     - Evaluation Time: ~ 2 minutes
 
 ## Dataset
-1. All raw data is available for at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
+1. All raw data is available at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
 2. Pretrained model weights are stored in Trained Model Folder
 3. Preformatted data is avaiable online under Data folder
 
@@ -84,6 +84,12 @@ Available options include:
 - `Mode` (string):
     - *train* - used when training a new model
     - *eval* - used to evaluate with a set of trained weights. Must have `weights_final.hdf5` saved in a folder called *Model_Name*.
+- `model_architecture` (string):
+    - You **must** specify which model you are trying to train
+    - *rcan*
+    - *care*
+    - *srgan* (NOTE: SRGAN uses CARE for Content-Loss calculations instead of VGG19, please ensure you have CARE weights saved as **CARE_Pretrained.hdf5** in the path)
+    - [`CARE_Pretrained.hdf5`](CARE_Pretrained.hdf5) weights for the CARE architecture used here are available on this repository
 - `Model_Name` (string):
     - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
     - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type.
@@ -156,3 +162,8 @@ Weigert, M., Schmidt, U., Boothe, T. *et al.* Content-aware image restoration: p
 <a id="3">[3]</a>
 Ledig, C., Theis, L., Huszar, F. *et al.* Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network. *arXiv* (2016). https://doi.org/10.48550/arxiv.1609.04802
 
+<a id="4">[4]</a>
+K.B., SRGAN: Super Resolution Generative Adversarial Networks. *PaperspaceBlog* (2021). https://blog.paperspace.com/super-resolution-generative-adversarial-networks/. Date Accessed: 08/30/2022
+
+<a id="5">[5]</a>
+Laihong, J., Image Super-Resolution using SRResNet and SRGAN, (2021), GitHub repository, https://github.com/jlaihong/image-super-resolution

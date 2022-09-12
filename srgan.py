@@ -4,301 +4,249 @@
 
 import os
 import tensorflow as tf
-
-
-# === SRResNet ===
-
-def residual_block_gen(ch=64, k_s=3, st=1):
-    model = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
-        tf.keras.layers.BatchNormalization(momentum=0.1),
-        tf.keras.layers.PReLU(shared_axes=[1, 2]),
-
-        tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
-        tf.keras.layers.BatchNormalization(momentum=0.1),
-        tf.keras.layers.PReLU(shared_axes=[1, 2]),
-    ])
-
-    return model
-
-
-def upsample_block(x, ch=256, k_s=3, st=1):
-    x = tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same')(x)
-    x = tf.nn.depth_to_space(x, 2)  # Subpixel pixelshuffler
-    x = tf.keras.layers.PReLU()(x)
-
-    return x
-
-
-def build_generator():
-    '''
-    Builds the SRResNet model. Because it relies on convolutions, it can
-    operate on any input size.
-    '''
-
-    input_lr = tf.keras.layers.Input(shape=(None, None, 3))
-    input_conv = tf.keras.layers.Conv2D(64, 9, padding='same')(input_lr)
-    input_conv = tf.keras.layers.PReLU()(input_conv)
-    SRRes = input_conv  # First skip connection
-
-    # Create 5 residual blocks and establish the skip connections
-    # between them.
-    for x in range(5):
-        res_output = residual_block_gen()(SRRes)
-        SRRes = tf.keras.layers.Add()([SRRes, res_output])
-
-    # Add the last convolution, BN, and skip from input.
-    SRRes = tf.keras.layers.Conv2D(64, 9, padding='same')(SRRes)
-    SRRes = tf.keras.layers.BatchNormalization(momentum=0.5)(SRRes)
-    SRRes = tf.keras.layers.Add()([SRRes, input_conv])
-
-    # Two upsample blocks.
-    SRRes = upsample_block(SRRes)
-    SRRes = upsample_block(SRRes)
-    output_sr = tf.keras.layers.Conv2D(
-        3, 9, activation='tanh', padding='same')(SRRes)  # TODO: Check activation.
-
-    SRResnet = tf.keras.models.Model(input_lr, output_sr, name='generator')
-    return SRResnet
-
-
-# === Discriminator ===
-
-def residual_block_disc(ch=64, k_s=3, st=1):
-    model = tf.keras.Sequential([
-        tf.keras.layers.Conv2D(ch, k_s, strides=(st, st), padding='same'),
-        tf.keras.layers.BatchNormalization(momentum=0.1),
-        tf.keras.layers.LeakyReLU(alpha=0.2),
-    ])
-    return model
-
-
-def build_discriminator():
-    input_lr = tf.keras.layers.Input(shape=(128, 128, 3))  # FIXME: Check size.
-
-    channels_and_strides = [
-        (64, 1),
-        (64, 2),
-        (128, 1), (128, 2),
-        (256, 1), (256, 2),
-        (512, 1), (512, 2)
-    ]
-
-    # This does not use residual_block_disc because we don't do batch normalization.
-    input_conv = tf.keras.layers.Conv2D(
-        channels_and_strides[0][0], channels_and_strides[0][1], padding='same')(input_lr)
-    input_conv = tf.keras.layers.LeakyReLU()(input_conv)
-
-    disc = input_conv
-
-    # Build the seven residual blocks.
-    for x in range(1, 8):
-        disc = residual_block_disc(
-            ch=channels_and_strides[x][0], st=channels_and_strides[x][1])(disc)
-
-    disc = tf.keras.layers.Flatten()(disc)
-    disc = tf.keras.layers.Dense(1024)(disc)
-    disc = tf.keras.layers.LeakyReLU(alpha=0.2)(disc)
-    disc_output = tf.keras.layers.Dense(1, activation='sigmoid')(disc)
-
-    discriminator = tf.keras.models.Model(input_lr, disc_output, name='discriminator')
-    return discriminator
-
-
-# Losses
-
-def build_vgg19(hr_shape=(128, 128, 3)):
-    vgg = tf.keras.models.VGG19(
-        weights="imagenet", include_top=False, input_shape=hr_shape
-    )
-    block3_conv4 = 10
-    block5_conv4 = 20
-    
-    model = tf.keras.Model(
-        inputs=vgg.inputs, outputs=vgg.layers[block5_conv4].output,
-        name="vgg19"
-    )
-    model.trainable = False
-
-    return model
-
-
-def build_gan(generator, discriminator, vgg, lr_inputs, hr_inputs):
-    gen_img = generator(lr_inputs)
-    gen_features = vgg(gen_img)
-
-    discriminator.trainable = False
-    validity = discriminator(gen_img)
-    
-    return tf.keras.Model(
-        inputs=[lr_inputs, hr_inputs], outputs=[validity, gen_features],
-        name="gan")
-
-
-### Build & Compile
-
-
-def build_and_compile_gan():
-    # Models
-    generator = build_generator()
-    generator.summary()
-
-    discriminator = build_discriminator()
-    discriminator.summary()
-
-    vgg = build_vgg19((128, 128, 3))
-    vgg.summary()
-
-    # Build the GAN
-    lr_inputs = tf.keras.layers.Input(shape=(128, 128, 3))
-    hr_inputs = tf.keras.layers.Input(shape=(256, 256, 3))
-    gan = build_gan(
-		generator, discriminator, vgg, lr_inputs, hr_inputs
-	)
-    gan.summary()
-
-    # Compile
-    gan_opt = tf.keras.optimizers.Adam(beta_1=0.5, beta_2=0.99)
-    gan.compile(
-        loss=["binary_crossentropy", "mse"], 
-        loss_weights=[1e-3, 1],
-        optimizer=gan_opt,
-	)
-
-    return gan
-
-def VGG_loss(y_hr,y_sr,i_m=2,j_m=2):
-    VGG19=tf.keras.applications.VGG19(weights='imagenet',include_top=False,input_shape=(128,128,3))
-    VGG_i,VGG_j=2,2
-    i,j=0,0
-    accumulated_loss=0.0
-    for l in VGG19.layers:
-        cl_name=l.__class__.__name__
-        if cl_name=='Conv2D':
-            j+=1
-        if cl_name=='MaxPooling2D':
-            i+=1
-            j=0
-        if i==i_m and j==j_m:
-            break
-        y_hr=l(y_hr)
-        y_sr=l(y_sr)
-        if cl_name=='Conv2D':
-            accumulated_loss+=tf.reduce_mean((y_hr-y_sr)**2) * 0.006
-    return accumulated_loss
-
-def discriminator_loss(real_output, fake_output):
-    cross_entropy = tf.keras.losses.BinaryCrossentropy()
-    real_loss = cross_entropy(tf.ones_like(real_output), real_output)
-    fake_loss = cross_entropy(tf.zeros_like(fake_output), fake_output)
-    total_loss = real_loss + fake_loss
-    return total_loss
-
-def generator_loss(fake_output):
-    cross_entropy = tf.keras.losses.BinaryCrossentropy()
-    return cross_entropy(tf.ones_like(fake_output), fake_output)
-
-
-# def main():
-#     gan = build_and_compile_gan()
-
-#     for x in range(50):
-#         train_dataset_mapped = train_data.map(build_data,num_parallel_calls=tf.data.AUTOTUNE).batch(128)
-#         val_dataset_mapped = test_data.map(build_data,num_parallel_calls=tf.data.AUTOTUNE).batch(128)
-#         for image_batch in tqdm.tqdm(train_dataset_mapped, position=0, leave=True):
-#             logs=train_step(image_batch,loss_func,adv_learning,evaluate,adv_ratio)
-#             for k in logs.keys():
-#                 print(k,':',logs[k],end='  ')
-#             print()
-
-# Training
-
-# TODOs:
-#
-# - Add model in main.py
-#
-# - Compare to my training function
-# - Modify relevant functions very prototypically (prolly fit_model)
-# - Find data generator sizes & discriminator sizes
-#   - Print final output from generator 
-#   - Prolly same as input but check conv to see if it makes sense
-# - Run to debug on cluster
-#
-
+import keras
+import model_builder
 import metrics
+import RESNET
+import train
+import shutil
+import pathlib
+import numpy as np
+import basics 
 
-@tf.function()
-def train_step(data, generator, generator_optimizer, discriminator, discriminator_optimizer, loss_func=metrics.mse, adv_learning=True, evaluate=['PSNR'], adv_ratio=0.001):
-    logs = {}
-    gen_loss, disc_loss = 0, 0
-    low_resolution, high_resolution = data
-    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
-        super_resolution = generator(low_resolution, training=True)
-        gen_loss = loss_func(high_resolution, super_resolution)
-        logs['reconstruction'] = gen_loss
-        if adv_learning:
-            real_output = discriminator(high_resolution, training=True)
-            fake_output = discriminator(super_resolution, training=True)
+# === SRGAN ===
+def _get_spatial_ndim(x):
+    return keras.backend.ndim(x) - 2
 
-            adv_loss_g = generator_loss(fake_output) * adv_ratio
-            gen_loss += adv_loss_g
+def _get_num_channels(x):
+    return keras.backend.int_shape(x)[-1]
 
-            disc_loss = discriminator_loss(real_output, fake_output)
-            logs['adv_g'] = adv_loss_g
-            logs['adv_d'] = disc_loss
-    gradients_of_generator = gen_tape.gradient(
-        gen_loss, generator.trainable_variables)
-    generator_optimizer.apply_gradients(
-        zip(gradients_of_generator, generator.trainable_variables))
+def _conv(x, num_filters, kernel_size, padding='same', **kwargs):
+    n = _get_spatial_ndim(x)
+    if n not in (2, 3):
+        raise NotImplementedError(f'{n}D convolution is not supported')
 
-    if adv_learning:
-        gradients_of_discriminator = disc_tape.gradient(
-            disc_loss, discriminator.trainable_variables)
-        discriminator_optimizer.apply_gradients(
-            zip(gradients_of_discriminator, discriminator.trainable_variables))
+    return (keras.layers.Conv2D if n == 2 else
+            keras.layers.Conv3D)(
+                num_filters, kernel_size, padding=padding, **kwargs)(x)
 
-    # TODO: Uncomment
-    # for x in evaluate:
-    #     if x == 'PSNR':
-    #         logs[x] = metrics.psnr(high_resolution, super_resolution)
+def _residual_blocks(x, repeat):
+  num_channels = _get_num_channels(x)
 
-    return logs
+  for _ in range(repeat):
+    short_skip = x
+    x = _conv(x,num_channels,3)
+    x = keras.layers.BatchNormalization()(x)
+    x = keras.layers.PReLU()(x)
+    x = _conv(x,num_channels,3)
+    x = keras.layers.BatchNormalization()(x)
+    x = keras.layers.Add()([x, short_skip])
+  return x
 
-import data_generator
-import os
-import tqdm
+def _residual_disc_blocks(x):
+  num_channels = _get_num_channels(x)
+  channels = [num_channels * n for n in range(1,5)]
+  print(channels)
 
-def train(cwd='..', nadh_path='NV_713_NADH_healthy.npz', evaluate=['PSNR'], adv_learning=True, adv_ratio=0.001, loss_func=metrics.mse, batch_size=128, epochs=100, save_interval=10):
-    os.chdir(cwd)
-    train_data, (X_val, Y_val) = data_generator.default_load_data(nadh_path, True)
-    print('Loaded NADH data')
-    print('========================')
+  x = _conv(x,num_channels,3,strides = 2)
+  x = keras.layers.BatchNormalization()(x)
+  x = keras.layers.LeakyReLU()(x)
+  
+  for i in range(len(channels)):
+    x = _conv(x,channels[i],3,strides = 1)
+    x = keras.layers.BatchNormalization()(x)
+    x = keras.layers.LeakyReLU()(x)
+    x = _conv(x,channels[i],3,strides = 2)
+    x = keras.layers.BatchNormalization()(x)
+    x = keras.layers.LeakyReLU()(x)
+  return x
 
-    os.mkdir('NADH_SRGAN')
-    os.chdir('NADH_SRGAN')
-    print('Changed dir')
+# Build a discriminator model
+def build_discriminator_model(input_shape = (50,256,256,1),
+                          *,
+                          num_channels,
+                          num_residual_blocks,
+                          num_channel_out =1):
+  print('=== Building Discriminator Model --------------------------------------------')
+  inputs = keras.layers.Input(input_shape)
+  x = _conv(inputs, num_channels, 3)
+  x = keras.layers.LeakyReLU()(x)
+  
+  
+  x = _residual_disc_blocks(x)
+  x = keras.layers.Flatten()(x)
+  x = keras.layers.Dense(1024)(x)
+  x = keras.layers.LeakyReLU()(x)
+  outputs = keras.layers.Dense(1,activation='sigmoid')(x)
 
-    generator_optimizer=tf.keras.optimizers.SGD(0.0001)
-    discriminator_optimizer=tf.keras.optimizers.SGD(0.0001)
-    loss_func,adv_learning = lambda y_hr,y_sr:VGG_loss(y_hr,y_sr,i_m=5,j_m=4),True
+  model = keras.Model(inputs,outputs,name='Discriminator')
+  print('--------------------------------------------------------------------')
 
-    generator = build_generator()
-    generator.summary()
-    discriminator = build_discriminator()
+  return model
+
+def build_and_compile_srgan(config):
+    learning_rate = config['initial_learning_rate']
+    generator = RESNET.build_generator_model((*config['input_shape'], 1),
+                num_channels=config['num_channels'],
+                num_residual_blocks=config['num_residual_blocks'],
+                num_channel_out = 1)
+    
+    generator = model_builder.compile_model(generator, learning_rate, config['loss'], config['metrics'],0,
+                config['ssim_FSize'],config['ssim_FSig'])
+    
+    discriminator = build_discriminator_model((*config['input_shape'], 1),
+                num_channels=config['num_channels'],
+                num_residual_blocks=config['num_residual_blocks'],
+                num_channel_out =1)
     discriminator.summary()
 
-    print('Built models')
-    print('========================')
+    return generator, discriminator
 
-    for x in range(50):
-        for image_batch in tqdm.tqdm(train_data, position=0, leave=True):
-            logs = train_step(
-                image_batch,
-                generator, generator_optimizer,
-                discriminator, discriminator_optimizer,
-                loss_func, adv_learning, evaluate, adv_ratio)
-            for k in logs.keys():
-                print(k,':',logs[k],end='  ')
-                print()
+def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,training_data, validation_data):
+    generator, discriminator, care = model_builder.build_and_compile_model(model_name, strategy, config)
+    Gen_flag, CARE_flag = basics.SRGAN_Weight_search(pathlib.Path(output_dir))
+    if Gen_flag == 1:
+        Gen_final_weights_path = str(pathlib.Path(output_dir) / 'Pretrained.hdf5')
+    else: 
+        generator, Gen_final_weights_path = generator_train(generator, model_name, config, output_dir, training_data, validation_data)
+    generator.load_weights(Gen_final_weights_path)
+    if CARE_flag == 1:
+        CARE_final_weights_path = str(pathlib.Path(output_dir) / 'CARE_Pretrained.hdf5')
+    else: 
+        if os.path.exists((initial_path + '/Denoising2PImages/' + 'CARE_Pretrained.hdf5')):
+            CARE_final_weights_path = (initial_path + '/Denoising2PImages/' + 'CARE_Pretrained.hdf5')
+            print(f'CARE Pretrained weights found in GitLab Repository path :{CARE_final_weights_path}')
+        else:
+            raise Exception('CARE Model needs to be pretrained, please confirm you have weights for standard CARE model')
+    care.load_weights(CARE_final_weights_path)
 
-train()
+    srgan_checkpoint_dir = str(pathlib.Path(output_dir) / 'ckpt' / 'srgan')
+    print(f'Checkpoints saved in {srgan_checkpoint_dir}')
+    os.makedirs(srgan_checkpoint_dir, exist_ok=True)
+    with strategy.scope():            
+        learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
+        generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+        discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
+
+        srgan_checkpoint = tf.train.Checkpoint(psnr=tf.Variable(0.0),
+                                            ssim=tf.Variable(0.0), 
+                                            generator_optimizer=generator_optimizer,
+                                            discriminator_optimizer=discriminator_optimizer,
+                                            generator=generator,
+                                            discriminator=discriminator)
+
+        srgan_checkpoint_manager = tf.train.CheckpointManager(checkpoint=srgan_checkpoint,
+                                directory=srgan_checkpoint_dir,
+                                max_to_keep=3)
+    
+        if srgan_checkpoint_manager.latest_checkpoint:
+            srgan_checkpoint.restore(srgan_checkpoint_manager.latest_checkpoint)
+        perceptual_loss_metric = tf.keras.metrics.Mean()
+        discriminator_loss_metric = tf.keras.metrics.Mean()
+        psnr_metric = tf.keras.metrics.Mean()
+        ssim_metric = tf.keras.metrics.Mean()
+        best_val_loss = None
+        for i in range(config['epochs']):
+            for _, batch in enumerate(training_data):
+                perceptual_loss, discriminator_loss = strategy.run(train_step, args=(batch,srgan_checkpoint,care))
+                perceptual_loss_metric(perceptual_loss)
+                discriminator_loss_metric(discriminator_loss)
+                lr = batch[0]
+                hr = batch[1]
+                sr = srgan_checkpoint.generator.predict(lr)
+                psnr_value = metrics.psnr(hr, sr)
+                hr = tf.cast(hr,tf.double)
+                sr = tf.cast(sr,tf.double)
+                ssim_value = metrics.ssim(hr, sr)
+                psnr_metric(psnr_value)
+                ssim_metric(ssim_value)
+            CARE_loss = perceptual_loss_metric.result()
+            dis_loss = discriminator_loss_metric.result()
+            psnr_train = psnr_metric.result()
+            ssim_train = ssim_metric.result()
+            print(f'Training --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
+            perceptual_loss_metric.reset_states()
+            discriminator_loss_metric.reset_states()
+            psnr_metric.reset_states()
+            ssim_metric.reset_states()
+
+            srgan_checkpoint.psnr.assign(psnr_train)
+            srgan_checkpoint.ssim.assign(ssim_train)
+
+
+            for _, val_batch in enumerate(validation_data):
+                lr = val_batch[0]
+                hr = val_batch[1]
+                sr = srgan_checkpoint.generator.predict(lr)
+                hr_output = srgan_checkpoint.discriminator.predict(hr)
+                sr_output = srgan_checkpoint.discriminator.predict(sr)
+
+                con_loss = metrics.calculate_content_loss(hr, sr, care)
+                gen_loss = metrics.calculate_generator_loss(sr_output)
+                perc_loss = con_loss + 0.001 * gen_loss
+                disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
+
+                perceptual_loss_metric(perc_loss)
+                discriminator_loss_metric(disc_loss)
+
+                psnr_value = metrics.psnr(hr, sr)
+                hr = tf.cast(hr,tf.double)
+                sr = tf.cast(sr,tf.double)
+                ssim_value = metrics.ssim(hr, sr)
+                psnr_metric(psnr_value)
+                ssim_metric(ssim_value)
+            CARE_loss = perceptual_loss_metric.result()
+            dis_loss = discriminator_loss_metric.result()
+            total_loss = CARE_loss + dis_loss
+            psnr_train = psnr_metric.result()
+            ssim_train = ssim_metric.result()
+            if best_val_loss == None or total_loss < best_val_loss:
+                print('New Checkpoint Saved')
+                srgan_checkpoint_manager.save()
+                best_val_loss = total_loss
+            print(f'Validation --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
+            perceptual_loss_metric.reset_states()
+            discriminator_loss_metric.reset_states()
+            psnr_metric.reset_states()
+            ssim_metric.reset_states()
+    return srgan_checkpoint, srgan_checkpoint_manager
+learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
+generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
+discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
+
+@tf.function
+def train_step(images,srgan_checkpoint,CARE):
+    with tf.GradientTape() as gen_tape, tf.GradientTape() as disc_tape:
+        lr = images[0]
+        hr = images[1]
+        sr = srgan_checkpoint.generator(lr, training=True)
+        hr_output = srgan_checkpoint.discriminator(hr, training=True)
+        sr_output = srgan_checkpoint.discriminator(sr, training=True)
+
+        con_loss = metrics.calculate_content_loss(hr, sr, CARE)
+        gen_loss = metrics.calculate_generator_loss(sr_output)
+        perc_loss = con_loss + 0.001 * gen_loss
+        disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
+
+    gradients_of_generator = gen_tape.gradient(perc_loss, srgan_checkpoint.generator.trainable_variables)
+    gradients_of_discriminator = disc_tape.gradient(disc_loss, srgan_checkpoint.discriminator.trainable_variables)
+
+    generator_optimizer.apply_gradients(zip(gradients_of_generator, srgan_checkpoint.generator.trainable_variables))
+    discriminator_optimizer.apply_gradients(zip(gradients_of_discriminator, srgan_checkpoint.discriminator.trainable_variables))
+
+    return perc_loss, disc_loss
+
+def generator_train(generator, model_name, config, output_dir, training_data, validation_data):
+    generator = train.fit_model(generator, model_name, config, output_dir,training_data, validation_data)
+    os.chdir(pathlib.Path(output_dir))
+    model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
+    assert len(model_paths) != 0, f'No models found under {output_dir}'
+    latest = max(model_paths, key=os.path.getmtime)
+    final_weights_path = str(pathlib.Path(output_dir) / 'Pretrained.hdf5')
+    source = str(pathlib.Path(output_dir) / latest)
+    print(f'Location of source file: "{source}"')
+    print(f'Location of Final Weights file: "{final_weights_path}"')
+    shutil.copy(source, final_weights_path)
+    print(f'Pretrained Weights are saved to: "{final_weights_path}"')
+
+    return generator, final_weights_path
