@@ -49,7 +49,6 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     model_input_image_shape = (50, 256, 256, 1)[1:-1]
     model_output_image_shape = (50, 256, 256, 1)[1:-1]
-    print(data.shape)
     if len(model_input_image_shape) != len(model_output_image_shape):
         raise NotImplementedError
 
@@ -123,7 +122,6 @@ def apply(model, data, overlap_shape=None, verbose=False):
     result = []
     for image in data:
         # add the channel dimension if necessary
-        print(image.shape)
         if len(image.shape) == image_dim:
             image = image[..., np.newaxis]
 
@@ -195,12 +193,13 @@ def apply(model, data, overlap_shape=None, verbose=False):
 # stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
 
 
-def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges):
+def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges, config):
     print('=== Applying model ------------------------------------------------')
     
     # Remove Data Type from trial name for saving
     trial_name = trial_name[trial_name.index('_'):]
-    
+    nadh_data  = config['nadh_data']
+    sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
     wavelet_model = wavelet_config != None
     print(f'Using wavelet model: {wavelet_model}')
 
@@ -247,7 +246,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             result = np.clip(255 * result, 0, 255).astype('uint8')
 
             image_mat.append([result[0], result[1], result[2]])
-        scipy.io.savemat(f'{data_type}{trial_name}_image{stack_index}.mat', {
+        scipy.io.savemat(f'{sample_name}_{data_type}{trial_name}_image{stack_index}.mat', {
                          'images': image_mat})
 
     print('--------------------------------------------------------------------')
@@ -262,13 +261,21 @@ def normalize_between_zero_and_one(m):
 def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     print('Evaluating...')
 
+    initial_path = os.getcwd()
+    
     strategy = model_builder.create_strategy()
-    model = model_builder.build_and_compile_model(model_name, strategy, config)
-
+    if model_name == 'srgan':
+        model = model_builder.build_and_compile_model('resnet',strategy,config)
+    else:
+        model = model_builder.build_and_compile_model(model_name, strategy, config)
+    
     load_weights(model, output_dir=output_dir)
 
     # Go to the results directory to generate and store evaluated images.
-    results_dir = os.path.join(output_dir, 'results')
+    nadh_data  = config['nadh_data']
+    sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
+    results_folder = sample_name + 'results'
+    results_dir = os.path.join(output_dir, results_folder)
     if os.path.exists(results_dir):
         subpaths = os.listdir(results_dir)
         for subpath in subpaths:
@@ -281,22 +288,30 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     else:
         os.mkdir(results_dir)
 
-    initial_path = os.getcwd()
 
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
         # Similar to 'data_generator.py'
-        _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
-            nadh_path,
-            requires_channel_dim=model_name == 'care', config = config)
-
+        if bool(config['train_mode']):
+            if config['test_flag']:
+                _, _, _, (X_val,Y_val), stack_ranges = data_generator.default_load_data(
+                    nadh_path,
+                    requires_channel_dim=model_name == 'care', config = config)
+            else:
+                _, (X_val, Y_val), stack_ranges, _, _ = data_generator.default_load_data(
+                nadh_path,
+                requires_channel_dim=model_name == 'care', config = config)
+        else:
+            (X_val, Y_val), stack_ranges = data_generator.default_load_data(
+                    nadh_path,
+                    requires_channel_dim=model_name == 'care', config = config)
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
 
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges, config=config)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)
@@ -306,9 +321,19 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if fad_path != None:
         print('=== Evaluating FAD -------------------------------------------------')
         # Similar to 'data_generator.py'
-        _, (X_val, Y_val), stack_ranges = data_generator.default_load_data(
-            fad_path,
-            requires_channel_dim=model_name == 'care', config = config)
+        if bool(config['train_mode']):
+            if config['test_flag']:
+                _, _, _, (X_val,Y_val), stack_ranges = data_generator.default_load_data(
+                    fad_path,
+                    requires_channel_dim=model_name == 'care', config = config)
+            else:
+                _, (X_val, Y_val), stack_ranges, _, _ = data_generator.default_load_data(
+                fad_path,
+                requires_channel_dim=model_name == 'care', config = config)
+        else:
+            (X_val, Y_val), stack_ranges = data_generator.default_load_data(
+                    fad_path,
+                    requires_channel_dim=model_name == 'care', config = config)
             
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
@@ -316,7 +341,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges,config=config)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)

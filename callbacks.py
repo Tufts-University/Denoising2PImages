@@ -83,10 +83,16 @@ def get_callbacks(model_name, epochs, output_dir, checkpoint_filepath, validatio
     elif model_name == 'care':
         learning_rate_callback = tf.keras.callbacks.ReduceLROnPlateau(
             verbose=True, factor=0.97, min_delta=0, patience=20)
+    elif model_name == 'srgan':
+        learning_rate_callback = tf.keras.callbacks.ReduceLROnPlateau(
+            verbose=True, factor=0.97, min_delta=0, patience=20)
+    elif model_name == 'resnet':
+        learning_rate_callback = tf.keras.callbacks.ReduceLROnPlateau(
+            verbose=True, factor=0.97, min_delta=0, patience=20)
     else:
         raise ValueError(f'Unknown model name: {model_name}')
 
-    # TODO: Consider: checkpoint_filepath='weights_{epoch:03d}_{val_loss:.8f}.hdf5'
+    # TODO (Filip): Consider: checkpoint_filepath='weights_{epoch:03d}_{val_loss:.8f}.hdf5'
     return [
         learning_rate_callback,
         keras.callbacks.TensorBoard(
