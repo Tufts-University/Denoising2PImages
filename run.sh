@@ -140,13 +140,13 @@ echo "" # empty line #
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 
-# NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 0 ⏰ ⏰ ⏰ ⏰ 40039233          
+# NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 0 ✅ ✅ ✅ ✅ 40039233          
 # python -u main.py train care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=0 val_split=4 test_split=8 test_flag=1 ssim_FSize=11 ssim_FSig=1.5 wavelet_function=bior1.1
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0 val_split=4 test_split=8 test_flag=1 wavelet_function=bior1.1
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
-# NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 1 ⏰ ⏰ ⏰ ⏰ 40039596           
+# NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 1 ✅ ✅ ✅ ✅ 40039596           
 # python -u main.py train care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed1" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=1 val_split=4 test_split=8 test_flag=1 ssim_FSize=11 ssim_FSig=1.5 wavelet_function=bior1.1
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed1" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=1 val_split=4 test_split=8 test_flag=1 wavelet_function=bior1.1
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed1" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=1 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
@@ -164,13 +164,13 @@ echo "" # empty line #
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed3" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed3" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
-# NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 0 ⏰ ⏰ ⏰ ⏰  
-python -u main.py train care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=4 val_split=4 test_split=8 test_flag=1 ssim_FSize=11 ssim_FSig=1.5 wavelet_function=bior1.1
-python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1 wavelet_function=bior1.1
-python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
-python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
+# NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 4 ⏰ ⏰ ⏰ ⏰ 40039771
+# python -u main.py train care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=4 val_split=4 test_split=8 test_flag=1 ssim_FSize=11 ssim_FSig=1.5 wavelet_function=bior1.1
+# python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1 wavelet_function=bior1.1
+# python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
+# python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed4" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
-# FAD CARE + SSIML2 ap84 SSIM deep seed 0 ⏰ ⏰ ⏰ ⏰  40037557   
+# FAD CARE + SSIML2 ap84 SSIM deep seed 0 ✅ ✅ ✅ ✅  40037557   
 # python -u main.py train care "FAD_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz  loss_alpha=0.84 val_seed=0 val_split=4 test_split=8 test_flag=1 ssim_FSize=3 ssim_FSig=0.5
 # python -u main.py eval care "FAD_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0 val_split=4 test_split=8 test_flag=1 
 # python -u main.py eval care "FAD_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0

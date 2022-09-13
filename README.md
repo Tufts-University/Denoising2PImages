@@ -88,25 +88,44 @@ Available options include:
     - You **must** specify which model you are trying to train
     - *rcan*
     - *care*
+    - *resnet*
     - *srgan* (NOTE: SRGAN uses CARE for Content-Loss calculations instead of VGG19, please ensure you have CARE weights saved as **CARE_Pretrained.hdf5** in the path)
     - [`CARE_Pretrained.hdf5`](CARE_Pretrained.hdf5) weights for the CARE architecture used here are available on this repository
 - `Model_Name` (string):
     - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
-    - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type.
+    - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type, and which training/validation seed will be used
 - `cwd` (string):
     - List the path where the data (.npz) files are stored for training **(default = ' ')**
 - `nadh_data` (string):
     - List the name of the NADH data file during training for NADH training **(default = ' ')**
 - `fad_data` (string):
-    - List the name of the NADH data file during training for FAD training **(default = ' ')**
+    - List the name of the FAD data file during training for FAD training **(default = ' ')**
 - `epochs` (integer):
     - Maximum number of epochs desired **(default = 300)**
 - `steps_per_epoch` (integer):
-    - Number of steps per epoch, this controls the batch size of the model **(default = None for rcan or 100 for care)**
+    - Number of steps per epoch, this controls the batch size of the model **(default = None for rcan, resnet, srgan or 100 for care)**
 - `input_shape` (array of integers):
     - Set to the patch size used for your images **(default = [256 256])**
 - `initial_learning_rate` (integer):
     - Starting learning rate used for training **(default = 1e-5)**
+- `val_seed` (integer):
+    - The random seed used to split training and validation datasets **(default = 0)**
+- `val_split` (integer):
+    - Sets the number of ROIs to include in the validation set  **(default = 4)**
+    - It is important to note if `test_flag` = 0, all testing images will be added to `val_split`
+- `test_split` (integer):
+    - Sets the number of ROIs to include in the test set  **(default = 8)**
+    - It is important to note if `test_flag` = 0, all testing images will be added to `val_split`
+- `test_flag` (integer):   
+    - Controls whether a test set needs to be generated, if 0, all images not in the training set will be used for validation  **(default = 1)**
+- `train_mode` (integer):   
+    - Controls whether a training set is needed, this flag controls evaluation only **(default = 1)**
+    - A value of 0 means all data is new and unseen by the model
+    - A value of 1 means some data was used in training, in which case, set the `val_seed`, `val_split`, and `test_split` to the same values used during training
+- `ssim_FSize` (integer):   
+    - Controls the filter size used by the SSIM function **(default = 11)**
+- `ssim_FSig` (integer):   
+    - Controls the filter sigma used by the SSIM function **(default = 1.5)**        
 - `loss` (string):
     - Multiple options for loss functions exist:
         - *ssim_loss*
