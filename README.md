@@ -14,12 +14,22 @@ The following code can be used to implement competing models of denoising on 2D 
     - NVIDIA A100 GPU 40GB 
     - 20GB of RAM
     - Training Time: ~ 4.7 hrs 
-    - Evaluation Time: ~ 4 minutes
+    - Evaluation Time: ~ 40 minutes
 2. CARE Network
     - NVIDIA A100 GPU 40GB 
     - 20GB of RAM
     - Training Time: ~ 40 minutes 
-    - Evaluation Time: ~ 2 minutes
+    - Evaluation Time: ~ 40 minutes
+3. Resnet Network
+    - NVIDIA A100 GPU 40GB 
+    - 20GB of RAM
+    - Training Time: ~ 2 hours 
+    - Evaluation Time: ~ 40 minutes
+4. SRGAN Network
+    - NVIDIA A100 GPU 40GB 
+    - 20GB of RAM
+    - Training Time: ~ 24 hours 
+    - Evaluation Time: ~ 40 minutes
 
 ## Dataset
 1. All raw data is available at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
