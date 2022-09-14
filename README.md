@@ -37,54 +37,27 @@ The following code can be used to implement competing models of denoising on 2D 
 3. Preformatted data is avaiable online under Data folder
 
 ## Dependencies Installation
-### (Option 1) Install dependencies in base environment
+### Install dependencies and create new Denoising environment all together
+Determine operating system (Linux/OS or Windows)
 
-1. Download the [`pip_requirements.txt`](pip_requirements.txt) from the repository
-2. In your command prompt run:
-
+Windows:
+1. Download the [`Windows_environment.yml`](Windows_environment.yml) from the repository
+2. Change directory to where the environment is saved
+3. Create a new enviroment using by running the following command in your Terminal:
+    
     ```posh
-    pip install -r pip_requirements.txt
+    conda env create -f Windows_environment.yml
     ```
-3. Download the [`conda_requirements.txt`](conda_requirements.txt) from the repository
-4. In your command prompt run:
 
+Linux/OS:
+1. Download the [`Linux_environment.yml`](Linux_environment.yml) from the repository
+2. Change directory to where the environment is saved
+3. Create a new enviroment using by running the following command in your Terminal:
+    
     ```posh
-    conda install --file conda_requirements.txt
-    ```
-### (Option 2) Create a new virtual environment
-
-1. Download the [`pip_requirements.txt`](pip_requirements.txt) from the repository
-2. Download the [`conda_requirements.txt`](conda_requirements.txt) from the repository
-3. Open command prompt and change folder to where you put the `pip_requirements.txt` and `conda_requirements.txt`
-4. Create a new virtual environment:
-
-    ```posh
-    python -m venv Denoising
-    ```
-5. Activate the virtual environment
-
-    On Windows:
-
-    ```posh
-    .\Denoising\Scripts\activate
+    conda env create -f Linux_environment.yml
     ```
 
-    On macOS and Linux:
-
-    ```bash
-    source Denoising/bin/activate
-    ```
-
-6. You should see (Denoising) in the command line.
-
-7. In your command prompt run:
-
-    ```posh
-    pip install -r pip_requirements.txt
-    ```
-    ```posh
-    conda install --file conda_requirements.txt
-    ```
 ## Training
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
