@@ -37,8 +37,7 @@ The following code can be used to implement competing models of denoising on 2D 
 3. Preformatted data is avaiable online under Data folder
 
 ## Dependencies Installation
-### Install dependencies and create new Denoising environment all together
-Determine operating system (Linux/OS or Windows)
+### Determine your operating system (Linux/OS or Windows), Denoising environment will automatically be created
 
 **Windows**:
 1. Download the [`Windows_environment.yml`](Windows_environment.yml) from the repository
@@ -48,7 +47,10 @@ Determine operating system (Linux/OS or Windows)
     ```posh
     conda env create -f Windows_environment.yml
     ```
-
+4. Activate new enviroment:
+    ```posh
+    conda activate Denoising
+    ``` 
 **Linux/OS**:
 1. Download the [`Linux_environment.yml`](Linux_environment.yml) from the repository
 2. Change directory to where the environment is saved
@@ -57,7 +59,10 @@ Determine operating system (Linux/OS or Windows)
     ```posh
     conda env create -f Linux_environment.yml
     ```
-
+4. Activate new enviroment:
+    ```posh
+    conda activate Denoising
+    ``` 
 ## Training
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
