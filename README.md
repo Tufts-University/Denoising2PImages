@@ -40,7 +40,7 @@ The following code can be used to implement competing models of denoising on 2D 
 ### Install dependencies and create new Denoising environment all together
 Determine operating system (Linux/OS or Windows)
 
-Windows:
+**Windows**:
 1. Download the [`Windows_environment.yml`](Windows_environment.yml) from the repository
 2. Change directory to where the environment is saved
 3. Create a new enviroment using by running the following command in your Terminal:
@@ -49,7 +49,7 @@ Windows:
     conda env create -f Windows_environment.yml
     ```
 
-Linux/OS:
+**Linux/OS**:
 1. Download the [`Linux_environment.yml`](Linux_environment.yml) from the repository
 2. Change directory to where the environment is saved
 3. Create a new enviroment using by running the following command in your Terminal:
