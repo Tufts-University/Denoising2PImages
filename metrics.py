@@ -4,6 +4,7 @@ import keras
 from keras import backend as kb
 import tensorflow as tf
 import srgan
+from tf_focal_frequency_loss import FocalFrequencyLoss as FFL
 
 binary_cross_entropy = tf.keras.losses.BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
 
@@ -23,6 +24,16 @@ def ssim(y_true, y_pred,filter_size=11,filter_sigma=1.5):
 def ssim_loss(y_true, y_pred, filter_size,filter_sigma):
     return 1-((ssim(y_true, y_pred, filter_size, filter_sigma)+1)*0.5)
 
+# Sourced from Tensorflow Implementation of Focal Frequency Loss for Image Reconstruction and Synthesis [ICCV 2021]
+# https://github.com/ZohebAbai/tf-focal-frequency-loss
+ffl = FFL(loss_weight=1.0, alpha=1.0)
+def ffloss(y_true,y_pred):
+    return ffl(y_pred,y_true)
+
+def SSIMFFL(y_true,y_pred, alpha, filter_size,filter_sigma):
+    SSIM = 1-((ssim(y_true, y_pred,filter_size,filter_sigma)+1)*0.5)
+    FFL = ffloss(y_true,y_pred)
+    return alpha * SSIM + (1-alpha) * FFL
 
 # Default alpha was 0.84
 def ssiml1_loss(y_true, y_pred, alpha, filter_size,filter_sigma):
@@ -169,6 +180,8 @@ def lookup_loss(loss_name, alpha = 0, filter_size=11 , filter_sigma=1.5):
         'ssiml2_loss': lambda y_true, y_pred: ssiml2_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
         'ssimr2_loss': lambda y_true, y_pred: ssimr2_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
         'pcc_loss': pcc_loss,
+        'ffloss': ffloss,
+        'SSIMFFL': lambda y_true, y_pred: SSIMFFL(y_true, y_pred, alpha, filter_size, filter_sigma),
         'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
     }
 
