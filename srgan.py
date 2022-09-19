@@ -145,7 +145,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,train
         discriminator_loss_metric = tf.keras.metrics.Mean()
         psnr_metric = tf.keras.metrics.Mean()
         ssim_metric = tf.keras.metrics.Mean()
-        best_val_loss = None
+        best_val_ssim = None
         for i in range(config['epochs']):
             for _, batch in enumerate(training_data):
                 perceptual_loss, discriminator_loss = strategy.run(train_step, args=(batch,srgan_checkpoint,care))
@@ -197,13 +197,13 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,train
                 ssim_metric(ssim_value)
             CARE_loss = perceptual_loss_metric.result()
             dis_loss = discriminator_loss_metric.result()
-            total_loss = CARE_loss + dis_loss
+            total_ssim = ssim_metric.result()
             psnr_train = psnr_metric.result()
             ssim_train = ssim_metric.result()
-            if best_val_loss == None or total_loss < best_val_loss:
+            if best_val_ssim == None or total_ssim > best_val_ssim:
                 print('New Checkpoint Saved')
                 srgan_checkpoint_manager.save()
-                best_val_loss = total_loss
+                best_val_ssim = total_ssim
             print(f'Validation --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
             perceptual_loss_metric.reset_states()
             discriminator_loss_metric.reset_states()
@@ -224,9 +224,9 @@ def train_step(images,srgan_checkpoint,CARE):
         sr_output = srgan_checkpoint.discriminator(sr, training=True)
 
         con_loss = metrics.calculate_content_loss(hr, sr, CARE)
-        gen_loss = metrics.calculate_generator_loss(sr_output)
+        gen_loss = metrics.calculate_generator_loss(sr_output)/len(sr_output)
         perc_loss = con_loss + 0.001 * gen_loss
-        disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
+        disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)/len(sr_output)
 
     gradients_of_generator = gen_tape.gradient(perc_loss, srgan_checkpoint.generator.trainable_variables)
     gradients_of_discriminator = disc_tape.gradient(disc_loss, srgan_checkpoint.discriminator.trainable_variables)
