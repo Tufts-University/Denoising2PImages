@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed3.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed3.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed4.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed4.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -260,16 +260,16 @@ echo "" # empty line #
 # python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed2" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=2 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH SRGAN 5 residual blocks seed 3✅ ✅ ✅ ✅ 39741257 
-python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=3 val_split=4 test_split=8 test_flag=1 epochs=500
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=3 val_split=4 test_split=8 test_flag=1
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
+# python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=3 val_split=4 test_split=8 test_flag=1 epochs=500
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=3 val_split=4 test_split=8 test_flag=1
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH SRGAN 5 residual blocks seed 4✅ ✅ ✅ ✅ 39741376 
-# python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=4 val_split=4 test_split=8 test_flag=1 epochs=20
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=4 val_split=4 test_split=8 test_flag=1 epochs=500
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
 ##################################################################
 ### Resnet ########################################################
 
