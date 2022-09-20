@@ -182,9 +182,9 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,train
                 sr_output = srgan_checkpoint.discriminator.predict(sr)
 
                 con_loss = metrics.calculate_content_loss(hr, sr, care)
-                gen_loss = metrics.calculate_generator_loss(sr_output)
+                gen_loss = metrics.calculate_generator_loss(sr_output)/len(sr_output)
                 perc_loss = con_loss + 0.001 * gen_loss
-                disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)
+                disc_loss = metrics.calculate_discriminator_loss(hr_output, sr_output)/len(sr_output)
 
                 perceptual_loss_metric(perc_loss)
                 discriminator_loss_metric(disc_loss)
