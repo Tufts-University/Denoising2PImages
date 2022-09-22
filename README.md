@@ -68,14 +68,18 @@ The following code can be used to implement competing models of denoising on 2D 
 
 To train any model, you have several options to specify the run options:
     1. Call all args and utilize argparsing (old implementation):
+        
         python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
+
     2. Write a .json config file with all desired parameters:
+        
         python -u main.py config.json
     3. Hybrid Argparsing and config file
+        
         python -u main.py config.json mode=eval fad_data=*fad_data.npz* nadh_data=*nadh_data.npz* train_mode=0
 
 
-**08/23-09/22 ArgParsing ONLY**
+**08/23-09/22 ArgParsing ONLY:**
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
     python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
