@@ -182,6 +182,7 @@ def lookup_loss(loss_name, alpha = 0, filter_size=11 , filter_sigma=1.5):
         'pcc_loss': pcc_loss,
         'ffloss': ffloss,
         'SSIMFFL': lambda y_true, y_pred: SSIMFFL(y_true, y_pred, alpha, filter_size, filter_sigma),
+        'MSSSIM_loss': lambda y_true, y_pred: MSSSIM_loss(y_true, y_pred, alpha),
         'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
     }
 
