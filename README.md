@@ -122,6 +122,8 @@ Available options include:
         - *MSSSIM_loss* **(must preinitalize some weights)**
         - *pcc_loss*
         - *ssimpcc_loss*
+        - *ffloss*
+        - *SSIMFFL*
 - `metrics` (array of strings): 
     - Multiple options for metrics exist:
         - *psnr*
