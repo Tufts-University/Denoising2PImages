@@ -102,7 +102,7 @@ def json_config(config):
         'channel_reduction': {'type': 'integer', 'minimum': 1},
         'epochs': {'type': 'integer', 'minimum': 1},
         'steps_per_epoch': {'type': ['integer', 'null'], 'minimum': 1},
-        'val_seed': {'type':'integer', 'minimum': 1},
+        'val_seed': {'type':'integer'},
         'val_split': {'type':'integer', 'minimum': 1},
         'test_split': {'type':'integer', 'minimum': 1},
         'test_flag': {'type':['integer','bool']},
