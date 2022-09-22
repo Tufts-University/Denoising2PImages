@@ -1,9 +1,7 @@
 # Contains the metrics and loss functions used in the models.
 
 import keras
-from keras import backend as kb
 import tensorflow as tf
-import srgan
 from tf_focal_frequency_loss import FocalFrequencyLoss as FFL
 
 binary_cross_entropy = tf.keras.losses.BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)

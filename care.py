@@ -1,6 +1,5 @@
-import tensorflow as tf
 from csbdeep.internals import nets
-from csbdeep.models import Config, CARE
+from csbdeep.models import Config
 
 
 def build_care(shared_config, axes):

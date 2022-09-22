@@ -1,6 +1,4 @@
-import wave
 import numpy as np
-import tensorflow as tf
 import keras as keras
 from keras import backend as kb
 from keras.utils.conv_utils import normalize_tuple
@@ -464,7 +462,6 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
     
-    # TODO (nvora01): See if there is a more efficient way of doing this... 
     ROIs = len(SB)
 
     assert type(validation_split) is int,"validation_split must be an integer"
@@ -576,29 +573,6 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             X_t = move_channel_for_backend(X_t, channel=channel)
             Y_t = move_channel_for_backend(Y_t, channel=channel)
 
-    # TODO (nvora01): Remove this section
-    ################################################################################
-    ############################Testing on older models!############################
-    # new_test = range(0,int(SE[6])+1)
-    # ranges = np.hstack((new_test,range(int(SB[-5]),len(X))))
-    # X_t, Y_t = X[ranges],  Y[ranges]
-    # validation_idx = np.hstack((range(0,7),range(-5,0)))
-    # num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    # prev = 0
-    # stack_ranges=np.empty((len(num_stacks),2),dtype=int)
-    # for i in range(len(num_stacks)):
-    #     stack_ranges[i] = [prev, prev + num_stacks[i]-1]
-    #     prev += num_stacks[i]
-
-    # X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
-    # if channel != None:
-    #     X_t = move_channel_for_backend(X_t, channel=channel)
-    #     Y_t = move_channel_for_backend(Y_t, channel=channel)
-    # X_te = []
-    # Y_te = []
-    # te_stack_ranges = []
-    ################################################################################
-    ################################################################################
     if channel != None:
         X = move_channel_for_backend(X, channel=channel)
         Y = move_channel_for_backend(Y, channel=channel)
@@ -715,8 +689,7 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
-    
-    # TODO (nvora01): See if there is a more efficient way of doing this... 
+     
     ROIs = len(SB)
     print(f'A Eval set of {ROIs} image stacks is being generated')
         

@@ -1,6 +1,4 @@
-from importlib.metadata import requires
 import os as os
-import tensorflow as tf
 import sys
 import json
 import jsonschema
