@@ -81,6 +81,7 @@ To train any model, you have several options to specify the run options:
     ```
 
 **08/23-09/22 ArgParsing ONLY:**
+
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
     python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
