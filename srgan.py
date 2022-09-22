@@ -11,7 +11,6 @@ import RESNET
 import train
 import shutil
 import pathlib
-import numpy as np
 import basics 
 
 # === SRGAN ===

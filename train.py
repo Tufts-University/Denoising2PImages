@@ -1,11 +1,6 @@
-from cgi import test
-from tabnanny import check
-import tensorflow as tf
 import pathlib
 import os
 import shutil
-import tqdm
-import numpy as np
 
 # Local dependencies
 import callbacks
@@ -13,7 +8,6 @@ import model_builder
 import data_generator
 import basics
 import srgan
-import metrics
 
 def determine_training_strategy(model, output_dir):
     print('=== Determining Training Strategy -----------------------------------')
@@ -50,8 +44,6 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
     print('=== Fitting model --------------------------------------------------')
     final_dir = pathlib.Path(output_dir)
     os.chdir(final_dir)
-    steps_per_epoch = config['steps_per_epoch'] if config['steps_per_epoch'] != None else None
-    validation_steps = None if validation_data is None else steps_per_epoch
     if validation_data is not None:
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
     else:
@@ -60,10 +52,8 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         x=training_data if model_name != 'care' else training_data[0],
         y=None if model_name != 'care' else training_data[1],
         epochs=config['epochs'],
-        # steps_per_epoch=steps_per_epoch,
         shuffle=True,
         validation_data=validation_data,
-        # validation_steps=validation_steps,
         verbose=0,
         callbacks=callbacks.get_callbacks(
             model_name,
