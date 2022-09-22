@@ -127,7 +127,8 @@ def json_config(config):
     'additionalProperties': False,
     'anyOf': [
         {'required': ['mode']},
-        {'required': ['model_name']}
+        {'required': ['model_name']},
+        {'required': ['trial_name']}
         ]
     }
 
@@ -166,6 +167,9 @@ def main():
         with open(sys.argv[1]) as json_data:
             config = json.load(json_data)
         config = json_config(config)
+        if len(sys.argv) > 1:
+            config_flags = sys.argv[2:]
+            config = apply_config_flags(config_flags, config)
         mode = config['mode']
         model_name = config['model_name']
         trial_name = config['trial_name']
