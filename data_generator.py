@@ -789,7 +789,7 @@ def gather_data(config, data_path, requires_channel_dim):
 
     data_gen = DataGenerator(
         config['input_shape'],
-        50,
+        config['batch_size'],
         transform_function=None)
 
     if not requires_channel_dim:

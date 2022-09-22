@@ -27,7 +27,7 @@ def make_config(model_name):
         'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
         'ssim_FSize': 11, # SSIM Filter Size
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
-
+        'batch_size': 50, # Default batch size
         # Metrics
         'loss': {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
@@ -96,6 +96,7 @@ def json_config(config):
             'minItems': 2,
             'maxItems': 3
             },
+        'batch_size': {'type': 'integer', 'minimum': 1},
         'num_channels': {'type': 'integer', 'minimum': 1},
         'num_residual_blocks': {'type': 'integer', 'minimum': 1},
         'num_residual_groups': {'type': 'integer', 'minimum': 1},
@@ -146,6 +147,7 @@ def json_config(config):
     config.setdefault('train_mode', 1)
     config.setdefault('ssim_FSize', 11)
     config.setdefault('ssim_FSig', 1.5)
+    config.setdefault('batch_size', 50)
     config.setdefault('loss', {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[config['model_name']])
     config.setdefault('metrics', ['psnr','ssim'])
     config.setdefault('loss_alpha', 0.5)
