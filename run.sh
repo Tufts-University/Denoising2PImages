@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:a100:1
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
-#SBATCH --mem=20g  #requesting 2GB of RAM total
+#SBATCH --mem=20g  #requesting 2GB of RAM total 
 #SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed4_new.%j.out  #saving standard output to file -- %j jobID -- %N nodename
 #SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed4_new.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
