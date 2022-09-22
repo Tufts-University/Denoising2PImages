@@ -13,7 +13,6 @@ import eval
 
 #################################################################################
 
-# TODO (Nilay): Create a config run option to simplify options and list defaults
 def make_config(model_name):
     return {
         'cwd': '',
