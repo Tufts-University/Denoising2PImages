@@ -30,7 +30,7 @@ def determine_training_strategy(model, output_dir):
         print(f'Found last modified checkpoint file: "{last_modified_file}"')
 
         raise Exception(f'Cannot continue training from checkpoints. Terminating...')
-        # TODO: Implement continued training from checkpoints. (Load correct lr, epochs, and anything else that changes.)
+        # TODO (nvora01): Implement continued training from checkpoints. (Load correct lr, epochs, and anything else that changes.)
         # model.load_weights(os.path.join(output_dir, last_modified_file))
         # print("Successfully loaded weights from last checkpoint.")
     else: 
