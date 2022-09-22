@@ -1,6 +1,7 @@
 import pathlib
 import os
 import shutil
+import tensorflow as tf
 
 # Local dependencies
 import callbacks
@@ -25,11 +26,10 @@ def determine_training_strategy(model, output_dir):
         raise Exception(f'Model has already trained and produced final weights: "{basics.final_weights_name()}"')
     elif len(checkpoint_files) > 0:
         print(f'Found {len(checkpoint_files)} checkpoint weight files: {checkpoint_files}.')
-
         last_modified_file = max(checkpoint_files, key=lambda file: os.path.getmtime(os.path.join(output_dir, file)))
         print(f'Found last modified checkpoint file: "{last_modified_file}"')
-
-        raise Exception(f'Cannot continue training from checkpoints. Terminating...')
+        model.load_weights(os.path.join(output_dir, last_modified_file))
+        #raise Exception(f'Cannot continue training from checkpoints. Terminating...')
         # TODO (nvora01): Implement continued training from checkpoints. (Load correct lr, epochs, and anything else that changes.)
         # model.load_weights(os.path.join(output_dir, last_modified_file))
         # print("Successfully loaded weights from last checkpoint.")
@@ -48,6 +48,16 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
     else:
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
+    
+    ckpt = tf.train.Checkpoint(completed_epochs=tf.Variable(0,trainable=False,dtype='int32'))
+    manager = tf.train.CheckpointManager(ckpt, f'{output_dir}/tf_ckpts', max_to_keep=3)
+
+    if manager.latest_checkpoint:
+        ckpt.restore(manager.latest_checkpoint)
+        print(f"Restored epoch ckpt from {manager.latest_checkpoint}, starting training at epoch # ",ckpt.completed_epochs.numpy())
+    
+    completed_epochs=ckpt.completed_epochs.numpy()
+    
     model.fit(
         x=training_data if model_name != 'care' else training_data[0],
         y=None if model_name != 'care' else training_data[1],
@@ -60,7 +70,8 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
             config['epochs'],
             final_dir,
             checkpoint_filepath,
-            validation_data))
+            validation_data),
+        initial_epoch = completed_epochs)
 
     print('--------------------------------------------------------------------')
 

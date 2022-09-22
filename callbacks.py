@@ -6,12 +6,33 @@ import warnings
 import functools
 from tqdm.utils import IS_WIN
 import tqdm
+import os 
 
 # Local dependencies
 from basics import is_multi_gpu_model
 
+# str(pathlib.Path(output_dir) / checkpoint_filepath),
+#             monitor='val_loss' if validation_data is not None else 'loss',
+#             save_best_only=True, verbose=1, mode='min')
 
 class ModelCheckpoint(keras.callbacks.ModelCheckpoint):
+    def __init__(self, filepath, monitor, verbose=1, save_best_only=True, 
+        save_weights_only=True, mode='min') -> None:
+    
+        super(ModelCheckpoint,self).__init__(filepath=filepath,monitor=monitor,
+                verbose=verbose,save_best_only=save_best_only,
+                save_weights_only=save_weights_only, mode=mode)
+        
+        self.ckpt = tf.train.Checkpoint(completed_epochs=tf.Variable(0,trainable=False,dtype='int32'))
+        ckpt_dir = f'{os.path.dirname(filepath)}/tf_ckpts'
+        self.manager = tf.train.CheckpointManager(self.ckpt, ckpt_dir, max_to_keep=3)
+
+    
+    def on_epoch_begin(self,epoch,logs=None):        
+        self.ckpt.completed_epochs.assign(epoch)
+        self.manager.save()
+        print( f"Epoch checkpoint {self.ckpt.completed_epochs.numpy()}  saved to: {self.manager.latest_checkpoint}" ) 
+
     def on_epoch_end(self, epoch, logs=None):
         logs = logs or {}
         self.epochs_since_last_save += 1
