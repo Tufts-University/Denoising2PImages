@@ -10,7 +10,6 @@ def build_care(shared_config, axes):
     # We are just denoising, so the output is the same shape as the input
     n_channel_out = n_channel_in
 
-    # TODO: Move more of these the shared config.
     config = Config(axes, n_channel_in, n_channel_out,
                     train_steps_per_epoch=shared_config['steps_per_epoch'], train_batch_size=shared_config['batch_size'],
                     train_epochs=shared_config['epochs'], unet_n_depth=shared_config['unet_n_depth'],

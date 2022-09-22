@@ -234,10 +234,6 @@ class DataGenerator:
                               self._area_threshold,
                               self._scale_factor)
 
-
-# MARK: Load training data helpers.
-#
-# TODO: Look whether they're provided in CSBDeep.
 def backend_channels_last():
     assert kb.image_data_format() in ('channels_first', 'channels_last')
     return kb.image_data_format() == 'channels_last'
@@ -419,11 +415,11 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         Can be used to display information about the loaded images.
     Returns
     -------
-    TODO (nvora01): Update this section with new fcn return 
-    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str )
-        Returns two tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`) of training and validation sets
-        and the axes of the input images.
-        The tuple of validation data will be ``None`` if ``validation_split = 0``.
+    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str,
+         :class:`numpy.ndarray`,tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`),:class:`numpy.ndarray`)
+        Returns three tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`), (`X_test`, `Y_test`) of training, validation, and test sets (optional),
+        the axes of the input images, and two arrays of image stack ranges for each ROI in the validation and test set.
+        The tuple of test data and test stack ranges will be ``None`` if ``test_set_flag = False``.
     """
 
     if verbose:
@@ -647,11 +643,11 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
         Can be used to display information about the loaded images.
     Returns
     -------
-    TODO (nvora01): Update this section with new fcn return 
-    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str )
-        Returns two tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`) of training and validation sets
-        and the axes of the input images.
-        The tuple of validation data will be ``None`` if ``validation_split = 0``.
+    (X, Y), axes, stack_ranges
+    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str, :class:`numpy.ndarray`)
+        Returns one tuple (`X`, `Y`), where all data is being used as testing,
+        the axes of the input images, and an array of where an image stack starts and end
+        for each ROI.
     """
 
     if verbose:
@@ -685,7 +681,6 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
         n_images = X.shape[0]
     assert X.shape[0] == Y.shape[0]
     assert 0 < n_images <= X.shape[0]
-    # assert 0 <= validation_split < 1
 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
@@ -751,6 +746,8 @@ def stitch_patches(patches):
 
 
 def default_load_data(data_path, requires_channel_dim, config):
+    # If we are training a model we need a training, validation, and potentially a test set
+    # The train_mode specifies if we are training and test_flag specifies if we want a test set.
     if bool(config['train_mode']):
         (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
             data_path,
@@ -773,7 +770,6 @@ def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
     print('=== Gathering data ---------------------------------------------------')
 
-    # Similar to 'data_generator.py'
     (X, Y), (X_val, Y_val), _, _, _ = default_load_data(data_path, requires_channel_dim, config)
 
     wavelet_config = get_wavelet_config(
@@ -797,7 +793,7 @@ def gather_data(config, data_path, requires_channel_dim):
         training_data = data_gen.flow(*list(zip([X, Y])))
         validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
     else:
-        # TODO: Streamline RCAN and CARE data generation.
+        # TODO (nvora01): Streamline CARE data generation.
         # Shape: (2, n_train_patches, 256, 256, 1)
         training_data = (X, Y)
         # Shape: (2, n_valid_patches, 256, 256, 1)
