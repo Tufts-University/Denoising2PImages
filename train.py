@@ -33,7 +33,7 @@ def determine_training_strategy(model, output_dir):
         # TODO: Implement continued training from checkpoints. (Load correct lr, epochs, and anything else that changes.)
         # model.load_weights(os.path.join(output_dir, last_modified_file))
         # print("Successfully loaded weights from last checkpoint.")
-    else:
+    else: 
         print('Starting training without any checkpoint weights.')
 
     print('--------------------------------------------------------------------')
