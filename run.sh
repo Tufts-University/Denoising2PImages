@@ -213,10 +213,10 @@ echo "" # empty line #
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIMFFL_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH CARE + SSIMFFL ap84 SSIM deep seed 0 ✅ ✅ ✅ ✅ 39729778       
-python -u main.py config.json
-python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
-python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
-python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
+# python -u main.py config.json
+# python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
+# python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
+# python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
 
 ### PCC ##########################################################
 

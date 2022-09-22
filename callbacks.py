@@ -27,7 +27,6 @@ class ModelCheckpoint(keras.callbacks.ModelCheckpoint):
         ckpt_dir = f'{os.path.dirname(filepath)}/tf_ckpts'
         self.manager = tf.train.CheckpointManager(self.ckpt, ckpt_dir, max_to_keep=3)
 
-    
     def on_epoch_begin(self,epoch,logs=None):        
         self.ckpt.completed_epochs.assign(epoch)
         self.manager.save()
@@ -94,7 +93,6 @@ def staircase_exponential_decay(n):
     every `n` epochs.
     '''
     return lambda epoch, lr: lr / 2 if epoch != 0 and epoch % n == 0 else lr
-
 
 def get_callbacks(model_name, epochs, output_dir, checkpoint_filepath, validation_data):
     # Learning-rate callback.
