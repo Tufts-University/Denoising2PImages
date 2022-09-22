@@ -5,7 +5,7 @@
     "cwd": "..",
     "nadh_data": "NV_823_NADH_healthy.npz",
     "loss_alpha": 0.84,
-    "val_seed": 0,
+    "val_seed": 1,
     "val_split": 4,
     "test_split": 8,
     "test_flag": 1,
