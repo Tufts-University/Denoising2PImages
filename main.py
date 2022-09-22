@@ -83,7 +83,7 @@ def apply_config_flags(config_flags, config):
 
 def main():
     if len(sys.argv) < 4:
-        print('Usage: python main.py <mode: train | eval> <name: rcan | care> <trial_name> <config options...>')
+        print('Usage: python main.py <mode: train | eval> <name: rcan | care | srgan | resnet> <trial_name> <config options...>')
         raise Exception('Invalid arguments.')
 
     # === Get arguments ===
