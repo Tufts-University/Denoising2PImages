@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total
-#SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed3_new.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed3_new.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_SRGAN_0823_cervix_SSIMR2_seed4_new.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_SRGAN_0823_cervix_SSIMR2_seed4_new.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -295,16 +295,16 @@ echo "" # empty line #
 # python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed2_new" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=2 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH SRGAN  residual blocks seed 3
-python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=3 val_split=4 test_split=8 test_flag=1 epochs=1000
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=3 val_split=4 test_split=8 test_flag=1
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
-python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
+# python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=3 val_split=4 test_split=8 test_flag=1 epochs=1000
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=3 val_split=4 test_split=8 test_flag=1
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
+# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed3_new" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=3 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH SRGAN  residual blocks seed 4
-# python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=4 val_split=4 test_split=8 test_flag=1 epochs=1000
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
-# python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py train srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. nadh_data=NV_823_NADH_healthy.npz loss_alpha=0 val_seed=4 val_split=4 test_split=8 test_flag=1 epochs=1000
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=4 val_split=4 test_split=8 test_flag=1
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py eval srgan "NADH_SRGAN_0823_cervix_SSIMR2_seed4_new" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=4 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 
 ##################################################################
