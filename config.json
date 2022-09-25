@@ -1,0 +1,15 @@
+{   
+    "mode": "train",
+    "model_name": "care",
+    "trial_name": "NADH_CARE_0823_cervix_SSIMFFL_seed1",
+    "cwd": "..",
+    "nadh_data": "NV_823_NADH_healthy.npz",
+    "loss_alpha": 0.84,
+    "val_seed": 1,
+    "val_split": 4,
+    "test_split": 8,
+    "test_flag": 1,
+    "ssim_FSize": 3, 
+    "ssim_FSig": 0.5, 
+    "loss": "SSIMFFL"
+}

@@ -44,6 +44,7 @@ def build_and_compile_model(model_name, strategy, config):
         elif model_name == 'care':
             model = care.build_care(config, 'SXYC')
         elif model_name == 'srgan':
+            # For SRGAN we need an adversarial network for content loss. VGG-19 only accepts RGB images so we use CARE 
             model = care.build_care(config, 'SXYC')
             model = compile_model(
                 model,
@@ -61,7 +62,6 @@ def build_and_compile_model(model_name, strategy, config):
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 
-        #model = convert_to_multi_gpu_model(model, gpus)
         if model_name != 'srgan':
             model = compile_model(
                 model,

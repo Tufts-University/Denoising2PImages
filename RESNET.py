@@ -1,5 +1,4 @@
 # Custom RESNET based on RCAN and SRGAN Code
-import tensorflow as tf
 import keras
 import model_builder
 

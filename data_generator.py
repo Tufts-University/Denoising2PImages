@@ -1,6 +1,4 @@
-import wave
 import numpy as np
-import tensorflow as tf
 import keras as keras
 from keras import backend as kb
 from keras.utils.conv_utils import normalize_tuple
@@ -236,10 +234,6 @@ class DataGenerator:
                               self._area_threshold,
                               self._scale_factor)
 
-
-# MARK: Load training data helpers.
-#
-# TODO: Look whether they're provided in CSBDeep.
 def backend_channels_last():
     assert kb.image_data_format() in ('channels_first', 'channels_last')
     return kb.image_data_format() == 'channels_last'
@@ -421,11 +415,11 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         Can be used to display information about the loaded images.
     Returns
     -------
-    TODO (nvora01): Update this section with new fcn return 
-    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str )
-        Returns two tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`) of training and validation sets
-        and the axes of the input images.
-        The tuple of validation data will be ``None`` if ``validation_split = 0``.
+    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str,
+         :class:`numpy.ndarray`,tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`),:class:`numpy.ndarray`)
+        Returns three tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`), (`X_test`, `Y_test`) of training, validation, and test sets (optional),
+        the axes of the input images, and two arrays of image stack ranges for each ROI in the validation and test set.
+        The tuple of test data and test stack ranges will be ``None`` if ``test_set_flag = False``.
     """
 
     if verbose:
@@ -464,7 +458,6 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
     
-    # TODO (nvora01): See if there is a more efficient way of doing this... 
     ROIs = len(SB)
 
     assert type(validation_split) is int,"validation_split must be an integer"
@@ -576,29 +569,6 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             X_t = move_channel_for_backend(X_t, channel=channel)
             Y_t = move_channel_for_backend(Y_t, channel=channel)
 
-    # TODO (nvora01): Remove this section
-    ################################################################################
-    ############################Testing on older models!############################
-    # new_test = range(0,int(SE[6])+1)
-    # ranges = np.hstack((new_test,range(int(SB[-5]),len(X))))
-    # X_t, Y_t = X[ranges],  Y[ranges]
-    # validation_idx = np.hstack((range(0,7),range(-5,0)))
-    # num_stacks = [int(SE[x]-SB[x]+1)/4 for x in validation_idx]
-    # prev = 0
-    # stack_ranges=np.empty((len(num_stacks),2),dtype=int)
-    # for i in range(len(num_stacks)):
-    #     stack_ranges[i] = [prev, prev + num_stacks[i]-1]
-    #     prev += num_stacks[i]
-
-    # X, Y = X[range(int(SB[7]), int(SB[-5]))], Y[range(int(SB[7]), int(SB[-5]))]
-    # if channel != None:
-    #     X_t = move_channel_for_backend(X_t, channel=channel)
-    #     Y_t = move_channel_for_backend(Y_t, channel=channel)
-    # X_te = []
-    # Y_te = []
-    # te_stack_ranges = []
-    ################################################################################
-    ################################################################################
     if channel != None:
         X = move_channel_for_backend(X, channel=channel)
         Y = move_channel_for_backend(Y, channel=channel)
@@ -673,11 +643,11 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
         Can be used to display information about the loaded images.
     Returns
     -------
-    TODO (nvora01): Update this section with new fcn return 
-    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str )
-        Returns two tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`) of training and validation sets
-        and the axes of the input images.
-        The tuple of validation data will be ``None`` if ``validation_split = 0``.
+    (X, Y), axes, stack_ranges
+    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str, :class:`numpy.ndarray`)
+        Returns one tuple (`X`, `Y`), where all data is being used as testing,
+        the axes of the input images, and an array of where an image stack starts and end
+        for each ROI.
     """
 
     if verbose:
@@ -711,12 +681,10 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
         n_images = X.shape[0]
     assert X.shape[0] == Y.shape[0]
     assert 0 < n_images <= X.shape[0]
-    # assert 0 <= validation_split < 1
 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
-    
-    # TODO (nvora01): See if there is a more efficient way of doing this... 
+     
     ROIs = len(SB)
     print(f'A Eval set of {ROIs} image stacks is being generated')
         
@@ -778,6 +746,8 @@ def stitch_patches(patches):
 
 
 def default_load_data(data_path, requires_channel_dim, config):
+    # If we are training a model we need a training, validation, and potentially a test set
+    # The train_mode specifies if we are training and test_flag specifies if we want a test set.
     if bool(config['train_mode']):
         (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
             data_path,
@@ -800,7 +770,6 @@ def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
     print('=== Gathering data ---------------------------------------------------')
 
-    # Similar to 'data_generator.py'
     (X, Y), (X_val, Y_val), _, _, _ = default_load_data(data_path, requires_channel_dim, config)
 
     wavelet_config = get_wavelet_config(
@@ -816,7 +785,7 @@ def gather_data(config, data_path, requires_channel_dim):
 
     data_gen = DataGenerator(
         config['input_shape'],
-        50,
+        config['batch_size'],
         transform_function=None)
 
     if not requires_channel_dim:
@@ -824,7 +793,7 @@ def gather_data(config, data_path, requires_channel_dim):
         training_data = data_gen.flow(*list(zip([X, Y])))
         validation_data = data_gen.flow(*list(zip([X_val, Y_val])))
     else:
-        # TODO: Streamline RCAN and CARE data generation.
+        # TODO (nvora01): Streamline CARE data generation.
         # Shape: (2, n_train_patches, 256, 256, 1)
         training_data = (X, Y)
         # Shape: (2, n_valid_patches, 256, 256, 1)
