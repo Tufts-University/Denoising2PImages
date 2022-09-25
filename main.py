@@ -1,7 +1,8 @@
-from importlib.metadata import requires
 import os as os
-import tensorflow as tf
 import sys
+import json
+import jsonschema
+import pywt
 
 # Local dependencies
 import train
@@ -10,7 +11,6 @@ import eval
 
 #################################################################################
 
-# TODO (Nilay): Create a config run option to simplify options and list defaults
 def make_config(model_name):
     return {
         'cwd': '',
@@ -18,7 +18,7 @@ def make_config(model_name):
         'fad_data': '',
         'epochs': 300,
         'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None}[model_name],
-        'input_shape': [256, 256], # TODO: Remove since this is almost fixed. (Nilay) Need to check what Filip did here since we may want variable size patches
+        'input_shape': [256, 256],
         'initial_learning_rate': 1e-5,
         'val_seed': 0, # Controls the validation split
         'val_split': 4, # Controls how many stacks to include in the validation set
@@ -27,7 +27,7 @@ def make_config(model_name):
         'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
         'ssim_FSize': 11, # SSIM Filter Size
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
-
+        'batch_size': 50, # Default batch size
         # Metrics
         'loss': {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
@@ -80,31 +80,124 @@ def apply_config_flags(config_flags, config):
 
     return config
 
+def json_config(config):
+    schema = {
+    'type': 'object',
+    'properties': {
+        'mode': {'type': 'string', 'enum': ['train','eval']},
+        'model_name': {'type': 'string', 'enum': ['rcan', 'care', 'srgan', 'resnet']},
+        'trial_name': {'type': 'string'},
+        'cwd': {'type': 'string'},
+        'nadh_data': {'type': 'string'},
+        'fad_data': {'type': 'string'},
+        'input_shape': {
+            'type': 'array',
+            'items': {'type': 'integer', 'minimum': 1},
+            'minItems': 2,
+            'maxItems': 3
+            },
+        'batch_size': {'type': 'integer', 'minimum': 1},
+        'num_channels': {'type': 'integer', 'minimum': 1},
+        'num_residual_blocks': {'type': 'integer', 'minimum': 1},
+        'num_residual_groups': {'type': 'integer', 'minimum': 1},
+        'channel_reduction': {'type': 'integer', 'minimum': 1},
+        'epochs': {'type': 'integer', 'minimum': 1},
+        'steps_per_epoch': {'type': ['integer', 'null'], 'minimum': 1},
+        'val_seed': {'type':'integer'},
+        'val_split': {'type':'integer', 'minimum': 1},
+        'test_split': {'type':'integer', 'minimum': 1},
+        'test_flag': {'type':['integer','boolean']},
+        'train_mode': {'type':['integer','boolean']},
+        'ssim_FSize': {'type': 'number', 'minimum': 1},
+        'ssim_FSig': {'type': 'number', 'minimum': 0.1},
+        'initial_learning_rate': {'type': 'number', 'minimum': 1e-6},
+        'loss': {'type': 'string', 'enum': ['mae', 'mse', 'ssiml1_loss', 'ssiml2_loss', 'ssim_loss',
+            'MSSSIM_loss','pcc_loss','ssimpcc_loss','ffloss','SSIMFFL','ssimr2_loss']},
+        'metrics': {
+            'type': 'array',
+            'items': {'type': 'string', 'enum': ['psnr', 'ssim', 'pcc']}
+            },
+        'loss_alpha':{'type': 'number', 'minimum': 0, 'maximum':1},
+        'unet_n_depth': {'type':'integer', 'minimum': 1},
+        'unet_n_first':  {'type': 'integer', 'minimum': 1}, 
+        'unet_kern_size': {'type': 'integer', 'minimum': 1}, 
+        'wavelet_function': {'type': 'string','enum':[pywt.wavelist(kind='discrete'),'']},
+        },
+    'additionalProperties': False,
+    'anyOf': [
+        {'required': ['mode']},
+        {'required': ['model_name']},
+        {'required': ['trial_name']}
+        ]
+    }
+
+    jsonschema.validate(config, schema)
+
+    config.setdefault('cwd', '')
+    config.setdefault('nadh_data', '')
+    config.setdefault('fad_data', '')
+    config.setdefault('epochs', 300)
+    config.setdefault('steps_per_epoch', {'srgan': None,'rcan': None, 'care': 100, 'resnet':None}[config['model_name']])
+    config.setdefault('input_shape', [256,256])
+    config.setdefault('initial_learning_rate', 1e-5)
+    config.setdefault('val_seed', 0)
+    config.setdefault('val_split', 4)
+    config.setdefault('test_split', 8)
+    config.setdefault('test_flag', 1)
+    config.setdefault('train_mode', 1)
+    config.setdefault('ssim_FSize', 11)
+    config.setdefault('ssim_FSig', 1.5)
+    config.setdefault('batch_size', 50)
+    config.setdefault('loss', {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[config['model_name']])
+    config.setdefault('metrics', ['psnr','ssim'])
+    config.setdefault('loss_alpha', 0.5)
+    config.setdefault('num_channels', 32)
+    config.setdefault('num_residual_blocks', 5)
+    config.setdefault('num_residual_groups', 5)
+    config.setdefault('channel_reduction', 4)
+    config.setdefault('unet_n_depth', 6)
+    config.setdefault('unet_n_first', 32)
+    config.setdefault('unet_kern_size', 3)
+    config.setdefault('wavelet_function', '')
+    return config
 
 def main():
-    if len(sys.argv) < 4:
-        print('Usage: python main.py <mode: train | eval> <name: rcan | care> <trial_name> <config options...>')
-        raise Exception('Invalid arguments.')
+    if ".json" in sys.argv[1]:
+        print('Reading config from json file')
+        with open(sys.argv[1]) as json_data:
+            config = json.load(json_data)
+        config = json_config(config)
+        if len(sys.argv) > 1:
+            config_flags = sys.argv[2:]
+            config = apply_config_flags(config_flags, config)
+        mode = config['mode']
+        model_name = config['model_name']
+        trial_name = config['trial_name']
+        print(f'Using trial name: "{trial_name}"')
+    else:
+        if len(sys.argv) < 4:
+            print('Usage: python main.py <mode: train | eval> <name: rcan | care | srgan | resnet> <trial_name> <config options...>')
+            raise Exception('Invalid arguments.')
 
-    # === Get arguments ===
+        # === Get arguments ===
 
-    # We get the arguments in the form:
-    # ['main.py', mode, model_name, config_options...]
+        # We get the arguments in the form:
+        # ['main.py', mode, model_name, config_options...]
 
-    mode = sys.argv[1]
-    if mode not in ['train', 'eval']:
-        raise Exception(f'Invalid mode: "{mode}"')
+        mode = sys.argv[1]
+        if mode not in ['train', 'eval']:
+            raise Exception(f'Invalid mode: "{mode}"')
 
-    model_name = sys.argv[2]
-    if model_name not in ['rcan', 'care', 'srgan', 'resnet']:
-        raise Exception(f'Invalid model name: "{model_name}"')
+        model_name = sys.argv[2]
+        if model_name not in ['rcan', 'care', 'srgan', 'resnet']:
+            raise Exception(f'Invalid model name: "{model_name}"')
 
-    trial_name = sys.argv[3]
-    print(f'Using trial name: "{trial_name}"')
+        trial_name = sys.argv[3]
+        print(f'Using trial name: "{trial_name}"')
 
-    config_flags = sys.argv[4:] if len(sys.argv) > 4 else []
-    config = make_config(model_name)
-    config = apply_config_flags(config_flags, config)
+        config_flags = sys.argv[4:] if len(sys.argv) > 4 else []
+        config = make_config(model_name)
+        config = apply_config_flags(config_flags, config)
 
     print(f'Using config: {config}\n')
 
@@ -172,15 +265,14 @@ def main():
         print('Running in "eval" mode.\n')
 
         eval.eval(model_name,
-                  trial_name=trial_name,
-                  config=config,
-                  output_dir=model_save_path,
-                  # The above code checks that at least one is not empty.
-                  nadh_path=nadh_data_path if nadh_data_path != '' else None,
-                  fad_path=fad_data_path if fad_data_path != '' else None)
+                trial_name=trial_name,
+                config=config,
+                output_dir=model_save_path,
+                # The above code checks that at least one is not empty.
+                nadh_path=nadh_data_path if nadh_data_path != '' else None,
+                fad_path=fad_data_path if fad_data_path != '' else None)
 
         print('Successfully completed evaluation.')
-
 
 try:
     main()

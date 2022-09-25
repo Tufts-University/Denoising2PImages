@@ -2,13 +2,6 @@ import numpy as np
 import keras
 from keras import backend as kb
 import tensorflow as tf
-# from importlib import import_module
-# from tensorflow import __version__ as _tf_version
-# from packaging import version
-
-# Local dependencies
-import basics
-
 
 def _get_spatial_ndim(x):
     return keras.backend.ndim(x) - 2
@@ -93,7 +86,6 @@ def normalize(image, p_min=2, p_max=99.9, dtype='float32'):
     Microscopy
     https://doi.org/10.1038/s41592-018-0216-7
     '''
-    # TODO: Check if this works.
     low, high = np.percentile(image, (p_min, p_max))
     return tf.cast((image - low) / (high - low + 1e-6), dtype)
 
@@ -172,7 +164,6 @@ def build_rcan(input_shape=(16, 256, 256, 1),
         num_output_channels = input_shape[-1]
 
     inputs = keras.layers.Input(input_shape)
-    #x = _normalize(inputs)
     x = _standardize(inputs)
     x = _conv(x, num_channels, 3)
 
@@ -216,37 +207,3 @@ def move_channel_for_backend(X, channel):
         return np.moveaxis(X, channel, -1)
     else:
         return np.moveaxis(X, channel,  1)
-
-
-def convert_to_multi_gpu_model(model, gpus=None):
-    '''
-    Converts a model into a multi-GPU version if possible.
-    Parameters
-    ----------
-    model: keras.Model
-        Model to be converted.
-    gpus: int or None
-        Number of GPUs used to create model replicas. If None, all GPUs
-        available on the device will be used.
-    Returns
-    -------
-    keras.Model
-        Multi-GPU model.
-    '''
-
-    gpus = gpus or basics.get_gpu_count()
-
-    if gpus <= 1 or basics.is_multi_gpu_model(model):
-        return model
-
-    multi_gpu_model = keras.utils.multi_gpu_model(
-        model, gpus=gpus, cpu_relocation=True)
-
-    # copy weights
-    multi_gpu_model.layers[
-        -(len(multi_gpu_model.outputs) + 1)].set_weights(model.get_weights())
-
-    setattr(multi_gpu_model, 'is_multi_gpu_model', True)
-    setattr(multi_gpu_model, 'gpus', gpus)
-
-    return multi_gpu_model

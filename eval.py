@@ -105,8 +105,6 @@ def apply(model, data, overlap_shape=None, verbose=False):
         'linear_ramp'
     )[(slice(1, -1),) * image_dim]
 
-    # TODO: Check if it need to be:
-    #   model.gpus if basics.is_multi_model(model) else 1
     batch_size = 1
 
     batch = np.zeros(
@@ -187,11 +185,6 @@ def apply(model, data, overlap_shape=None, verbose=False):
         result.append(applied)
 
     return result if input_is_list else result[0]
-
-# TODO (nvora01): Remove this if everything work 
-# The start and end indices (inclusive) of where different stacks begin and end.
-# stack_ranges = [[0, 24], [25, 74], [75, 114], [115, 154]]
-
 
 def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges, config):
     print('=== Applying model ------------------------------------------------')

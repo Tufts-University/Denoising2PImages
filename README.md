@@ -63,10 +63,32 @@ The following code can be used to implement competing models of denoising on 2D 
     ```posh
     conda activate Denoising
     ``` 
-## Training
+## Training and Eval
+**09/22/2022 Update:** We have added an option for using .json config files to specfiy your run parameters. Additionally, there is now support for hybrid .json and argparsing to make it easier to modify your config for eval vs. training without having multiple config files.
+
+To train any model, you have several options to specify the run options:
+1. Call all args and utilize argparsing (old implementation):
+    ```posh
+    python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
+    ```
+2. Write a .json config file with all desired parameters:
+    ```posh
+    python -u main.py config.json
+    ```
+3. Hybrid Argparsing and config file (*Used mostly for eval but can be used for training*):
+    ```posh
+    python -u main.py config.json mode=eval fad_data=*fad_data.npz* nadh_data=*nadh_data.npz* train_mode=0
+    ```
+
+**08/23-09/22 ArgParsing ONLY:**
+
 To train any model, you simply need to specify the run options and call the [main.py](main.py) function:
 
     python -u main.py train *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
+
+To evaluate any model, you simply need to specify the same training runs options and call the [main.py](main.py) function with eval mode on:
+
+    python -u main.py eval *model_architecture*  "*Model_Name*" cwd=*cwd* nadh_data=*nadh_data.npz* loss=*Loss_fcn* wavelet_function=*Wavelet_transform* loss_alpha=*SSIM contributation*
 
 Available options include:
 - `Mode` (string):
