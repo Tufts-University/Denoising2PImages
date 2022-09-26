@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total 
-#SBATCH --output=../NADH_CARE_0823_cervix_MSE_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CARE_0823_cervix_MSE_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARE_0823_cervix_MAE_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARE_0823_cervix_MAE_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -219,16 +219,16 @@ echo "" # empty line #
 # python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
 
 # NADH CARE MSE SSIM deep seed 0 ✅ ✅ ✅ ✅       
-python -u main.py config.json
-python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
-python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
-python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
-
-# NADH CARE MAE SSIM deep seed 0 ✅ ✅ ✅ ✅       
 # python -u main.py config.json
 # python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
 # python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
 # python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
+
+# NADH CARE MAE SSIM deep seed 0 ✅ ✅ ✅ ✅       
+python -u main.py config.json
+python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
+python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
+python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
 
 ### PCC ##########################################################
 
