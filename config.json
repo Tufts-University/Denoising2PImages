@@ -1,7 +1,7 @@
 {   
     "mode": "train",
     "model_name": "care",
-    "trial_name": "NADH_CARE_0823_cervix_MAE_seed0",
+    "trial_name": "NADH_CARE_0823_cervix_MSE_seed0",
     "cwd": "..",
     "nadh_data": "NV_823_NADH_healthy.npz",
     "val_seed": 0,
