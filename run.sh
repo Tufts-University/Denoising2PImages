@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total 
-#SBATCH --output=../NADH_CARE_0823_cervix_MAE_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CARE_0823_cervix_MAE_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARE_0928_cervix_SSIML2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARE_0928_cervix_SSIML2_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -23,8 +23,15 @@ echo "=========================================================="
 echo "" # empty line #
 
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
-
 ### MARK: FAD Model — NADH Eval ##################################
+
+## RUN with Config:
+# NADH CARE SSIML2 deep seed 0 ✅ ✅ ✅ ✅        
+python -u main.py config.json
+python -u main.py config.json mode=eval fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_FAD_Testing.npz
+
+
+
 
 # FAD RCAN SSIM ✅ ✅
 # python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
@@ -226,9 +233,9 @@ echo "" # empty line #
 
 # NADH CARE MAE SSIM deep seed 0 ✅ ✅ ✅ ✅  40576484        
 #python -u main.py config.json
-python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
-python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
-python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
+# python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz
+# python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0
+# python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
 
 ### PCC ##########################################################
 
