@@ -22,9 +22,6 @@ def make_config(model_name):
         'initial_learning_rate': 1e-5,
         'val_seed': 0, # Controls the validation split
         'val_split': 4, # Controls how many stacks to include in the validation set
-        'test_split': 8, # Controls how many stack to include in the test set
-        'test_flag' : 1, # Controls if a test set is generated
-        'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
         'ssim_FSize': 11, # SSIM Filter Size
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
         'batch_size': 50, # Default batch size
@@ -105,9 +102,6 @@ def json_config(config):
         'steps_per_epoch': {'type': ['integer', 'null'], 'minimum': 1},
         'val_seed': {'type':'integer'},
         'val_split': {'type':'integer', 'minimum': 1},
-        'test_split': {'type':'integer', 'minimum': 1},
-        'test_flag': {'type':['integer','boolean']},
-        'train_mode': {'type':['integer','boolean']},
         'ssim_FSize': {'type': 'number', 'minimum': 1},
         'ssim_FSig': {'type': 'number', 'minimum': 0.1},
         'initial_learning_rate': {'type': 'number', 'minimum': 1e-6},
@@ -142,9 +136,6 @@ def json_config(config):
     config.setdefault('initial_learning_rate', 1e-5)
     config.setdefault('val_seed', 0)
     config.setdefault('val_split', 4)
-    config.setdefault('test_split', 8)
-    config.setdefault('test_flag', 1)
-    config.setdefault('train_mode', 1)
     config.setdefault('ssim_FSize', 11)
     config.setdefault('ssim_FSig', 1.5)
     config.setdefault('batch_size', 50)
