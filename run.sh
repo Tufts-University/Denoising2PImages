@@ -28,7 +28,7 @@ echo "" # empty line #
 ## RUN with Config:
 # NADH CARE SSIML2 deep seed 0 ✅ ✅ ✅ ✅        
 python -u main.py config.json
-python -u main.py config.json mode=eval fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_FAD_Testing.npz
+python -u main.py config.json mode=eval fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 
 
 
