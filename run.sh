@@ -27,7 +27,7 @@ echo "" # empty line #
 
 ## RUN with Config:
 # NADH CARE SSIML2 deep seed 0 ⏰ ⏰ 40685896   
-# NADH CARE SSIML2 deep seed 1 ⏰ ⏰ 40685900
+# NADH CARE SSIML2 deep seed 1 ⏰ ⏰ 40685900 
 # NADH CARE SSIML2 deep seed 2 ⏰ ⏰ 40685903
 # NADH CARE SSIML2 deep seed 3 ⏰ ⏰ 40686071
 # NADH CARE SSIML2 deep seed 4 ⏰ ⏰ 40686069        
