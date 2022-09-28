@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total 
-#SBATCH --output=../NADH_CARE_0928_cervix_SSIML2_seed2.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CARE_0928_cervix_SSIML2_seed2.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARE_0928_cervix_SSIML2_seed3.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARE_0928_cervix_SSIML2_seed3.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -28,7 +28,7 @@ echo "" # empty line #
 ## RUN with Config:
 # NADH CARE SSIML2 deep seed 0 ⏰ ⏰ 40685896   
 # NADH CARE SSIML2 deep seed 1 ⏰ ⏰ 40685900
-# NADH CARE SSIML2 deep seed 2 ⏰ ⏰
+# NADH CARE SSIML2 deep seed 2 ⏰ ⏰ 40685903
 # NADH CARE SSIML2 deep seed 3 ⏰ ⏰ 
 # NADH CARE SSIML2 deep seed 4 ⏰ ⏰         
 python -u main.py config.json
