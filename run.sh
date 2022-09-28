@@ -30,7 +30,7 @@ echo "" # empty line #
 # NADH CARE SSIML2 deep seed 1 ⏰ ⏰ 40685900
 # NADH CARE SSIML2 deep seed 2 ⏰ ⏰ 40685903
 # NADH CARE SSIML2 deep seed 3 ⏰ ⏰ 40685905
-# NADH CARE SSIML2 deep seed 4 ⏰ ⏰         
+# NADH CARE SSIML2 deep seed 4 ⏰ ⏰ 40685906        
 python -u main.py config.json
 python -u main.py config.json mode=eval fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 

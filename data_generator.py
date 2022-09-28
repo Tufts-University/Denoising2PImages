@@ -658,7 +658,7 @@ def default_load_data(data_path, requires_channel_dim, config):
             split_seed = config['val_seed'],
             axes='SXY' if not requires_channel_dim else 'SXYC',
             verbose=True)
-        return (X, Y), (X_val, Y_val), val_ranges
+        return (X, Y), (X_val, Y_val)
     else:
         (X, Y), _, stack_ranges, ROI_names = load_testing_data(
             data_path,
