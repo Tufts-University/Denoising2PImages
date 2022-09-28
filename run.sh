@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=20g  #requesting 2GB of RAM total 
-#SBATCH --output=../NADH_CARE_0928_cervix_SSIML2_seed1.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CARE_0928_cervix_SSIML2_seed1.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARE_0928_cervix_SSIML2_seed4.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARE_0928_cervix_SSIML2_seed4.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -31,8 +31,8 @@ echo "" # empty line #
 # NADH CARE SSIML2 deep seed 2 ⏰ ⏰ 
 # NADH CARE SSIML2 deep seed 3 ⏰ ⏰ 
 # NADH CARE SSIML2 deep seed 4 ⏰ ⏰ 40686069        
-python -u main.py config.json
-python -u main.py config.json mode=eval fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
+python -u main.py config.json trial_name="NADH_CARE_0928_cervix_SSIML2_seed4"
+python -u main.py config.json mode=eval trial_name="NADH_CARE_0928_cervix_SSIML2_seed4" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 
 
 

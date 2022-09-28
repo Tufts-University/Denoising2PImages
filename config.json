@@ -5,7 +5,7 @@
     "cwd": "..",
     "nadh_data": "NV_928_NADH_Training.npz",
     "val_seed": 4,
-    "val_split": 4,
+    "val_split": 25,
     "ssim_FSize": 3, 
     "ssim_FSig": 0.5, 
     "loss_alpha":0.84,
