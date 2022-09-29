@@ -1,10 +1,10 @@
 {   
     "mode": "train",
     "model_name": "care",
-    "trial_name": "NADH_CARE_0928_cervix_SSIML2_seed1",
+    "trial_name": "NADH_CARE_0928_cervix_SSIML2_seed0",
     "cwd": "..",
     "nadh_data": "NV_928_NADH_Training.npz",
-    "val_seed": 1,
+    "val_seed": 0,
     "val_split": 25,
     "ssim_FSize": 3, 
     "ssim_FSig": 0.5, 
