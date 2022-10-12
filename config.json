@@ -1,9 +1,9 @@
 {   
     "mode": "train",
     "model_name": "care",
-    "trial_name": "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0",
+    "trial_name": "NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0",
     "cwd": "..",
-    "nadh_data": "NV_928_FAD_Training.npz",
+    "nadh_data": "NV_928_NADH_Training.npz",
     "val_seed": 0,
     "val_split": 25,
     "ssim_FSize": 3, 

@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=50g  #requesting 2GB of RAM total 
-#SBATCH --output=../FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -33,10 +33,10 @@ echo "" # empty line #
 # NADH CARE SSIML2 deep seed 3 ✅ ✅ 40686812
 # NADH CARE SSIML2 deep seed 4 ✅ ✅ 40686069       
 # FAD CARE SSIML2 deep seed 0 ⏰ ⏰ 40818788  
-# FAD CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰ 40818809
+# FAD CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰ 40818998   
 # NADH CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰                        
-python -u main.py config.json trial_name="FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0"
-python -u main.py config.json mode=eval trial_name="FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
+python -u main.py config.json trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0"
+python -u main.py config.json mode=eval trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 
 
 # FAD RCAN SSIM ✅ ✅
