@@ -225,7 +225,7 @@ echo "" # empty line #
 # python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0
 
 # NADH CARE MAE SSIM deep seed 0 ✅ ✅ ✅ ✅  40576484        
-python -u main.py config.json mode=train fad_data=NV_823_FAD_healthy.npz trial_name=FAD_SRGAN_0823_cervix_SSIMR2_seed0 epochs=1000
+python -u main.py config.json mode=train fad_data=NV_823_FAD_healthy.npz  trial_name=FAD_SRGAN_0823_cervix_SSIMR2_seed0
 python -u main.py config.json mode=eval fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz trial_name=FAD_SRGAN_0823_cervix_SSIMR2_seed0
 python -u main.py config.json mode=eval fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz train_mode=0 trial_name=FAD_SRGAN_0823_cervix_SSIMR2_seed0
 python -u main.py config.json mode=eval fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz train_mode=0 trial_name=FAD_SRGAN_0823_cervix_SSIMR2_seed0
