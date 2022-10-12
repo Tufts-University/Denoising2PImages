@@ -1,14 +1,14 @@
 {   
     "mode": "train",
-    "model_name": "care",
-    "trial_name": "NADH_CARE_0823_cervix_MSE_seed0",
+    "model_name": "srgan",
+    "trial_name": "FAD_SRGAN_0823_cervix_seed0",
     "cwd": "..",
-    "nadh_data": "NV_823_NADH_healthy.npz",
+    "fad_data": "NV_823_FAD_healthy.npz",
     "val_seed": 0,
     "val_split": 4,
     "test_split": 8,
     "test_flag": 1,
     "ssim_FSize": 11, 
     "ssim_FSig": 1.5, 
-    "loss": "mae"
+    "loss": "ssimr2_loss"
 }
