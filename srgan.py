@@ -171,7 +171,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,train
 
             srgan_checkpoint.psnr.assign(psnr_train)
             srgan_checkpoint.ssim.assign(ssim_train)
-            srgan_checkpoint_manager.save()
+
 
             for _, val_batch in enumerate(validation_data):
                 lr = val_batch[0]
@@ -199,11 +199,10 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,train
             total_ssim = ssim_metric.result()
             psnr_train = psnr_metric.result()
             ssim_train = ssim_metric.result()
-            # TODO (nvora01): Figure out the best way to checkpoint
-            # if best_val_ssim == None or total_ssim > best_val_ssim:
-            #     print('New Checkpoint Saved')
-            #     srgan_checkpoint_manager.save()
-            #     best_val_ssim = total_ssim
+            if best_val_ssim == None or total_ssim > best_val_ssim:
+                print('New Checkpoint Saved')
+                srgan_checkpoint_manager.save()
+                best_val_ssim = total_ssim
             print(f'Validation --> Epoch # {i}: CARE_loss = {CARE_loss:.4f}, Discrim_loss = {dis_loss:.4f}, PSNR = {psnr_train:.4f}, SSIM = {ssim_train:.4f}')
             perceptual_loss_metric.reset_states()
             discriminator_loss_metric.reset_states()
