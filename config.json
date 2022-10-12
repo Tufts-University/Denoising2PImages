@@ -1,7 +1,7 @@
 {   
     "mode": "train",
     "model_name": "care",
-    "trial_name": "FAD_CARETesting_0928_cervix_SSIML2_seed0",
+    "trial_name": "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0",
     "cwd": "..",
     "nadh_data": "NV_928_FAD_Training.npz",
     "val_seed": 0,
@@ -9,5 +9,6 @@
     "ssim_FSize": 3, 
     "ssim_FSig": 0.5, 
     "loss_alpha":0.84,
-    "loss": "ssiml2_loss"
+    "loss": "ssimr2_loss",
+    "wavelet_function":"bior1.1"
 }
