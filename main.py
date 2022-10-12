@@ -78,6 +78,8 @@ def apply_config_flags(config_flags, config):
     return config
 
 def json_config(config):
+    p = pywt.wavelist(kind='discrete')
+    p.append('')
     schema = {
     'type': 'object',
     'properties': {
@@ -115,7 +117,7 @@ def json_config(config):
         'unet_n_depth': {'type':'integer', 'minimum': 1},
         'unet_n_first':  {'type': 'integer', 'minimum': 1}, 
         'unet_kern_size': {'type': 'integer', 'minimum': 1}, 
-        'wavelet_function': {'type': 'string','enum':[pywt.wavelist(kind='discrete'),'']},
+        'wavelet_function': {'type': 'string','enum':p},
         },
     'additionalProperties': False,
     'anyOf': [
