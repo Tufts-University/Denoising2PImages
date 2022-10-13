@@ -8,6 +8,7 @@
     "val_split": 4,
     "test_split": 8,
     "test_flag": 1,
+    "train_mode":1,
     "ssim_FSize": 11, 
     "ssim_FSig": 1.5, 
     "loss": "ssimr2_loss"
