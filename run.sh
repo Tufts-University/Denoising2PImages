@@ -34,7 +34,7 @@ echo "" # empty line #
 # NADH CARE SSIML2 deep seed 4 ✅ ✅ 40686069       
 # FAD CARE SSIML2 deep seed 0 ⏰ ⏰ 40818788  
 # FAD CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰ 40818998   
-# NADH CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰                        
+# NADH CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰ 40819023                           
 python -u main.py config.json trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0"
 python -u main.py config.json mode=eval trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 
