@@ -21,7 +21,7 @@ git checkout PatchScript
 git pull
 echo "Starting python script..." 
 echo "==========================================================" 
-echo "" # empty line #
+echo "" # empty line #S
 
 # When changing an important parameter, change the name both here and in the output/error files (above SBATCH arguments).
 ### MARK: FAD Model — NADH Eval ##################################
