@@ -26,7 +26,7 @@ def make_config(model_name):
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
         'batch_size': 50, # Default batch size
         # Metrics
-        'loss': {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
+        'loss': {'srgan': 'mse', 'care': 'ssimr2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 

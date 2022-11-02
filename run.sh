@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=50g  #requesting 2GB of RAM total 
-#SBATCH --output=../NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARE_0823_cervix_SSIMR2_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARE_0823_cervix_SSIMR2_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -35,8 +35,8 @@ echo "" # empty line #S
 # FAD CARE SSIML2 deep seed 0 ⏰ ⏰ 40818788  
 # FAD CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰ 40818998   
 # NADH CAREWavelet SSIMR2 deep seed 0 ⏰ ⏰ 40819023                           
-python -u main.py config.json trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0"
-python -u main.py config.json mode=eval trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
+# python -u main.py config.json trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0"
+# python -u main.py config.json mode=eval trial_name="NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 
 
 # FAD RCAN SSIM ✅ ✅
@@ -152,6 +152,12 @@ python -u main.py config.json mode=eval trial_name="NADH_CARETesting_Wavelet_092
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0 val_split=4 test_split=8 test_flag=1 
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 # python -u main.py eval care "NADH_CARE_0823_cervix_SSIML2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
+
+# NADH CARE + SSIML2 ap84 SSIM deep seed 0 ✅ ✅ ✅ ✅ 39729778       
+python -u main.py train care "NADH_CARE_0823_cervix_SSIMR2_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.84 val_seed=0 val_split=4 test_split=8 test_flag=1 ssim_FSize=3 ssim_FSig=0.5
+python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_823_FAD_healthy.npz nadh_data=NV_823_NADH_healthy.npz val_seed=0 val_split=4 test_split=8 test_flag=1 
+python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Colpo.npz nadh_data=NV_907_NADH_Colpo.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
+python -u main.py eval care "NADH_CARE_0823_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_907_FAD_Leep.npz nadh_data=NV_907_NADH_Leep.npz val_seed=0 val_split=4 test_split=8 test_flag=1 train_mode=0
 
 # NADH CARE + SSIMR2 ap5 Wavelet Bior1.1 seed 0 ✅ ✅ ✅ ✅ 40039233          
 # python -u main.py train care "NADH_CARE_0823_cervix_SSIMR2_ap5_Wavelet_bior1p1_seed0" cwd=.. nadh_data=NV_823_NADH_healthy.npz  loss_alpha=0.5 val_seed=0 val_split=4 test_split=8 test_flag=1 ssim_FSize=11 ssim_FSig=1.5 wavelet_function=bior1.1
