@@ -17,7 +17,6 @@
 module load anaconda/2021.05
 source activate Denoising
 
-git checkout PatchScript
 git pull
 echo "Starting python script..." 
 echo "==========================================================" 
