@@ -191,6 +191,8 @@ def main():
         config_flags = sys.argv[4:] if len(sys.argv) > 4 else []
         config = make_config(model_name)
         config = apply_config_flags(config_flags, config)
+        config['mode'] = mode
+        config['model_name'] = model_name
 
     print(f'Using config: {config}\n')
 
