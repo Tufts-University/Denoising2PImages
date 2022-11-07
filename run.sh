@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=50g  #requesting 2GB of RAM total 
-#SBATCH --output=../FAD_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../FAD_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../NADH_CARETesting_Wavelet_0928_cervix_MAE_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../NADH_CARETesting_Wavelet_0928_cervix_MAE_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -47,8 +47,12 @@ echo "" # empty line #S
 # python -u main.py eval care "FAD_CARETesting_Wavelet_0928_cervix_MSE_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
 
 # FAD CAREWavelet SSIMFFL deep seed 0 ⏰ ⏰ 40818998   
-python -u main.py train care "FAD_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="SSIMFFL" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
-python -u main.py eval care "FAD_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="SSIMFFL" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
+# python -u main.py train care "FAD_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="SSIMFFL" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
+# python -u main.py eval care "FAD_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="SSIMFFL" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
+
+# FAD CAREWavelet SSIMFFL deep seed 0 ⏰ ⏰ 40818998   
+python -u main.py train care "NADH_CARETesting_Wavelet_0928_cervix_MAE_seed0" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="mae" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
+python -u main.py eval care "NADH_CARETesting_Wavelet_0928_cervix_MAE_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mae" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 
 # FAD RCAN SSIM ✅ ✅
 # python -u main.py eval rcan "FAD_model_0629_cervix_SSIM" cwd=.. nadh_data=NV_713_NADH_healthy.npz
