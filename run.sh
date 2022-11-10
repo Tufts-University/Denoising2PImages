@@ -62,16 +62,16 @@ echo "" # empty line #S
 # python -u main.py train care "NADH_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="SSIMFFL" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 # python -u main.py eval care "NADH_CARETesting_Wavelet_0928_cervix_SSIMFFL_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 
-# NADH CARE MAE deep seed 0 ✅ ✅ 40984831      
+# NADH CARE MAE deep seed 0 ✅ 40984831      
 # python -u main.py eval care "NADH_CARE_0823_cervix_MAE_seed0" cwd=.. fad_data=NV_LFN_FAD_Testing.npz nadh_data=NV_LFN_NADH_Testing.npz loss="mae" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 
-# # NADH CARE MAEWavelet deep seed 0 ✅ ✅ 40984831      
+# # NADH CARE MAEWavelet deep seed 0 ✅ 40984831      
 # python -u main.py eval care "NADH_CARE_0823_cervix_MAEWavelet_seed0" cwd=.. fad_data=NV_LFN_FAD_Testing.npz nadh_data=NV_LFN_NADH_Testing.npz loss="mae" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 
-# NADH CARE MAEWavelet deep seed 0 ⏰ ⏰ 40994063         
+# NADH CARE MAEWavelet deep seed 0 ✅ 40994063         
 # python -u main.py eval care "NADH_CARE_0823_cervix_MAEWavelet_seed0" cwd=.. fad_data=NV_Murine_FAD_Testing.npz nadh_data=NV_Murine_NADH_Testing.npz loss="mae" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 
-# NADH CARE MAEWavelet deep seed 0 ⏰ ⏰ 40994063         
+# NADH CARE MAEWavelet deep seed 0 ⏰ 40994065            
 python -u main.py eval care "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_Murine_FAD_Testing.npz nadh_data=NV_Murine_NADH_Testing.npz loss="ssimr2_loss" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 
 
 # FAD RCAN SSIM ✅ ✅
