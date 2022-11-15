@@ -10,7 +10,6 @@ def build_wunet(config,
     print('=== Building WU-net Model --------------------------------------------')
     input = keras.layers.Input(input_shape)
     LL, LH, HL, HH = tf.split(input,4, axis = 3)
-    print(tf.shape(LL))
     # Building four CARE UNETs for each frequency band
     LLmodel = care.build_care(config, 'SXYC')(LL)
     LHmodel = care.build_care(config, 'SXYC')(LH)

@@ -61,8 +61,8 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
     completed_epochs=ckpt.completed_epochs.numpy()
     
     model.fit(
-        x=training_data if model_name != 'care' else training_data[0],
-        y=None if model_name != 'care' else training_data[1],
+        x=training_data if model_name != 'care' or model_name != 'wunet' else training_data[0],
+        y=None if model_name != 'care'or model_name != 'wunet' else training_data[1],
         epochs=config['epochs'],
         shuffle=True,
         validation_data=validation_data,
