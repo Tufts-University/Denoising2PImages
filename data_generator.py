@@ -322,23 +322,35 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
             print(
                 f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
 
-        row = np.append(cA, cH, axis=1)
-        row2 = np.append(cV, cD, axis=1)
-        stack = np.vstack((row, row2))
+        # row = np.append(cA, cH, axis=1)
+        # row2 = np.append(cV, cD, axis=1)
+        # stack = np.vstack((row, row2))
 
+        # if verbose:
+        #     print(f'Got stack shaped {np.shape(stack)}')
+
+        # if not requires_extra_dim:
+        #     mat[i, :, :] = stack
+        # else:
+        #     mat[i, :, :, :] = np.expand_dims(stack, -1)
+
+        stack = np.stack((cA, cH, cV, cD),-1)
         if verbose:
             print(f'Got stack shaped {np.shape(stack)}')
 
         if not requires_extra_dim:
+            row = np.append(cA, cH, axis=1)
+            row2 = np.append(cV, cD, axis=1)
+            stack = np.vstack((row, row2))
             mat[i, :, :] = stack
         else:
-            mat[i, :, :, :] = np.expand_dims(stack, -1)
+            mat[i, :, :, :] = stack
 
     return mat
 
 
 def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
-    '''Reverses the wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+    '''Reverses the wavelet transform on a matrix of shape nx128x128x4 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
 
@@ -354,11 +366,16 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
         if not requires_extra_dim:
             cA, cH, cV, cD = mat[i, :128, :128], mat[i, :128, 128:],\
                 mat[i, 128:, :128], mat[i, 128:, 128:]
+        # else:
+        #     cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
+        #         np.squeeze(mat[i, :128, 128:, :]),\
+        #         np.squeeze(mat[i, 128:, :128, :]),\
+        #         np.squeeze(mat[i, 128:, 128:, :])
         else:
-            cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
-                np.squeeze(mat[i, :128, 128:, :]),\
-                np.squeeze(mat[i, 128:, :128, :]),\
-                np.squeeze(mat[i, 128:, 128:, :])
+            cA, cH, cV, cD = np.squeeze(mat[i,:,:,0]),\
+                np.squeeze(mat[i,:,:, 1]),\
+                np.squeeze(mat[i,:,:, 2]),\
+                np.squeeze(mat[i,:,:, 3])
 
         if verbose:
             print(
