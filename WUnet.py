@@ -16,12 +16,12 @@ def build_wunet(config,
     LL, LH, HL, HH = tf.split(input,4, axis = 3)
     # Building four CARE UNETs for each frequency band
     LLmodel = care_compile(care.build_care(config, 'SXYC'),config)(LL)
-    LHmodel = care_compile(care.build_care(config, 'SXYC'),config)(LH)
-    HLmodel = care_compile(care.build_care(config, 'SXYC'),config)(HL)
-    HHmodel = care_compile(care.build_care(config, 'SXYC'),config)(HH)
-    # Connect trained models
-    concat_model = keras.layers.Concatenate()([LLmodel, LHmodel, HLmodel,HHmodel])
-    model = keras.Model(input, concat_model, name='WU-net')
+    # LHmodel = care_compile(care.build_care(config, 'SXYC'),config)(LH)
+    # HLmodel = care_compile(care.build_care(config, 'SXYC'),config)(HL)
+    # HHmodel = care_compile(care.build_care(config, 'SXYC'),config)(HH)
+    # # Connect trained models
+    # concat_model = keras.layers.Concatenate()([LLmodel, LHmodel, HLmodel,HHmodel])
+    model = keras.Model(input, LLmodel, name='WU-net')
     print('--------------------------------------------------------------------')
 
     return model
