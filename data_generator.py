@@ -294,7 +294,7 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
     '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
-
+    transform = np.zeros(shape=(len(mat),128,128,4))
     if verbose:
         print(
             f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
@@ -344,9 +344,9 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
             stack = np.vstack((row, row2))
             mat[i, :, :] = stack
         else:
-            mat[i, :, :, :] = stack
+            transform[i, :, :, :] = stack
 
-    return mat
+    return transform if requires_extra_dim else mat
 
 
 def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
