@@ -61,7 +61,8 @@ def build_and_compile_model(model_name, strategy, config):
             model = RESNET.build_and_compile_RESNET(config)
             return model
         elif model_name == 'wunet':
-            model = WUnet.build_and_compile_wunet(config)
+            model = WUnet.build_and_compile_WUnet(config)
+            return model
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 
