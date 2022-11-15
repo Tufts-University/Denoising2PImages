@@ -59,7 +59,7 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         print(f"Restored epoch ckpt from {manager.latest_checkpoint}, starting training at epoch # ",ckpt.completed_epochs.numpy())
     
     completed_epochs=ckpt.completed_epochs.numpy()
-    
+    print(tf.shape(training_data))
     model.fit(
         x=training_data if model_name != 'care' or model_name != 'wunet' else training_data[0],
         y=None if model_name != 'care'or model_name != 'wunet' else training_data[1],

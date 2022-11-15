@@ -346,7 +346,7 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
         else:
             transform[i, :, :, :] = stack
 
-    return transform if requires_extra_dim else mat
+    return transform if requires_extra_dim  else mat
 
 
 def wavelet_inverse_transform(mat, wavelet_config, verbose=False):

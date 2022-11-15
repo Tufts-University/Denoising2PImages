@@ -5,23 +5,19 @@ import model_builder
 import tensorflow as tf
 import care
 
-def care_compile(model,config):
-    model = model_builder.compile_model(model, config['initial_learning_rate'], config['loss'], config['metrics'])
-    return model
-
 def build_wunet(config, 
                 input_shape = (50,128,128,4)):
     print('=== Building WU-net Model --------------------------------------------')
     input = keras.layers.Input(input_shape)
     LL, LH, HL, HH = tf.split(input,4, axis = 3)
     # Building four CARE UNETs for each frequency band
-    LLmodel = care_compile(care.build_care(config, 'SXYC'),config)(LL)
-    # LHmodel = care_compile(care.build_care(config, 'SXYC'),config)(LH)
-    # HLmodel = care_compile(care.build_care(config, 'SXYC'),config)(HL)
-    # HHmodel = care_compile(care.build_care(config, 'SXYC'),config)(HH)
-    # # Connect trained models
-    # concat_model = keras.layers.Concatenate()([LLmodel, LHmodel, HLmodel,HHmodel])
-    model = keras.Model(input, LLmodel, name='WU-net')
+    LLmodel = care.build_care(config, 'SXYC')(LL)
+    LHmodel = care.build_care(config, 'SXYC')(LH)
+    HLmodel = care.build_care(config, 'SXYC')(HL)
+    HHmodel = care.build_care(config, 'SXYC')(HH)
+    # Connect trained models
+    concat_model = keras.layers.Concatenate()([LLmodel, LHmodel, HLmodel,HHmodel])
+    model = keras.Model(input, concat_model, name='WU-net')
     print('--------------------------------------------------------------------')
 
     return model
