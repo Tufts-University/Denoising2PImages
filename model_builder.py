@@ -7,6 +7,7 @@ import rcan
 import care
 import srgan
 import RESNET
+import WUnet
 
 def create_strategy():
     strategy = tf.distribute.MirroredStrategy()
@@ -59,6 +60,8 @@ def build_and_compile_model(model_name, strategy, config):
         elif model_name == 'resnet':
             model = RESNET.build_and_compile_RESNET(config)
             return model
+        elif model_name == 'wunet':
+            model = WUnet.build_and_compile_wunet(config)
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 
