@@ -11,10 +11,10 @@ def build_wunet(config,
     input = keras.layers.Input(input_shape)
     LL, LH, HL, HH = tf.split(input,4, axis = 3)
     # Building four CARE UNETs for each frequency band
-    LLmodel = care.build_care(config, 'SXYC')(LL[0][0])
-    LHmodel = care.build_care(config, 'SXYC')(LH[0][1])
-    HLmodel = care.build_care(config, 'SXYC')(HL[0][2])
-    HHmodel = care.build_care(config, 'SXYC')(HH[0][3])
+    LLmodel = care.build_care(config, 'SXYC')(LL)
+    LHmodel = care.build_care(config, 'SXYC')(LH)
+    HLmodel = care.build_care(config, 'SXYC')(HL)
+    HHmodel = care.build_care(config, 'SXYC')(HH)
     # Connect trained models
     concat_model = keras.layers.Concatenate()([LLmodel, LHmodel, HLmodel,HHmodel])
     model = keras.Model(input, concat_model, name='WU-net')
