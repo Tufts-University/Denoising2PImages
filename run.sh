@@ -39,7 +39,7 @@ echo "" # empty line #S
 # python -u main.py config.json mode=eval trial_name="NADH_CARETesting_Wavelet_0928_cervix_MAE_seed0" fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz
 
 #FAD CAREWavelet MAE deep seed 0 ✅ ✅ 40979937         
-python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84
+# python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84
 python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84
 
 #FAD CAREWavelet MAE deep seed 0 ✅ ✅ 40979937         
