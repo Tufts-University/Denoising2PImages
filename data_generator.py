@@ -665,6 +665,16 @@ def stitch_patches(patches):
     # and not 512x128 rectangles.
     return np.reshape(patches, [2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
 
+def stitch_patches2(patches):
+    '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
+    patches = np.squeeze(patches)
+    print(np.shape(patches))
+    assert np.shape(patches) == (
+        4, 128,128,4), f'Patches must be 4x128x128x4 but instead found shape: {np.shape(patches)}'
+
+    # The axes are swapped to maintain the correct order since our patches are square 256x256
+    # and not 512x128 rectangles.
+    return np.reshape(patches, [2, -1, 128, 128]).swapaxes(1, 2).reshape(256,256,4)
 
 def default_load_data(data_path, requires_channel_dim, config):
     # If we are training a model we need a training, validation, and potentially a test set
