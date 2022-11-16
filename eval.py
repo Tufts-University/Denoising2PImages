@@ -212,7 +212,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             restored = None
             if wavelet_model:
                 X_test_input = data_generator.wavelet_transform(
-                    np.expand_dims(np.copy(X_test[4*n:4*n+4]),-1), 
+                    np.copy(X_test[4*n:4*n+4]), 
                     wavelet_config=wavelet_config)
                 print(np.shape(X_test_input))
                 X_test_input = data_generator.stitch_patches2(X_test_input)
@@ -286,7 +286,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         # Similar to 'data_generator.py'
         (X_val, Y_val), stack_ranges, ROI_names = data_generator.default_load_data(
                 nadh_path,
-                requires_channel_dim=model_name == 'care', config = config)
+                requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
 
