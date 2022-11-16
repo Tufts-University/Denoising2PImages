@@ -212,7 +212,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             restored = None
             if wavelet_model:
                 X_test_input = data_generator.wavelet_transform(
-                    np.copy(X_test[4*n:4*n+4]), 
+                    np.expand_dims(np.copy(X_test[4*n:4*n+4]),-1), 
                     wavelet_config=wavelet_config)
                 print(np.shape(X_test_input))
                 X_test_input = data_generator.stitch_patches(X_test_input)
