@@ -661,7 +661,7 @@ def patch_slice2(slice):
 
     # The axes are swapped to maintain the correct order since our patches are square 256x256
     # and not 512x128 rectangles.
-    return np.reshape(slice, [2, 128, -1, 128]).swapaxes(1, 2).reshape(4, 128, 128, 4)
+    return np.reshape(slice, [2, 128,-1, 128, 4]).swapaxes(1,2).reshape(4,128,128,4)
 
 
 def stitch_patches(patches):
@@ -682,7 +682,7 @@ def stitch_patches2(patches):
 
     # The axes are swapped to maintain the correct order since our patches are square 256x256
     # and not 512x128 rectangles.
-    return np.reshape(patches, [2, -1, 128, 128]).swapaxes(1, 2).reshape(256,256,4)
+    return np.reshape(patches, [2,-1, 128, 128, 4]).swapaxes(1,2).reshape(256,256,4)
 
 def default_load_data(data_path, requires_channel_dim, config):
     # If we are training a model we need a training, validation, and potentially a test set
