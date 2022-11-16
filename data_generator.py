@@ -353,14 +353,14 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
     '''Reverses the wavelet transform on a matrix of shape nx128x128x4 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
-
+    transform = np.zeros(shape=(len(mat),256,256,1))
     if verbose:
         print(
             f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
 
-    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1) or np.shape(mat)[1:] == (128, 128, 4),\
         f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
-    requires_extra_dim = np.shape(mat)[-1] == 1
+    requires_extra_dim = np.shape(mat)[-1] == 4 or 1
 
     for i in range(len(mat)):
         if not requires_extra_dim:
@@ -394,9 +394,9 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
         if not requires_extra_dim:
             mat[i, :, :] = restored
         else:
-            mat[i, :, :, :] = np.expand_dims(restored, -1)
+            transform[i, :, :, :] = np.expand_dims(restored, -1)
 
-    return mat
+    return transform if requires_extra_dim  else mat
 
 
 def load_training_data(file, validation_split=4, split_seed=0,
