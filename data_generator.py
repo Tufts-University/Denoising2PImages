@@ -657,6 +657,7 @@ def patch_slice(slice):
 def stitch_patches(patches):
     '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
     patches = np.squeeze(patches)
+    print(np.shape(patches))
     assert np.shape(patches) == (
         4, 256, 256), f'Patches must be 4x256x256 but instead found shape: {np.shape(patches)}'
 
