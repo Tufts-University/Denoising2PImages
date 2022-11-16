@@ -214,7 +214,6 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
                 X_test_input = data_generator.wavelet_transform(
                     np.copy(X_test[4*n:4*n+4]), 
                     wavelet_config=wavelet_config)
-                print(np.shape(X_test_input))
                 X_test_input = data_generator.stitch_patches2(X_test_input)
                 restored = apply(model, X_test_input,
                                  overlap_shape=(0, 0), verbose=False)
