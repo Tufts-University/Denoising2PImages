@@ -805,11 +805,11 @@ def gather_data(config, data_path, requires_channel_dim):
         function_name=config['wavelet_function'])
 
     if wavelet_config != None:
-        X = wavelet_transform(np.array(X), wavelet_config=wavelet_config)
-        Y = wavelet_transform(np.array(Y), wavelet_config=wavelet_config)
-        X_val = wavelet_transform(
+        X = wavelet_transform2(np.array(X), wavelet_config=wavelet_config)
+        Y = wavelet_transform2(np.array(Y), wavelet_config=wavelet_config)
+        X_val = wavelet_transform2(
             np.array(X_val), wavelet_config=wavelet_config)
-        Y_val = wavelet_transform(
+        Y_val = wavelet_transform2(
             np.array(Y_val), wavelet_config=wavelet_config)
 
     data_gen = DataGenerator(

@@ -211,10 +211,10 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             # Apply the model to generate the restored image.
             restored = None
             if wavelet_model:
-                X_test_input = data_generator.wavelet_transform(
+                X_test_input = data_generator.wavelet_transform2(
                     np.copy(X_test[4*n:4*n+4]), 
                     wavelet_config=wavelet_config)
-                X_test_input = data_generator.stitch_patches(X_test_input)
+                X_test_input = data_generator.stitch_patches2(X_test_input)
                 restored = apply(model, X_test_input,
                                  overlap_shape=(0, 0), verbose=False)
             else:
@@ -224,8 +224,8 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
 
             # Inverse transform.
             if wavelet_model:
-                restored = data_generator.patch_slice(restored)
-                restored = data_generator.wavelet_inverse_transform(
+                restored = data_generator.patch_slice2(restored)
+                restored = data_generator.wavelet_inverse_transform2(
                     restored, 
                     wavelet_config=wavelet_config)
                 restored = data_generator.stitch_patches(restored)
