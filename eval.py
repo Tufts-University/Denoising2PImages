@@ -47,8 +47,8 @@ def apply(model, data, overlap_shape=None, verbose=False):
         Result image.
     '''
 
-    model_input_image_shape = (50, 256, 256, 1)[1:-1]
-    model_output_image_shape = (50, 256, 256, 1)[1:-1]
+    model_input_image_shape = (50, 128, 128, 4)[1:-1]
+    model_output_image_shape = (50, 128, 128, 4)[1:-1]
     if len(model_input_image_shape) != len(model_output_image_shape):
         raise NotImplementedError
 
