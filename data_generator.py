@@ -294,6 +294,98 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
     '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
+
+    if verbose:
+        print(
+            f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
+
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
+        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+    requires_extra_dim = np.shape(mat)[-1] == 1
+
+    for i in range(len(mat)):
+        if is_discrete:
+            C = pywt.dwt2(
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(
+                    mat[i, :, :, :]),
+                wavelet=function_name,
+                mode='periodization')
+        else:
+            C = pywt.cwt2(
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(
+                    mat[i, :, :, :]),
+                wavelet=function_name,
+                mode='periodization')
+
+        cA, (cH, cV, cD) = C
+        if verbose:
+            print(
+                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+
+        row = np.append(cA, cH, axis=1)
+        row2 = np.append(cV, cD, axis=1)
+        stack = np.vstack((row, row2))
+
+        if verbose:
+            print(f'Got stack shaped {np.shape(stack)}')
+
+        if not requires_extra_dim:
+            mat[i, :, :] = stack
+        else:
+            mat[i, :, :, :] = np.expand_dims(stack, -1)
+
+    return mat
+
+
+def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
+    '''Reverses the wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+
+    [function_name, is_discrete] = wavelet_config
+
+    if verbose:
+        print(
+            f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
+
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
+        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+    requires_extra_dim = np.shape(mat)[-1] == 1
+
+    for i in range(len(mat)):
+        if not requires_extra_dim:
+            cA, cH, cV, cD = mat[i, :128, :128], mat[i, :128, 128:],\
+                mat[i, 128:, :128], mat[i, 128:, 128:]
+        else:
+            cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
+                np.squeeze(mat[i, :128, 128:, :]),\
+                np.squeeze(mat[i, 128:, :128, :]),\
+                np.squeeze(mat[i, 128:, 128:, :])
+
+        if verbose:
+            print(
+                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+        C = cA, (cH, cV, cD)
+
+        if is_discrete:
+            restored = pywt.idwt2(
+                C, wavelet=function_name, mode='periodization')
+        else:
+            restored = pywt.icwt2(
+                C, wavelet=function_name, mode='periodization')
+        if verbose:
+            print(f'Got restored shape: {restored.shape}')
+
+        if not requires_extra_dim:
+            mat[i, :, :] = restored
+        else:
+            mat[i, :, :, :] = np.expand_dims(restored, -1)
+
+    return mat
+
+
+def wavelet_transform2(mat, wavelet_config, verbose=False):
+    '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+
+    [function_name, is_discrete] = wavelet_config
     transform = np.zeros(shape=(len(mat),128,128,4))
     if verbose:
         print(
@@ -349,7 +441,7 @@ def wavelet_transform(mat, wavelet_config, verbose=False):
     return transform if requires_extra_dim  else mat
 
 
-def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
+def wavelet_inverse_transform2(mat, wavelet_config, verbose=False):
     '''Reverses the wavelet transform on a matrix of shape nx128x128x4 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
