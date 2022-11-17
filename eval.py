@@ -227,7 +227,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             # Inverse transform.
             if wavelet_model:
                 restored = data_generator.patch_slice2(restored)
-                restored = data_generator.wavelet_inverse_transform(
+                restored = data_generator.wavelet_inverse_transform2(
                     restored, 
                     wavelet_config=wavelet_config)
                 restored = data_generator.stitch_patches(restored)
