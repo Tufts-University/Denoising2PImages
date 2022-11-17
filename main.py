@@ -17,7 +17,7 @@ def make_config(model_name):
         'nadh_data': '',
         'fad_data': '',
         'epochs': 300,
-        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None}[model_name],
+        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None, 'wunet':100}[model_name],
         'input_shape': [256, 256],
         'initial_learning_rate': 1e-5,
         'val_seed': 0, # Controls the validation split
