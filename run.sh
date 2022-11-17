@@ -40,11 +40,11 @@ echo "" # empty line #S
 
 #NADH CAREWavelet MAE deep seed 0 ✅ ✅ 40979937         
 # python -u main.py train wunet "NADH_CARETesting_Wavelet_0928_cervix_MSE_new_seed0" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="mse" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
-# python -u main.py eval wunet "NADH_CARETesting_Wavelet_0928_cervix_MSE_new_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" wavelet_function="bior.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
+# python -u main.py eval wunet "NADH_CARETesting_Wavelet_0928_cervix_MSE_new_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
 
 # NADH CAREWavelet MAE deep seed 0 ✅ ✅ 40979937         
 python -u main.py train wunet "NADH_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="mae" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
-python -u main.py eval wunet "NADH_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mae" wavelet_function="bior.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
+python -u main.py eval wunet "NADH_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mae" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5
 
 #NADH CAREWavelet MAE deep seed 0 ✅ ✅ 40979937         
 # python -u main.py train wunet "NADH_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="ssimr2_loss" wavelet_function="bior1.1" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84
