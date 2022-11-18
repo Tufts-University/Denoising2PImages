@@ -10,7 +10,7 @@ import basics
 import srgan
 
 def determine_training_strategy(model, output_dir):
-print('=== Determining Training Strategy -----------------------------------')
+    print('=== Determining Training Strategy -----------------------------------')
 
     if not os.path.exists(output_dir):
         print(f'Creating output directory: "{output_dir}"')
