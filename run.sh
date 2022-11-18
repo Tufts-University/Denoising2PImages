@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=50g  #requesting 2GB of RAM total 
-#SBATCH --output=../FAD_CARETesting_Wavelet_0928_cervix_MAE_new_seed0.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../FAD_CARETesting_Wavelet_0928_cervix_MAE_new_seed0.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../Eval_allWavelets.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../Eval_allWavelets.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
