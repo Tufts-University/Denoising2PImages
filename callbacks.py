@@ -6,6 +6,7 @@ import warnings
 import functools
 from tqdm.utils import IS_WIN
 import tqdm
+import os
 
 # Local dependencies
 from basics import is_multi_gpu_model
