@@ -10,7 +10,7 @@ import basics
 import srgan
 
 def determine_training_strategy(model, output_dir):
-    print('=== Determining Training Strategy -----------------------------------')
+print('=== Determining Training Strategy -----------------------------------')
 
     if not os.path.exists(output_dir):
         print(f'Creating output directory: "{output_dir}"')
@@ -25,11 +25,9 @@ def determine_training_strategy(model, output_dir):
         raise Exception(f'Model has already trained and produced final weights: "{basics.final_weights_name()}"')
     elif len(checkpoint_files) > 0:
         print(f'Found {len(checkpoint_files)} checkpoint weight files: {checkpoint_files}.')
-
         last_modified_file = max(checkpoint_files, key=lambda file: os.path.getmtime(os.path.join(output_dir, file)))
         print(f'Found last modified checkpoint file: "{last_modified_file}"')
-
-        raise Exception(f'Cannot continue training from checkpoints. Terminating...')
+        model.load_weights(os.path.join(output_dir, last_modified_file))
         # TODO: Implement continued training from checkpoints. (Load correct lr, epochs, and anything else that changes.)
         # model.load_weights(os.path.join(output_dir, last_modified_file))
         # print("Successfully loaded weights from last checkpoint.")
