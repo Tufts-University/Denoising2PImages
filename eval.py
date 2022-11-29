@@ -265,7 +265,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     # Go to the results directory to generate and store evaluated images.
     nadh_data  = config['nadh_data']
     sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
-    results_folder = 'resultsHFN'
+    results_folder = 'resultsLFN'
     results_dir = os.path.join(output_dir, results_folder)
     if os.path.exists(results_dir):
         subpaths = os.listdir(results_dir)
