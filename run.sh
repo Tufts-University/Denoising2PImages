@@ -46,10 +46,14 @@ echo "" # empty line #S
 # python -u main.py eval wunet "FAD_CARE_0823_cervix_MAE_Wavelet_bior1p1_new_seed0" cwd=.. fad_data=NV_HFN_FAD_Testing.npz nadh_data=NV_HFN_NADH_Testing.npz val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 wavelet_function=bior1.1 loss=mae
 
 # Frequency Testing with HFN (FAD CARE Testing Wavelet MAE)
-python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. fad_data=NV_HFN_FAD_Testing.npz nadh_data=NV_HFN_NADH_Testing.npz val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 wavelet_function=bior1.1 loss=mae
+# python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. fad_data=NV_HFN_FAD_Testing.npz nadh_data=NV_HFN_NADH_Testing.npz val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 wavelet_function=bior1.1 loss=mae
 
 # Frequency Testing with LFN (FAD CARE Wavelet MAE)
 # python -u main.py eval wunet "FAD_CARE_0823_cervix_MAE_Wavelet_bior1p1_new_seed0" cwd=.. fad_data=NV_LFN_FAD_Testing.npz nadh_data=NV_LFN_NADH_Testing.npz val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 wavelet_function=bior1.1 loss=mae
+
+# Frequency Testing with LFN (FAD CARE Testing Wavelet MAE)
+python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. fad_data=NV_LFN_FAD_Testing.npz nadh_data=NV_LFN_NADH_Testing.npz val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 wavelet_function=bior1.1 loss=mae
+
 
 # FAD CARE Wavelet MAE       
 # python -u main.py eval wunet "FAD_CARE_0823_cervix_MAE_Wavelet_bior1p1_new_seed0" cwd=.. fad_data=NV_Murine_FAD_Testing.npz nadh_data=NV_Murine_NADH_Testing.npz val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 wavelet_function=bior1.1 loss=mae
