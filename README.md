@@ -10,29 +10,30 @@ The following code can be used to implement competing models of denoising on 2D 
 - CUDA 11.2 and cuDNN 8.1
 
 **Tested Enviroment**:
+All parameters listed for training and validating on 8844 paired image patches (256 x 256) and evaluated on 4072 paired image patches (256 x 256).
 1. RCAN Network
     - NVIDIA A100 GPU 40GB 
-    - 30GB of RAM
+    - 22GB of RAM 
     - Training Time: ~ 4.7 hrs 
     - Evaluation Time: ~ 40 minutes
 2. CARE Network
     - NVIDIA A100 GPU 40GB 
-    - 30GB of RAM
+    - 22GB of RAM
     - Training Time: ~ 40 minutes 
     - Evaluation Time: ~ 40 minutes
 3. Resnet Network
     - NVIDIA A100 GPU 40GB 
-    - 30GB of RAM
+    - 22GB of RAM
     - Training Time: ~ 2 hours 
     - Evaluation Time: ~ 40 minutes
 4. SRGAN Network
     - NVIDIA A100 GPU 40GB 
-    - 30GB of RAM
+    - 22GB of RAM
     - Training Time: ~ 24 hours 
     - Evaluation Time: ~ 40 minutes
 5. WU-net
     - NVIDIA A100 GPU 40GB 
-    - 30GB of RAM
+    - 22GB of RAM
     - Training Time: ~ 2 hours 
     - Evaluation Time: ~ 40 minutes
 
