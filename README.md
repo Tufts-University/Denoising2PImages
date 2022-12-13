@@ -194,7 +194,7 @@ Weigert, M., Schmidt, U., Boothe, T. *et al.* Content-aware image restoration: p
 Ledig, C., Theis, L., Huszar, F. *et al.* Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network. *arXiv* (2016). https://doi.org/10.48550/arxiv.1609.04802
 
 <a id="4">[4]</a>
-Aytekin, C., Alenius, S., Paliy, D. & Gren, J. A Sub-band Approach to Deep Denoising Wavelet Networks and a Frequency-adaptive Loss for Perceptual Quality. in *IEEE 23rd International Workshop on Multimedia Signal Processing*, MMSP 2021 1–6 (IEEE, 2021). doi:10.1109/MMSP53017.2021.9733576.
+Aytekin, C., Alenius, S., Paliy, D. & Gren, J. A Sub-band Approach to Deep Denoising Wavelet Networks and a Frequency-adaptive Loss for Perceptual Quality. in *IEEE 23rd International Workshop on Multimedia Signal Processing*, MMSP 2021 1–6 (IEEE, 2021). https://doi.org/10.1109/MMSP53017.2021.9733576.
 
 <a id="5">[5]</a>
 K.B., SRGAN: Super Resolution Generative Adversarial Networks. *PaperspaceBlog* (2021). https://blog.paperspace.com/super-resolution-generative-adversarial-networks/. Date Accessed: 08/30/2022
