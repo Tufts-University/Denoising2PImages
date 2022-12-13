@@ -24,7 +24,7 @@ def make_config(model_name):
         'val_seed': 0, # Controls the validation split
         'val_split': 4, # Controls how many stacks to include in the validation set
         'test_flag' : 1, # Controls if a test set is generated or already exist (1: I have a test set 0:I need a test set)
-        'train_mode': 1, # Controls if we want to load a test set after training or use all data for evaluation only
+        'train_mode': 0, # Controls if we want to load a test set after training or use all data for evaluation only
         'ssim_FSize': 11, # SSIM Filter Size
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
         'batch_size': 50, # Default batch size
@@ -144,7 +144,7 @@ def json_config(config):
     config.setdefault('val_seed', 0)
     config.setdefault('val_split', 4)
     config.setdefault('test_flag', 1)
-    config.setdefault('train_mode', 1)
+    config.setdefault('train_mode', 0)
     config.setdefault('ssim_FSize', 11)
     config.setdefault('ssim_FSig', 1.5)
     config.setdefault('batch_size', 50)
