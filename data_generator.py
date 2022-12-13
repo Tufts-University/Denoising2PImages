@@ -458,7 +458,7 @@ def load_training_data(file, validation_split=4, split_seed=0, test_set_flag = T
     if bool(test_set_flag):
         testing_split = int(0)
     else:        
-        testing_split = int(round(ROIs)*0.25)
+        testing_split = int(round(ROIs)*1/3)
         assert type(testing_split) is int,"testing_split must be an integer"        
 
     assert type(validation_split) is int,"validation_split must be an integer"

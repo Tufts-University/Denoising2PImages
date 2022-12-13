@@ -25,7 +25,7 @@ def load_weights(model, output_dir):
     print('--------------------------------------------------------------------')
 
 
-def apply(model, data, overlap_shape=None, verbose=False):
+def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,1)):
     '''
     Applies a model to an input image. The input image stack is split into
     sub-blocks with model's input size, then the model is applied block by
@@ -47,8 +47,8 @@ def apply(model, data, overlap_shape=None, verbose=False):
         Result image.
     '''
 
-    model_input_image_shape = (50, 128, 128, 4)[1:-1]
-    model_output_image_shape = (50, 128, 128, 4)[1:-1]
+    model_input_image_shape = im_dim[1:-1]
+    model_output_image_shape = im_dim[1:-1]
     if len(model_input_image_shape) != len(model_output_image_shape):
         raise NotImplementedError
 
@@ -216,11 +216,11 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
                     wavelet_config=wavelet_config)
                 X_test_input = data_generator.stitch_patches_wavelet(X_test_input)
                 restored = apply(model, X_test_input,
-                                 overlap_shape=(0, 0), verbose=False)
+                                 overlap_shape=(0, 0), verbose=False, im_dim = (50,128,128,4))
             else:
                 X_test_input = raw
                 restored = apply(model, X_test_input,
-                                 overlap_shape=(32, 32), verbose=False)
+                                 overlap_shape=(32, 32), verbose=False, im_dim = (50,256,256,1))
 
             # Inverse transform.
             if wavelet_model:
