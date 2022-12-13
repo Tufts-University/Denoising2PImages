@@ -775,7 +775,7 @@ def default_load_data(data_path, requires_channel_dim, config):
         if bool(config['test_flag']):
             return (X, Y), (X_val, Y_val), [], [] ,[], [], []
         else:
-            return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges, []
+            return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges, [], []
 
     else:
         # Check if data was used for training, in this case we want load the unique test set from trianing data
