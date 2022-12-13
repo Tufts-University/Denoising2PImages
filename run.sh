@@ -23,8 +23,8 @@ echo "=========================================================="
 echo "" # empty line #
 
 # FAD CARE Testing Wavelet on Healthy Only SSIML2
-python -u main.py train wunet "FAD_CAREHealthy_Wavelet_0928_cervix_SSIML2_new_seed0" cwd=.. fad_data=NV_1213_FAD_Healthy.npz  loss="ssiml2_loss"  val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
-python -u main.py eval wunet "FAD_CAREHealthy_Wavelet_0928_cervix_SSIML2_new_seed0" cwd=.. fad_data=NV_1213_FAD_Healthy.npz nadh_data=NV_1213_NADH_Healthy.npz loss="ssiml2_loss" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
+python -u main.py train wunet "FAD_CAREHealthy_Wavelet_0928_cervix_SSIML2_new_seed0" cwd=.. fad_data=NV_1213_FAD_Healthy.npz  loss="ssiml2_loss"  val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
+python -u main.py eval wunet "FAD_CAREHealthy_Wavelet_0928_cervix_SSIML2_new_seed0" cwd=.. fad_data=NV_1213_FAD_Healthy.npz nadh_data=NV_1213_NADH_Healthy.npz loss="ssiml2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
 
 # FAD CARE Testing Wavelet SSIML2
 # python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIML2_new_seed0" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssiml2_loss"  val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
