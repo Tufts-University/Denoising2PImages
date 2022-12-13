@@ -289,99 +289,8 @@ def get_wavelet_config(function_name, is_discrete=None):
 
     return [function_name, is_discrete]
 
-
+# TODO(nvora01): Adjust Wavelet transform to work on different size inputs
 def wavelet_transform(mat, wavelet_config, verbose=False):
-    '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
-
-    [function_name, is_discrete] = wavelet_config
-
-    if verbose:
-        print(
-            f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
-
-    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
-        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
-    requires_extra_dim = np.shape(mat)[-1] == 1
-
-    for i in range(len(mat)):
-        if is_discrete:
-            C = pywt.dwt2(
-                mat[i, :, :] if not requires_extra_dim else np.squeeze(
-                    mat[i, :, :, :]),
-                wavelet=function_name,
-                mode='periodization')
-        else:
-            C = pywt.cwt2(
-                mat[i, :, :] if not requires_extra_dim else np.squeeze(
-                    mat[i, :, :, :]),
-                wavelet=function_name,
-                mode='periodization')
-
-        cA, (cH, cV, cD) = C
-        if verbose:
-            print(
-                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
-
-        row = np.append(cA, cH, axis=1)
-        row2 = np.append(cV, cD, axis=1)
-        stack = np.vstack((row, row2))
-
-        if verbose:
-            print(f'Got stack shaped {np.shape(stack)}')
-
-        if not requires_extra_dim:
-            mat[i, :, :] = stack
-        else:
-            mat[i, :, :, :] = np.expand_dims(stack, -1)
-
-    return mat
-
-
-def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
-    '''Reverses the wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
-
-    [function_name, is_discrete] = wavelet_config
-
-    if verbose:
-        print(
-            f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
-
-    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
-        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
-    requires_extra_dim = np.shape(mat)[-1] == 1
-
-    for i in range(len(mat)):
-        if not requires_extra_dim:
-            cA, cH, cV, cD = mat[i, :128, :128], mat[i, :128, 128:],\
-                mat[i, 128:, :128], mat[i, 128:, 128:]
-        else:
-            cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
-                np.squeeze(mat[i, :128, 128:, :]),\
-                np.squeeze(mat[i, 128:, :128, :]),\
-                np.squeeze(mat[i, 128:, 128:, :])
-
-        if verbose:
-            print(
-                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
-        C = cA, (cH, cV, cD)
-
-        if is_discrete:
-            restored = pywt.idwt2(
-                C, wavelet=function_name, mode='periodization')
-        else:
-            restored = pywt.icwt2(
-                C, wavelet=function_name, mode='periodization')
-        if verbose:
-            print(f'Got restored shape: {restored.shape}')
-
-        if not requires_extra_dim:
-            mat[i, :, :] = restored
-        else:
-            mat[i, :, :, :] = np.expand_dims(restored, -1)
-
-    return mat
-
-def wavelet_transform2(mat, wavelet_config, verbose=False):
     '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
@@ -413,18 +322,6 @@ def wavelet_transform2(mat, wavelet_config, verbose=False):
             print(
                 f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
 
-        # row = np.append(cA, cH, axis=1)
-        # row2 = np.append(cV, cD, axis=1)
-        # stack = np.vstack((row, row2))
-
-        # if verbose:
-        #     print(f'Got stack shaped {np.shape(stack)}')
-
-        # if not requires_extra_dim:
-        #     mat[i, :, :] = stack
-        # else:
-        #     mat[i, :, :, :] = np.expand_dims(stack, -1)
-
         stack = np.stack((cA, cH, cV, cD),-1)
         if verbose:
             print(f'Got stack shaped {np.shape(stack)}')
@@ -440,7 +337,7 @@ def wavelet_transform2(mat, wavelet_config, verbose=False):
     return transform if requires_extra_dim  else mat
 
 
-def wavelet_inverse_transform2(mat, wavelet_config, verbose=False):
+def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
     '''Reverses the wavelet transform on a matrix of shape nx128x128x4 or nx256x256x1.'''
 
     [function_name, is_discrete] = wavelet_config
@@ -457,11 +354,6 @@ def wavelet_inverse_transform2(mat, wavelet_config, verbose=False):
         if not requires_extra_dim:
             cA, cH, cV, cD = mat[i, :128, :128], mat[i, :128, 128:],\
                 mat[i, 128:, :128], mat[i, 128:, 128:]
-        # else:
-        #     cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
-        #         np.squeeze(mat[i, :128, 128:, :]),\
-        #         np.squeeze(mat[i, 128:, :128, :]),\
-        #         np.squeeze(mat[i, 128:, 128:, :])
         else:
             cA, cH, cV, cD = np.squeeze(mat[i,:,:,0]),\
                 np.squeeze(mat[i,:,:, 1]),\
@@ -490,18 +382,15 @@ def wavelet_inverse_transform2(mat, wavelet_config, verbose=False):
     return transform if requires_extra_dim  else mat
 
 
-def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, test_set_flag = True,
+def load_training_data(file, validation_split=4, split_seed=0, test_set_flag = True,
                         axes=None, n_images=None,verbose=False):
     """Load training data from file in ``.npz`` format.
     The data file is expected to have the keys:
     - ``X``    : Array of training input images.
     - ``Y``    : Array of corresponding target images.
-    - ``X_val``: Array of validation input images.
-    - ``Y_val``: Array of corresponding target images.
-    - ``X_test``: Array of test input images.
-    - ``Y_test``: Array of corresponding target images.
-    - ``axes`` : Axes of the training images.
-    - ``stack_ranges`` : Array of where a stack starts and ends.
+    - ``SB``: Array of Stack Start.
+    - ``SE``: Array of Stack End.
+    - ``ROI_keys``: ROI Names for all stacks.
 
     Parameters
     ----------
@@ -511,8 +400,6 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         Number of image stacks to include in the validation set
     split_seed : int
         Seed used for splitting of images stacks into training, validation, and test sets
-    testing_split : int
-        Number of image stacks to include in the test set
     test_set_flag : bool
         Can be used to generate a test set or put all test set images into validation set
     axes: str, optional
@@ -524,7 +411,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     Returns
     -------
     tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str,
-         :class:`numpy.ndarray`,tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`),:class:`numpy.ndarray`)
+         :class:`numpy.ndarray`,tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`),:class:`numpy.ndarray`,:class:`numpy.ndarray`)
         Returns three tuples (`X_train`, `Y_train`), (`X_val`, `Y_val`), (`X_test`, `Y_test`) of training, validation, and test sets (optional),
         the axes of the input images, and two arrays of image stack ranges for each ROI in the validation and test set.
         The tuple of test data and test stack ranges will be ``None`` if ``test_set_flag = False``.
@@ -536,6 +423,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
     f = np.load(file)
     X, Y = f['X'], f['Y']
     SB, SE = f['SB'], f['SE']
+    ROI_names = f['ROI_keys']
 
     if axes is None:
         axes = f['axes']
@@ -561,18 +449,22 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
         n_images = X.shape[0]
     assert X.shape[0] == Y.shape[0]
     assert 0 < n_images <= X.shape[0]
-    # assert 0 <= validation_split < 1
 
     X, Y = X[:n_images], Y[:n_images]
     channel = axes_dict(axes).get('C', None)
     
     ROIs = len(SB)
+    # Check if we need a test set
+    if bool(test_set_flag):
+        testing_split = int(0)
+    else:        
+        testing_split = int(round(ROIs)*0.25)
+        assert type(testing_split) is int,"testing_split must be an integer"        
 
     assert type(validation_split) is int,"validation_split must be an integer"
-    assert type(testing_split) is int,"testing_split must be an integer"
     total_split = testing_split + validation_split
     assert ROIs > total_split, "Requested Validation split is greater than the number of ROIs available"
-    if test_set_flag:
+    if not test_set_flag:
         print(f'A Test set of {testing_split} image stacks and Validation set of {validation_split} image stacks is being generated')
         # Set splitting seed for all test splits (These stacks will ALWAYS be in the Test Set)
         random.seed(0)
@@ -689,7 +581,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             axes = axes[:1]+'C'+axes[1:]
 
     data_val = (X_t, Y_t)
-    if test_set_flag:
+    if not test_set_flag:
         data_test = (X_te,Y_te)
         if verbose:
             ax = axes_dict(axes)
@@ -707,7 +599,7 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             if channel != None:
                 print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-        return (X, Y), data_val, axes, stack_ranges, data_test, te_stack_ranges
+        return (X, Y), data_val, axes, stack_ranges, data_test, te_stack_ranges, ROI_names 
 
     else:
         if verbose:
@@ -725,19 +617,16 @@ def load_training_data(file, validation_split=4, split_seed=0, testing_split=8, 
             if channel != None:
                 print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-        return (X, Y), data_val, axes, stack_ranges, ([],[]), []
+        return (X, Y), data_val, axes, stack_ranges, ([],[]), [], ROI_names 
 
 def load_testing_data(file,axes=None, n_images=None,verbose=False):
-    """Load training data from file in ``.npz`` format.
+    """Load testing data from file in ``.npz`` format.
     The data file is expected to have the keys:
     - ``X``    : Array of training input images.
     - ``Y``    : Array of corresponding target images.
-    - ``X_val``: Array of validation input images.
-    - ``Y_val``: Array of corresponding target images.
-    - ``X_test``: Array of test input images.
-    - ``Y_test``: Array of corresponding target images.
-    - ``axes`` : Axes of the training images.
-    - ``stack_ranges`` : Array of where a stack starts and ends.
+    - ``SB``: Array of Stack Start.
+    - ``SE``: Array of Stack End.
+    - ``ROI_keys``: ROI Names for all stacks.
 
     Parameters
     ----------
@@ -751,8 +640,8 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
         Can be used to display information about the loaded images.
     Returns
     -------
-    (X, Y), axes, stack_ranges
-    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str, :class:`numpy.ndarray`)
+    (X, Y), axes, stack_ranges, ROI_names
+    tuple( tuple(:class:`numpy.ndarray`, :class:`numpy.ndarray`), str, :class:`numpy.ndarray`, :class:`numpy.ndarray`)
         Returns one tuple (`X`, `Y`), where all data is being used as testing,
         the axes of the input images, and an array of where an image stack starts and end
         for each ROI.
@@ -764,6 +653,7 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
     f = np.load(file)
     X, Y = f['X'], f['Y']
     SB, SE = f['SB'], f['SE']
+    ROI_keys = f['ROI_keys']
 
     if axes is None:
         axes = f['axes']
@@ -829,7 +719,7 @@ def load_testing_data(file,axes=None, n_images=None,verbose=False):
         print('axes:\t\t\t\t', axes)
         if channel != None:
             print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
-    return (X, Y), axes, stack_ranges
+    return (X, Y), axes, stack_ranges, ROI_keys
 
 def patch_slice(slice):
     '''Splits up the 512x512 slice into 4 256x256 patches.'''
@@ -841,14 +731,11 @@ def patch_slice(slice):
     # and not 512x128 rectangles.
     return np.reshape(slice, [2, 256, 2, 256]).swapaxes(1, 2).reshape(4, 256, 256)
 
-def patch_slice2(slice):
-    '''Splits up the 512x512 slice into 4 256x256 patches.'''
+def patch_slice_wavelet(slice):
+    '''Splits up the 256 x 256 x 4 slice into 4 x 128 x 128 x 4 patches for inverse wavelet transform.'''
     slice = np.squeeze(slice)
     assert np.shape(slice) == (
         256, 256, 4), f'Slice must be 256x256x4 but instead found shape: {np.shape(slice)}'
-
-    # The axes are swapped to maintain the correct order since our patches are square 256x256
-    # and not 512x128 rectangles.
     return np.reshape(slice, [2, 128,-1, 128, 4]).swapaxes(1,2).reshape(4,128,128,4)
 
 
@@ -862,8 +749,8 @@ def stitch_patches(patches):
     # and not 512x128 rectangles.
     return np.reshape(patches, [2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
 
-def stitch_patches2(patches):
-    '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
+def stitch_patches_wavelet(patches):
+    '''Stitches the 4 128x128 patches back together into a 256x256 slice.'''
     patches = np.squeeze(patches)
     assert np.shape(patches) == (
         4, 128,128,4), f'Patches must be 4x128x128x4 but instead found shape: {np.shape(patches)}'
@@ -876,22 +763,38 @@ def stitch_patches2(patches):
 def default_load_data(data_path, requires_channel_dim, config):
     # If we are training a model we need a training, validation, and potentially a test set
     # The train_mode specifies if we are training and test_flag specifies if we want a test set.
-    if bool(config['train_mode']):
+    if config['mode']=='train':
         (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
             data_path,
             validation_split= config['val_split'],
             split_seed = config['val_seed'],
-            testing_split= config['test_split'],
             test_set_flag = bool(config['test_flag']),
             axes='SXY' if not requires_channel_dim else 'SXYC',
             verbose=True)
-        return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+
+        if bool(config['test_flag']):
+            return (X, Y), (X_val, Y_val)
+        else:
+            return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+
     else:
-        (X, Y), _, stack_ranges = load_testing_data(
+        # Check if data was used for training, in this case we want load the unique test set from trianing data
+        if bool(config['train_mode']):
+            _, _, _, _, (X_test,Y_test), test_ranges, ROI_names  = load_training_data(
             data_path,
+            validation_split= config['val_split'],
+            split_seed = config['val_seed'],
+            test_set_flag = bool(config['test_flag']),
             axes='SXY' if not requires_channel_dim else 'SXYC',
             verbose=True)
-        return (X, Y), stack_ranges
+            return (X_test,Y_test), test_ranges, ROI_names
+        else:
+            # Otherwise, we have a test set and we are going to load the data file directly
+            (X, Y), _, stack_ranges, ROI_names = load_testing_data(
+                data_path,
+                axes='SXY' if not requires_channel_dim else 'SXYC',
+                verbose=True)
+            return (X, Y), stack_ranges, ROI_names
 
 
 def gather_data(config, data_path, requires_channel_dim):
@@ -904,11 +807,11 @@ def gather_data(config, data_path, requires_channel_dim):
         function_name=config['wavelet_function'])
 
     if wavelet_config != None:
-        X = wavelet_transform2(np.array(X), wavelet_config=wavelet_config)
-        Y = wavelet_transform2(np.array(Y), wavelet_config=wavelet_config)
-        X_val = wavelet_transform2(
+        X = wavelet_transform(np.array(X), wavelet_config=wavelet_config)
+        Y = wavelet_transform(np.array(Y), wavelet_config=wavelet_config)
+        X_val = wavelet_transform(
             np.array(X_val), wavelet_config=wavelet_config)
-        Y_val = wavelet_transform2(
+        Y_val = wavelet_transform(
             np.array(Y_val), wavelet_config=wavelet_config)
 
     data_gen = DataGenerator(

@@ -23,7 +23,7 @@ def build_wunet(config,
     return model
 
 def build_and_compile_WUnet(config):
-    config['input_shape'] = [128,128]
+    config['input_shape'] = [int(a/2) for a in config['input_shape']] #Resize the input from a n x n to n/2 x n/2 due to wavelet transformation 
     wunet = build_wunet(config,
                 (*config['input_shape'], 4))
 

@@ -186,13 +186,11 @@ def apply(model, data, overlap_shape=None, verbose=False):
 
     return result if input_is_list else result[0]
 
-def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges, config):
+def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test, stack_ranges, ROI_names):
     print('=== Applying model ------------------------------------------------')
     
     # Remove Data Type from trial name for saving
     trial_name = trial_name[trial_name.index('_'):]
-    nadh_data  = config['nadh_data']
-    sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
     wavelet_model = wavelet_config != None
     print(f'Using wavelet model: {wavelet_model}')
 
@@ -202,7 +200,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
     # the same stack into one output file.
     for (stack_index, [stack_start, stack_end]) in enumerate(stack_ranges):
         print(f'Accessing stack: {stack_index}')
-
+        ROI_name = ROI_names[stack_index]
         image_mat = []
         for n in range(stack_start, stack_end+1):
             print(f'Accessing slice: {n} of stack: {stack_index}')
@@ -213,10 +211,10 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             # Apply the model to generate the restored image.
             restored = None
             if wavelet_model:
-                X_test_input = data_generator.wavelet_transform2(
+                X_test_input = data_generator.wavelet_transform(
                     np.copy(X_test[4*n:4*n+4]), 
                     wavelet_config=wavelet_config)
-                X_test_input = data_generator.stitch_patches2(X_test_input)
+                X_test_input = data_generator.stitch_patches_wavelet(X_test_input)
                 restored = apply(model, X_test_input,
                                  overlap_shape=(0, 0), verbose=False)
             else:
@@ -226,8 +224,8 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
 
             # Inverse transform.
             if wavelet_model:
-                restored = data_generator.patch_slice2(restored)
-                restored = data_generator.wavelet_inverse_transform2(
+                restored = data_generator.patch_slice_wavelet(restored)
+                restored = data_generator.wavelet_inverse_transform(
                     restored, 
                     wavelet_config=wavelet_config)
                 restored = data_generator.stitch_patches(restored)
@@ -239,7 +237,7 @@ def patch_and_apply(model, data_type, trial_name, wavelet_config, X_test, Y_test
             result = np.clip(255 * result, 0, 255).astype('uint8')
 
             image_mat.append([result[0], result[1], result[2]])
-        scipy.io.savemat(f'{sample_name}_{data_type}{trial_name}_image{stack_index}.mat', {
+        scipy.io.savemat(f'{ROI_name}_{data_type}{trial_name}_image{stack_index}.mat', {
                          'images': image_mat})
 
     print('--------------------------------------------------------------------')
@@ -285,26 +283,16 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if nadh_path != None:
         print('=== Evaluating NADH -----------------------------------------------')
         # Similar to 'data_generator.py'
-        if bool(config['train_mode']):
-            if config['test_flag']:
-                _, _, _, (X_val,Y_val), stack_ranges = data_generator.default_load_data(
-                    nadh_path,
-                    requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
-            else:
-                _, (X_val, Y_val), stack_ranges, _, _ = data_generator.default_load_data(
+        (X_val, Y_val), stack_ranges, ROI_names = data_generator.default_load_data(
                 nadh_path,
                 requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
-        else:
-            (X_val, Y_val), stack_ranges = data_generator.default_load_data(
-                    nadh_path,
-                    requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
 
         patch_and_apply(
             model, data_type='NADH', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges, config=config)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges, ROI_names = ROI_names)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)
@@ -314,19 +302,9 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     if fad_path != None:
         print('=== Evaluating FAD -------------------------------------------------')
         # Similar to 'data_generator.py'
-        if bool(config['train_mode']):
-            if config['test_flag']:
-                _, _, _, (X_val,Y_val), stack_ranges = data_generator.default_load_data(
-                    fad_path,
-                    requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
-            else:
-                _, (X_val, Y_val), stack_ranges, _, _ = data_generator.default_load_data(
+        (X_val, Y_val), stack_ranges, ROI_names = data_generator.default_load_data(
                 fad_path,
                 requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
-        else:
-            (X_val, Y_val), stack_ranges = data_generator.default_load_data(
-                    fad_path,
-                    requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
             
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
@@ -334,7 +312,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         patch_and_apply(
             model, data_type='FAD', trial_name=trial_name,
             wavelet_config=data_generator.get_wavelet_config(function_name=config['wavelet_function']),
-            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges,config=config)
+            X_test=X_val, Y_test=Y_val, stack_ranges = stack_ranges, ROI_names = ROI_names)
 
         print(f'Going back to given cwd: {initial_path}')
         os.chdir(initial_path)
