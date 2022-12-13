@@ -1,7 +1,7 @@
 # Denoising Cervical-Tissue, Two-Photon Images
 
 ## Repository Summary
-The following code can be used to implement competing models of denoising on 2D images. These particular algorithms were designed for use on two-photon images acquired by a Leica SP8 microscope. Included functions allow for customization of loss functions, trianing, and eval only. All implementation for both the RCAN [[1]](https://doi.org/10.1038/s41592-021-01155-x) and CARE [[2]](https://doi.org/10.1038/s41592-018-0216-7) algorithms was done in TensorFlow. Work is currently being done to improve model performance and include novel algorithms such as SRGAN [[3]](https://doi.org/10.48550/arxiv.1609.04802) which have shown high levels of performance in other studies. For more details on RCAN, CARE, or SRGAN please review the cited papers below. We would like to thank the authors of these papers for inspiring our work and providing codes to implement these models online.
+The following code can be used to implement competing models of denoising on 2D images. These particular algorithms were designed for use on two-photon images acquired by a Leica SP8 microscope. Included functions allow for customization of loss functions, training, and evalulation only. All implementation for RCAN [[1]](https://doi.org/10.1038/s41592-021-01155-x), CARE [[2]](https://doi.org/10.1038/s41592-018-0216-7) and SRGAN [[3]](https://doi.org/10.48550/arxiv.1609.04802) algorithms was done in TensorFlow. For more details on RCAN, CARE, or SRGAN please review the cited papers below. Wavelet-based denoising was also introduced for improved results. The implementation is referred to as WU-net and followed the discussed implementation from *Aytekin et al.* [[4]](https://doi.org/10.1109/MMSP53017.2021.9733576.). We would like to thank the authors of these papers for inspiring our work and providing codes to implement these models online.
 
 ## System Requirements
 - Code was written on a Windows 10 system but run on a Linux system with a A100 GPU installed
@@ -12,29 +12,34 @@ The following code can be used to implement competing models of denoising on 2D 
 **Tested Enviroment**:
 1. RCAN Network
     - NVIDIA A100 GPU 40GB 
-    - 20GB of RAM
+    - 30GB of RAM
     - Training Time: ~ 4.7 hrs 
     - Evaluation Time: ~ 40 minutes
 2. CARE Network
     - NVIDIA A100 GPU 40GB 
-    - 20GB of RAM
+    - 30GB of RAM
     - Training Time: ~ 40 minutes 
     - Evaluation Time: ~ 40 minutes
 3. Resnet Network
     - NVIDIA A100 GPU 40GB 
-    - 20GB of RAM
+    - 30GB of RAM
     - Training Time: ~ 2 hours 
     - Evaluation Time: ~ 40 minutes
 4. SRGAN Network
     - NVIDIA A100 GPU 40GB 
-    - 20GB of RAM
+    - 30GB of RAM
     - Training Time: ~ 24 hours 
+    - Evaluation Time: ~ 40 minutes
+5. WU-net
+    - NVIDIA A100 GPU 40GB 
+    - 30GB of RAM
+    - Training Time: ~ 2 hours 
     - Evaluation Time: ~ 40 minutes
 
 ## Dataset
 1. All raw data is available at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
-2. Pretrained model weights are stored in Trained Model Folder
-3. Preformatted data is avaiable online under Data folder
+2. Pretrained model weights are stored in Trained Model Folder (*Coming Soon*)
+3. Preformatted data is avaiable online under Data folder (*Coming Soon*)
 
 ## Dependencies Installation
 ### Determine your operating system (Linux/OS or Windows), Denoising environment will automatically be created
@@ -64,7 +69,7 @@ The following code can be used to implement competing models of denoising on 2D 
     conda activate Denoising
     ``` 
 ## Training and Eval
-**09/22/2022 Update:** We have added an option for using .json config files to specfiy your run parameters. Additionally, there is now support for hybrid .json and argparsing to make it easier to modify your config for eval vs. training without having multiple config files.
+**09/22/2022 Update:** We have added an option for using .json config files to specfiy your run parameters. Additionally, there is now support for hybrid .json and argparsing to make it easier to modify your config for evaluation vs. training without having multiple config files.
 
 To train any model, you have several options to specify the run options:
 1. Call all args and utilize argparsing (old implementation):
@@ -98,12 +103,13 @@ Available options include:
     - You **must** specify which model you are trying to train
     - *rcan*
     - *care*
+    - *wunet*
     - *resnet*
     - *srgan* (NOTE: SRGAN uses CARE for Content-Loss calculations instead of VGG19, please ensure you have CARE weights saved as **CARE_Pretrained.hdf5** in the path)
     - [`CARE_Pretrained.hdf5`](CARE_Pretrained.hdf5) weights for the CARE architecture used here are available on this repository
 - `Model_Name` (string):
     - Specify the name of the model you are training. Good notion includes information about specific parameters used i.e.: 'NADH_CAREModel_SSIMR2Loss_alpha_p5_wavelet_bior1p1'
-    - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet trandorm will be used and if so which type, and which training/validation seed will be used
+    - Here, we include what type of data the model will be trained on (NADH or FAD), which model (CARE, WUNET, SRGAN, or RCAN), which loss function (see below), the alpha level of each weight included, if wavelet tranform will be used (use *wunet*) and if so which type, and which training/validation seed will be used
 - `cwd` (string):
     - List the path where the data (.npz) files are stored for training **(default = ' ')**
 - `nadh_data` (string):
@@ -123,15 +129,12 @@ Available options include:
 - `val_split` (integer):
     - Sets the number of ROIs to include in the validation set  **(default = 4)**
     - It is important to note if `test_flag` = 0, all testing images will be added to `val_split`
-- `test_split` (integer):
-    - Sets the number of ROIs to include in the test set  **(default = 8)**
-    - It is important to note if `test_flag` = 0, all testing images will be added to `val_split`
 - `test_flag` (integer):   
-    - Controls whether a test set needs to be generated, if 0, all images not in the training set will be used for validation  **(default = 1)**
+    - Controls whether a test set needs to be generated, if 0, a test set will be generated from the training data, if 1, the user is indicating they have a pre-formatted test set  **(default = 1)**
 - `train_mode` (integer):   
-    - Controls whether a training set is needed, this flag controls evaluation only **(default = 1)**
-    - A value of 0 means all data is new and unseen by the model
-    - A value of 1 means some data was used in training, in which case, set the `val_seed`, `val_split`, and `test_split` to the same values used during training
+    - Controls whether a test set needs to be extracted from the previous training dataset **(default = )**
+    - A value of 0 means `test_flag`=1 and all data is new to the model 
+    - A value of 1 means some data was used in training, in which case, set the `val_seed` and `val_split`, to the same values used during training so the designated test set can be extracted
 - `ssim_FSize` (integer):   
     - Controls the filter size used by the SSIM function **(default = 11)**
 - `ssim_FSig` (integer):   
@@ -160,9 +163,6 @@ Available options include:
     - **Default = ' '**
 - `val_seed` (integer):
     - Controls which ROIs are included in Training and Validation 
-    - If the input is `None`, a hard-coded split will occur
-    - TODO: remove the hardcode option, currently being used for a rapid check on pretrained models
-    - Split ratio is currently 8 Validation ROIs and 35 Training ROIs
     - **Default = 0**
 ### Model Specfic Config:
 **RCAN config**
@@ -175,7 +175,7 @@ Available options include:
 - `channel_reduction` (integer): 
     - Specifies the channel reduction factor which defines the number of filters used (`num_channels`/`channel_reduction` = `num_filters`) **(Default  = 4)**
 
-**CARE UNET config**
+**CARE UNET and WU-net config**
 - `unet_n_depth` (integer):
     - Number of downsampling steps required before upsampling begins **(Default = 6)**
 - `unet_n_first` (integer):
@@ -194,7 +194,10 @@ Weigert, M., Schmidt, U., Boothe, T. *et al.* Content-aware image restoration: p
 Ledig, C., Theis, L., Huszar, F. *et al.* Photo-Realistic Single Image Super-Resolution Using a Generative Adversarial Network. *arXiv* (2016). https://doi.org/10.48550/arxiv.1609.04802
 
 <a id="4">[4]</a>
-K.B., SRGAN: Super Resolution Generative Adversarial Networks. *PaperspaceBlog* (2021). https://blog.paperspace.com/super-resolution-generative-adversarial-networks/. Date Accessed: 08/30/2022
+Aytekin, C., Alenius, S., Paliy, D. & Gren, J. A Sub-band Approach to Deep Denoising Wavelet Networks and a Frequency-adaptive Loss for Perceptual Quality. in *IEEE 23rd International Workshop on Multimedia Signal Processing*, MMSP 2021 1–6 (IEEE, 2021). doi:10.1109/MMSP53017.2021.9733576.
 
 <a id="5">[5]</a>
+K.B., SRGAN: Super Resolution Generative Adversarial Networks. *PaperspaceBlog* (2021). https://blog.paperspace.com/super-resolution-generative-adversarial-networks/. Date Accessed: 08/30/2022
+
+<a id="6">[6]</a>
 Laihong, J., Image Super-Resolution using SRResNet and SRGAN, (2021), GitHub repository, https://github.com/jlaihong/image-super-resolution
