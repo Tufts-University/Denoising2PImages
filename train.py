@@ -59,10 +59,10 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         print(f"Restored epoch ckpt from {manager.latest_checkpoint}, starting training at epoch # ",ckpt.completed_epochs.numpy())
     
     completed_epochs=ckpt.completed_epochs.numpy()
-    
+    x, y = training_data[0], training_data[1]
     model.fit(
-        x=training_data if model_name != 'care' else training_data[0],
-        y=None if model_name != 'care' else training_data[1],
+        x=x,
+        y=y,
         epochs=config['epochs'],
         shuffle=True,
         validation_data=validation_data,
@@ -86,7 +86,7 @@ def train(model_name, config, output_dir, data_path):
     (training_data, validation_data) = data_generator.gather_data(
         config, 
         data_path, 
-        requires_channel_dim=model_name == 'care')
+        requires_channel_dim=model_name == 'care' or model_name == 'wunet')
 
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':

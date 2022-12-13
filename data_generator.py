@@ -382,6 +382,115 @@ def wavelet_inverse_transform(mat, wavelet_config, verbose=False):
     return mat
 
 
+def wavelet_transform2(mat, wavelet_config, verbose=False):
+    '''Applies a wavelet transform on a matrix of shape nx256x256 or nx256x256x1.'''
+
+    [function_name, is_discrete] = wavelet_config
+    transform = np.zeros(shape=(len(mat),128,128,4))
+    if verbose:
+        print(
+            f'Wavelet transforming matrix of shape {mat.shape}; length: {len(mat)}')
+
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1),\
+        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+    requires_extra_dim = np.shape(mat)[-1] == 1
+
+    for i in range(len(mat)):
+        if is_discrete:
+            C = pywt.dwt2(
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(
+                    mat[i, :, :, :]),
+                wavelet=function_name,
+                mode='periodization')
+        else:
+            C = pywt.cwt2(
+                mat[i, :, :] if not requires_extra_dim else np.squeeze(
+                    mat[i, :, :, :]),
+                wavelet=function_name,
+                mode='periodization')
+
+        cA, (cH, cV, cD) = C
+        if verbose:
+            print(
+                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+
+        # row = np.append(cA, cH, axis=1)
+        # row2 = np.append(cV, cD, axis=1)
+        # stack = np.vstack((row, row2))
+
+        # if verbose:
+        #     print(f'Got stack shaped {np.shape(stack)}')
+
+        # if not requires_extra_dim:
+        #     mat[i, :, :] = stack
+        # else:
+        #     mat[i, :, :, :] = np.expand_dims(stack, -1)
+
+        stack = np.stack((cA, cH, cV, cD),-1)
+        if verbose:
+            print(f'Got stack shaped {np.shape(stack)}')
+
+        if not requires_extra_dim:
+            row = np.append(cA, cH, axis=1)
+            row2 = np.append(cV, cD, axis=1)
+            stack = np.vstack((row, row2))
+            mat[i, :, :] = stack
+        else:
+            transform[i, :, :, :] = stack
+
+    return transform if requires_extra_dim  else mat
+
+
+def wavelet_inverse_transform2(mat, wavelet_config, verbose=False):
+    '''Reverses the wavelet transform on a matrix of shape nx128x128x4 or nx256x256x1.'''
+
+    [function_name, is_discrete] = wavelet_config
+    transform = np.zeros(shape=(len(mat),256,256,1))
+    if verbose:
+        print(
+            f'Wavelet inverse transforming matrix of shape {mat.shape}; length: {len(mat)}')
+
+    assert np.shape(mat)[1:] == (256, 256) or np.shape(mat)[1:] == (256, 256, 1) or np.shape(mat)[1:] == (128, 128, 4),\
+        f'Expected matrix of shape nx256x256 or nx256x256x1 but got: {np.shape(mat)}'
+    requires_extra_dim = np.shape(mat)[-1] == 4 or 1
+
+    for i in range(len(mat)):
+        if not requires_extra_dim:
+            cA, cH, cV, cD = mat[i, :128, :128], mat[i, :128, 128:],\
+                mat[i, 128:, :128], mat[i, 128:, 128:]
+        # else:
+        #     cA, cH, cV, cD = np.squeeze(mat[i, :128, :128, :]),\
+        #         np.squeeze(mat[i, :128, 128:, :]),\
+        #         np.squeeze(mat[i, 128:, :128, :]),\
+        #         np.squeeze(mat[i, 128:, 128:, :])
+        else:
+            cA, cH, cV, cD = np.squeeze(mat[i,:,:,0]),\
+                np.squeeze(mat[i,:,:, 1]),\
+                np.squeeze(mat[i,:,:, 2]),\
+                np.squeeze(mat[i,:,:, 3])
+
+        if verbose:
+            print(
+                f'Got cA shaped {cA.shape}, cH shaped {cH.shape}, cV shaped {cV.shape}, cD shaped {cD.shape}')
+        C = cA, (cH, cV, cD)
+
+        if is_discrete:
+            restored = pywt.idwt2(
+                C, wavelet=function_name, mode='periodization')
+        else:
+            restored = pywt.icwt2(
+                C, wavelet=function_name, mode='periodization')
+        if verbose:
+            print(f'Got restored shape: {restored.shape}')
+
+        if not requires_extra_dim:
+            mat[i, :, :] = restored
+        else:
+            transform[i, :, :, :] = np.expand_dims(restored, -1)
+
+    return transform if requires_extra_dim  else mat
+
+
 def load_training_data(file, validation_split=4, split_seed=0,
                         axes=None, n_images=None,verbose=False):
     """Load training data from file in ``.npz`` format.
@@ -636,6 +745,16 @@ def patch_slice(slice):
     # and not 512x128 rectangles.
     return np.reshape(slice, [2, 256, 2, 256]).swapaxes(1, 2).reshape(4, 256, 256)
 
+def patch_slice2(slice):
+    '''Splits up the 512x512 slice into 4 256x256 patches.'''
+    slice = np.squeeze(slice)
+    assert np.shape(slice) == (
+        256, 256, 4), f'Slice must be 256x256x4 but instead found shape: {np.shape(slice)}'
+
+    # The axes are swapped to maintain the correct order since our patches are square 256x256
+    # and not 512x128 rectangles.
+    return np.reshape(slice, [2, 128,-1, 128, 4]).swapaxes(1,2).reshape(4,128,128,4)
+
 
 def stitch_patches(patches):
     '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
@@ -647,6 +766,15 @@ def stitch_patches(patches):
     # and not 512x128 rectangles.
     return np.reshape(patches, [2, -1, 256, 256]).swapaxes(1, 2).reshape(512, 512)
 
+def stitch_patches2(patches):
+    '''Stitches the 4 256x256 patches back together into a 512x512 slice.'''
+    patches = np.squeeze(patches)
+    assert np.shape(patches) == (
+        4, 128,128,4), f'Patches must be 4x128x128x4 but instead found shape: {np.shape(patches)}'
+
+    # The axes are swapped to maintain the correct order since our patches are square 256x256
+    # and not 512x128 rectangles.
+    return np.reshape(patches, [2,-1, 128, 128, 4]).swapaxes(1,2).reshape(256,256,4)
 
 def default_load_data(data_path, requires_channel_dim, config):
     # If we are training a model we need a training, validation, and potentially a test set
@@ -677,11 +805,11 @@ def gather_data(config, data_path, requires_channel_dim):
         function_name=config['wavelet_function'])
 
     if wavelet_config != None:
-        X = wavelet_transform(np.array(X), wavelet_config=wavelet_config)
-        Y = wavelet_transform(np.array(Y), wavelet_config=wavelet_config)
-        X_val = wavelet_transform(
+        X = wavelet_transform2(np.array(X), wavelet_config=wavelet_config)
+        Y = wavelet_transform2(np.array(Y), wavelet_config=wavelet_config)
+        X_val = wavelet_transform2(
             np.array(X_val), wavelet_config=wavelet_config)
-        Y_val = wavelet_transform(
+        Y_val = wavelet_transform2(
             np.array(Y_val), wavelet_config=wavelet_config)
 
     data_gen = DataGenerator(
