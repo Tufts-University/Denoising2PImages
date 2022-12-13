@@ -764,7 +764,7 @@ def default_load_data(data_path, requires_channel_dim, config):
     # If we are training a model we need a training, validation, and potentially a test set
     # The train_mode specifies if we are training and test_flag specifies if we want a test set.
     if config['mode']=='train':
-        (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges  = load_training_data(
+        (X, Y), (X_val, Y_val), _, val_ranges, (X_test,Y_test), test_ranges, _  = load_training_data(
             data_path,
             validation_split= config['val_split'],
             split_seed = config['val_seed'],
@@ -773,9 +773,9 @@ def default_load_data(data_path, requires_channel_dim, config):
             verbose=True)
 
         if bool(config['test_flag']):
-            return (X, Y), (X_val, Y_val)
+            return (X, Y), (X_val, Y_val), [], [] ,[], [], []
         else:
-            return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges
+            return (X, Y), (X_val, Y_val), val_ranges, (X_test,Y_test), test_ranges, []
 
     else:
         # Check if data was used for training, in this case we want load the unique test set from trianing data
@@ -801,7 +801,7 @@ def gather_data(config, data_path, requires_channel_dim):
     '''Gathers the data that is already normalized in local prep.'''
     print('=== Gathering data ---------------------------------------------------')
 
-    (X, Y), (X_val, Y_val), _, _, _ = default_load_data(data_path, requires_channel_dim, config)
+    (X, Y), (X_val, Y_val), _, _, _, _, _ = default_load_data(data_path, requires_channel_dim, config)
 
     wavelet_config = get_wavelet_config(
         function_name=config['wavelet_function'])
