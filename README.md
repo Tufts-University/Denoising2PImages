@@ -40,7 +40,7 @@ All parameters listed for training and validating on 8844 paired image patches (
 ## Dataset
 1. All raw data is available at reasonable request. Contact [Professor Irene Georgakoudi](mailto:irene.georgakoudi@tufts.edu) for access to datasets. 
 2. Pretrained model weights are stored in Trained Model Folder (*Coming Soon*)
-3. Preformatted data is avaiable online under Data folder (*Coming Soon*)
+3. Preformatted data is available online under Data folder (*Coming Soon*)
 
 ## Dependencies Installation
 ### Determine your operating system (Linux/OS or Windows), Denoising environment will automatically be created
