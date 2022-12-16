@@ -23,7 +23,7 @@ echo "=========================================================="
 echo "" # empty line #
 
 # FAD CARE Testing Wavelet SSIMR2
-python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_seed0" cwd=.. fad_data=NV_1213_FAD_Testing.npz nadh_data=NV_1213_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
+python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_1213_FAD_Testing.npz nadh_data=NV_1213_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
 python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_MAE_new_seed0" cwd=.. fad_data=NV_1213_FAD_Testing.npz nadh_data=NV_1213_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=0 train_mode=1 wavelet_function=bior1.1
 
 # FAD CARE Testing Wavelet on Healthy Only SSIML2
