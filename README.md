@@ -133,7 +133,7 @@ Available options include:
 - `test_flag` (integer):   
     - Controls whether a test set needs to be generated, if 0, a test set will be generated from the training data, if 1, the user is indicating they have a pre-formatted test set  **(default = 1)**
 - `train_mode` (integer):   
-    - Controls whether a test set needs to be extracted from the previous training dataset **(default = )**
+    - Controls whether a test set needs to be extracted from the previous training dataset **(default = 0)**
     - A value of 0 means `test_flag`=1 and all data is new to the model 
     - A value of 1 means some data was used in training, in which case, set the `val_seed` and `val_split`, to the same values used during training so the designated test set can be extracted
 - `ssim_FSize` (integer):   

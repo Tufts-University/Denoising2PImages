@@ -19,7 +19,7 @@ def ssim(y_true, y_pred,filter_size=11,filter_sigma=1.5):
     return tf.image.ssim(y_true, y_pred, 1, filter_size, filter_sigma, k2=0.05)
 
 
-def ssim_loss(y_true, y_pred, filter_size,filter_sigma):
+def ssim_loss(y_true, y_pred, filter_size=11,filter_sigma=1.5):
     return 1-((ssim(y_true, y_pred, filter_size, filter_sigma)+1)*0.5)
 
 # Sourced from Tensorflow Implementation of Focal Frequency Loss for Image Reconstruction and Synthesis [ICCV 2021]
