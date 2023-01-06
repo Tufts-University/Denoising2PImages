@@ -599,7 +599,7 @@ def load_training_data(file, validation_split=4, split_seed=0, test_set_flag = T
             if channel != None:
                 print('channels in / out:\t\t', n_channel_in, '/', n_channel_out)
 
-        return (X, Y), data_val, axes, stack_ranges, data_test, te_stack_ranges, ROI_names 
+        return (X, Y), data_val, axes, stack_ranges, data_test, te_stack_ranges, ROI_names[test_idx]
 
     else:
         if verbose:
@@ -787,6 +787,8 @@ def default_load_data(data_path, requires_channel_dim, config):
             test_set_flag = bool(config['test_flag']),
             axes='SXY' if not requires_channel_dim else 'SXYC',
             verbose=True)
+
+
             return (X_test,Y_test), test_ranges, ROI_names
         else:
             # Otherwise, we have a test set and we are going to load the data file directly
