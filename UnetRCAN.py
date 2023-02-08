@@ -10,7 +10,17 @@ from keras.models import Model
 
 import model_builder
 
+'''
+Code was originally written by Ebrahimi et al. (2023) for implementation of UNet-RCAN.
+Original paper can be found on BioArXiv: https://doi.org/10.1101/2023.01.26.525571.
 
+Code was adapted slightly to match implementation of code base on this repository. 
+Key changes are the addition of build and complie function, and modification of model 
+inputs to fit our config file
+
+Original code can be found on the following repository:
+https://github.com/vebrahimi1990/UNet_RCAN_Denoising
+'''
 
 def kinit(size, filters):
     n = 1 / np.sqrt(size * size * filters)
