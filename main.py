@@ -17,7 +17,7 @@ def make_config(model_name):
         'nadh_data': '',
         'fad_data': '',
         'epochs': 300,
-        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None, 'wunet':100}[model_name],
+        'steps_per_epoch': {'srgan': None,'rcan': None, 'care': 100, 'resnet':None, 'wunet':100, 'UnetRCAN': None}[model_name],
         'input_shape': [256, 256],
         'initial_learning_rate': 1e-5,
         # Adjusting flags for loading training set and test set from seperate or same files
@@ -29,7 +29,7 @@ def make_config(model_name):
         'ssim_FSig': 1.5, # SSIM Filter Sigma 
         'batch_size': 50, # Default batch size
         # Metrics
-        'loss': {'srgan': 'mse', 'care': 'ssimr2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse', 'wunet': 'ssimr2_loss'}[model_name],
+        'loss': {'srgan': 'mse', 'care': 'ssimr2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse', 'wunet': 'ssimr2_loss','UnetRCAN':'mse'}[model_name],
         'metrics': ['psnr', 'ssim'],
 
         # Metric hyperparameters 
@@ -87,7 +87,7 @@ def json_config(config):
     'type': 'object',
     'properties': {
         'mode': {'type': 'string', 'enum': ['train','eval']},
-        'model_name': {'type': 'string', 'enum': ['rcan', 'care', 'srgan', 'resnet', 'wunet']},
+        'model_name': {'type': 'string', 'enum': ['rcan', 'care', 'srgan', 'resnet', 'wunet', 'UnetRCAN']},
         'trial_name': {'type': 'string'},
         'cwd': {'type': 'string'},
         'nadh_data': {'type': 'string'},
@@ -138,7 +138,7 @@ def json_config(config):
     config.setdefault('nadh_data', '')
     config.setdefault('fad_data', '')
     config.setdefault('epochs', 300)
-    config.setdefault('steps_per_epoch', {'srgan': None,'rcan': None, 'care': 100, 'resnet':None, 'wunet': 100}[config['model_name']])
+    config.setdefault('steps_per_epoch', {'srgan': None,'rcan': None, 'care': 100, 'resnet':None, 'wunet': 100, 'UnetRCAN': None}[config['model_name']])
     config.setdefault('input_shape', [256,256])
     config.setdefault('initial_learning_rate', 1e-5)
     config.setdefault('val_seed', 0)
@@ -148,7 +148,7 @@ def json_config(config):
     config.setdefault('ssim_FSize', 11)
     config.setdefault('ssim_FSig', 1.5)
     config.setdefault('batch_size', 50)
-    config.setdefault('loss', {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse','wunet': 'ssimr2_loss'}[config['model_name']])
+    config.setdefault('loss', {'srgan': 'mse', 'care': 'ssiml2_loss', 'rcan': 'ssiml1_loss', 'resnet':'mse','wunet': 'ssimr2_loss','UnetRCAN': 'mse'}[config['model_name']])
     config.setdefault('metrics', ['psnr','ssim'])
     config.setdefault('loss_alpha', 0.5)
     config.setdefault('num_channels', 32)
@@ -176,7 +176,7 @@ def main():
         print(f'Using trial name: "{trial_name}"')
     else:
         if len(sys.argv) < 4:
-            print('Usage: python main.py <mode: train | eval> <name: rcan | care | srgan | resnet> <trial_name> <config options...>')
+            print('Usage: python main.py <mode: train | eval> <name: rcan | care | srgan | resnet | wunet | UnetRCAN> <trial_name> <config options...>')
             raise Exception('Invalid arguments.')
 
         # === Get arguments ===
@@ -189,7 +189,7 @@ def main():
             raise Exception(f'Invalid mode: "{mode}"')
 
         model_name = sys.argv[2]
-        if model_name not in ['rcan', 'care', 'srgan', 'resnet', 'wunet']:
+        if model_name not in ['rcan', 'care', 'srgan', 'resnet', 'wunet', 'UnetRCAN']:
             raise Exception(f'Invalid model name: "{model_name}"')
 
         trial_name = sys.argv[3]
