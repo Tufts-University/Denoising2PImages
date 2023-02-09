@@ -25,8 +25,8 @@ echo "" # empty line #
 # UNet-RCAN Study on Human Datasets
 
 # NADH UnetRCAN Testing MSE 
-python -u main.py train UnetRCAN "NADH_UnetRCAN_0928_cervix_MSE" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="mse"  val_seed=0 val_split=8 test_flag=1 train_mode=0 num_residual_blocks=5, num_residual_groups=4
-python -u main.py eval UnetRCAN "NADH_UnetRCAN_0928_cervix_MSE" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" val_seed=0 val_split=8 test_flag=1 train_mode=0 num_residual_blocks=5, num_residual_groups=4
+python -u main.py train UnetRCAN "NADH_UnetRCAN_0928_cervix_MSE" cwd=.. nadh_data=NV_928_NADH_Training.npz  loss="mse"  val_seed=0 val_split=8 test_flag=1 train_mode=0 num_residual_blocks=5 num_residual_groups=4
+python -u main.py eval UnetRCAN "NADH_UnetRCAN_0928_cervix_MSE" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" val_seed=0 val_split=8 test_flag=1 train_mode=0 num_residual_blocks=5 num_residual_groups=4
 
 # Mouse Studies
 
