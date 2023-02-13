@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH -J NV_020823_Denoising   #job name
 #SBATCH --time=05-00:0:00  #requested time
-#SBATCH -p preempt     #running on "preempt" partition/queue
+#SBATCH -p patralab     #running on "preempt" partition/queue (02/13/23: Nilay was added to patralab nodes)
 #SBATCH -N 1    #1 nodes
 #SBATCH	-n 10   #10 tasks total
 #SBATCH	-c 1   #using 1 cpu core/task
