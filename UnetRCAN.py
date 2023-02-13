@@ -135,7 +135,7 @@ def make_generator(input_shape, filters, num_filters, filters_cab, num_RG, num_R
 
     y = make_RCAN(inputs=y, filters=num_filters, filters_cab=filters_cab, num_RG=num_RG, num_RCAB=num_RCAB,
                   kernel=kernel_shape, en_out=skip_x, de_out=skip_y, dropout=dropout)
-    model = Model(inputs=[inputs], outputs=y)
+    model = Model(inputs=[inputs], outputs=y) # Modified this line as we don't care to save U-net and Unet-RCAN results seperately
     return model
 
 def build_and_compile_UNetRCAN(config):

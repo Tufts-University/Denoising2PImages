@@ -105,8 +105,6 @@ def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,
         'linear_ramp'
     )[(slice(1, -1),) * image_dim]
 
-    print(np.shape(block_weight))
-
     batch_size = 1
 
     batch = np.zeros(
@@ -168,7 +166,6 @@ def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,
                 rois.append((r1, r2))
 
             p = model.predict(batch, batch_size=batch_size)
-            print(np.shape(p))
             for batch_index in range(len(rois)):
                 for channel in range(num_output_channels):
                     p[batch_index, ..., channel] *= block_weight
