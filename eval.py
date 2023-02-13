@@ -169,6 +169,8 @@ def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,
 
             for batch_index in range(len(rois)):
                 for channel in range(num_output_channels):
+                    print(batch_index)
+                    print(channel)
                     p[batch_index, ..., channel] *= block_weight
 
                 r1, r2 = [_scale_roi(roi) for roi in rois[batch_index]]
