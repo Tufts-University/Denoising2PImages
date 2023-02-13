@@ -105,6 +105,8 @@ def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,
         'linear_ramp'
     )[(slice(1, -1),) * image_dim]
 
+    print(np.shape(block_weight))
+
     batch_size = 1
 
     batch = np.zeros(
