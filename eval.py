@@ -169,6 +169,7 @@ def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,
 
             p = model.predict(batch, batch_size=batch_size)
             print(np.shape(p))
+            raise Exception('Sup')
             for batch_index in range(len(rois)):
                 for channel in range(num_output_channels):
                     p[batch_index, ..., channel] *= block_weight

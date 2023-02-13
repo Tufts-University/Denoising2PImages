@@ -29,7 +29,7 @@ echo "" # empty line #
 python -u main.py eval UnetRCAN "NADH_UnetRCAN_0928_cervix_MSE" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="mse" val_seed=0 val_split=8 test_flag=1 train_mode=0 num_residual_blocks=5 num_residual_groups=4
 
 # FAD CARE SSIMR2 Testing MSE 
-# python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_0210_FAD_Testing.npz nadh_data=NV_0210_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_0210_FAD_Testing.npz nadh_data=NV_0210_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
 # Mouse Studies
 
