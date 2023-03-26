@@ -23,11 +23,11 @@ echo "=========================================================="
 echo "" # empty line #
 
 # FAD CARE Testing Wavelet SSIML2
-python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0_f11" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=0 val_split=25 ssim_FSize=11 ssim_FSig=1.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
-python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0f11" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=25 ssim_FSize=11 ssim_FSig=1.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+# python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0_f11" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=0 val_split=25 ssim_FSize=11 ssim_FSig=1.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0_f11" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=25 ssim_FSize=11 ssim_FSig=1.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
-python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0_f7" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=0 val_split=25 ssim_FSize=7 ssim_FSig=1.0 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
-python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0f7" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=25 ssim_FSize=7 ssim_FSig=1.0 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+# python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0_f7" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=0 val_split=25 ssim_FSize=7 ssim_FSig=1.0 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+python -u main.py eval wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0_f7" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=25 ssim_FSize=7 ssim_FSig=1.0 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
 # Mouse Studies
 
