@@ -166,6 +166,7 @@ def apply(model, data, overlap_shape=None, verbose=False , im_dim = (50,256,256,
                 rois.append((r1, r2))
 
             p = model.predict(batch, batch_size=batch_size)
+
             for batch_index in range(len(rois)):
                 for channel in range(num_output_channels):
                     p[batch_index, ..., channel] *= block_weight
@@ -264,7 +265,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
     # Go to the results directory to generate and store evaluated images.
     nadh_data  = config['nadh_data']
     sample_name = nadh_data[nadh_data.rfind('_')+1:nadh_data.index('.npz')]
-    results_folder = sample_name + '_results'
+    results_folder = sample_name + 'results'
     results_dir = os.path.join(output_dir, results_folder)
     if os.path.exists(results_dir):
         subpaths = os.listdir(results_dir)
@@ -284,7 +285,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         # Similar to 'data_generator.py'
         (X_val, Y_val), stack_ranges, ROI_names = data_generator.default_load_data(
                 nadh_path,
-                requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN', config = config)
+                requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
 
@@ -303,7 +304,7 @@ def eval(model_name, trial_name, config, output_dir, nadh_path, fad_path):
         # Similar to 'data_generator.py'
         (X_val, Y_val), stack_ranges, ROI_names = data_generator.default_load_data(
                 fad_path,
-                requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN', config = config)
+                requires_channel_dim=model_name == 'care' or model_name == 'wunet', config = config)
             
         print(f'Changing to directory: {results_dir}')
         os.chdir(results_dir)
