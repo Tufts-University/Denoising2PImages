@@ -71,7 +71,7 @@ def train(model_name, config, output_dir, data_path):
     (training_data, validation_data) = data_generator.gather_data(
         config, 
         data_path, 
-        requires_channel_dim=model_name == 'care' or model_name == 'wunet')
+        requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
 
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':
