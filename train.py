@@ -68,10 +68,24 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 def train(model_name, config, output_dir, data_path):
     print('Training...')
 
-    (training_data, validation_data) = data_generator.gather_data(
-        config, 
-        data_path, 
-        requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
+    if config['all_data']==1:
+        # Need to load both NADH and FAD data and combine them for training
+        train = []
+        val = []
+        for path in data_path:
+            (training_data, validation_data) = data_generator.gather_data(
+                config, 
+                path, 
+                requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
+            train.append(training_data)
+            val.append(validation_data)
+        training_data = train
+        validation_data = val    
+    else:
+        (training_data, validation_data) = data_generator.gather_data(
+            config, 
+            data_path, 
+            requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
 
     strategy = model_builder.create_strategy()
     if model_name == 'srgan':

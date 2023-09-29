@@ -48,6 +48,9 @@ def make_config(model_name):
 
         # Wavelet config
         'wavelet_function': '', # One of pywt.wavelist() or empty for non-wavelet.
+
+        # Use FAD and NADH data
+        'all_data': 0,
     }
 
 
@@ -113,7 +116,7 @@ def json_config(config):
         'ssim_FSig': {'type': 'number', 'minimum': 0.1},
         'initial_learning_rate': {'type': 'number', 'minimum': 1e-6},
         'loss': {'type': 'string', 'enum': ['mae', 'mse', 'ssiml1_loss', 'ssiml2_loss', 'ssim_loss',
-            'MSSSIM_loss','pcc_loss','ssimpcc_loss','ffloss','SSIMFFL','ssimr2_loss']},
+            'MSSSIM_loss','pcc_loss','ssimpcc_loss','ffloss','SSIMFFL','ssimr2_loss','RR_loss']},
         'metrics': {
             'type': 'array',
             'items': {'type': 'string', 'enum': ['psnr', 'ssim', 'pcc']}
@@ -123,6 +126,7 @@ def json_config(config):
         'unet_n_first':  {'type': 'integer', 'minimum': 1}, 
         'unet_kern_size': {'type': 'integer', 'minimum': 1}, 
         'wavelet_function': {'type': 'string','enum':p},
+        'all_data': {'type': ['integer','boolean']}
         },
     'additionalProperties': False,
     'anyOf': [
@@ -159,6 +163,7 @@ def json_config(config):
     config.setdefault('unet_n_first', 32)
     config.setdefault('unet_kern_size', 3)
     config.setdefault('wavelet_function', '')
+    config.setdefault('all_data', 0)
     return config
 
 def main():
@@ -244,6 +249,9 @@ def main():
         elif fad_data_path != '' and nadh_data_path == '':
             print(f'Using FAD data at: {fad_data_path}')
             data_path = fad_data_path
+        elif fad_data_path != '' and nadh_data_path != '' and config['all_data']==1:
+            print(f'Using NADH and FAD data at: {nadh_data_path} and {fad_data_path}')
+            data_path = {nadh_data_path,fad_data_path}
         else:
             raise Exception(
                 'Train expects just one data set; either "nadh_data" or "fad_data".')
