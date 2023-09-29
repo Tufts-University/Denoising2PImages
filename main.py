@@ -251,7 +251,7 @@ def main():
             data_path = fad_data_path
         elif fad_data_path != '' and nadh_data_path != '' and config['all_data']==1:
             print(f'Using NADH and FAD data at: {nadh_data_path} and {fad_data_path}')
-            data_path = {nadh_data_path,fad_data_path}
+            data_path = [nadh_data_path,fad_data_path]
         else:
             raise Exception(
                 'Train expects just one data set; either "nadh_data" or "fad_data".')
