@@ -156,88 +156,110 @@ def calculate_discriminator_loss(hr_out, sr_out):
     sr_loss = binary_cross_entropy(tf.zeros_like(sr_out), sr_out)
     return hr_loss + sr_loss
 
-def tf_equalize_histogram(image):
+def tf_equalize_histogram(images):
     values_range = tf.constant([0., 255.], dtype = tf.float32)
-    histogram = tf.histogram_fixed_width(tf.to_float(image), values_range, 256)
-    cdf = tf.cumsum(histogram)
-    cdf_min = cdf[tf.reduce_min(tf.where(tf.greater(cdf, 0)))]
+    output = tf.zeros([1,256,256])
+    for image in images:
+      image = tf.expand_dims(image,2)
+      histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
+      cdf = tf.cumsum(histogram)
+      histogram = tf.cast(histogram,tf.float32)
+      cdf = cdf/tf.reduce_sum(cdf)
 
-    img_shape = tf.shape(image)
-    pix_cnt = img_shape[-3] * img_shape[-2]
-    px_map = tf.round(tf.to_float(cdf - cdf_min) * 255. / tf.to_float(pix_cnt - 1))
-    px_map = tf.cast(px_map, tf.uint8)
+      px_map = 255.0*(cdf / tf.reduce_max(cdf))
+      px_map = tf.expand_dims(tf.cast(px_map, tf.uint8),1)
+      px_map = tf.reshape(px_map,[256,1])
+      image = tf.clip_by_value(image,0,1)
 
-    eq_hist = tf.expand_dims(tf.gather_nd(px_map, tf.cast(image, tf.int32)), 2)
-    return eq_hist
+      eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
+      eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
+      output = tf.concat([output,eq_hist],axis=0)
+    return output[1:]
 
-@tf.function
-def guassian_bpf(image,LFC,HFC):
-    f = tf.cast(image,dtype = tf.float64)
-    n = f.get_shape()
-    nx,ny = n[0],n[1]
-    paddings = tf.constant([[nx//2, nx//2+1], [ny//2, ny//2+1]])
+def guassian_bpf(images,LFC,HFC):
+    output = tf.zeros([1,256,256])
+    for image in images:
+        image = tf.clip_by_value(image,0,1)*255
+        f = tf.cast(image,dtype = tf.float64)
+        n = f.get_shape()
+        nx,ny = n[0],n[1]
+        paddings = tf.constant([[nx//2, nx//2], [ny//2, ny//2]])
 
-    f = tf.pad(f,paddings,"CONSTANT")
-    fftI = tf.signal.fft2d(f)
-    fftI = tf.signal.fftshift(f)
+        f = tf.pad(f,paddings,"CONSTANT")
 
-    # Intialize filters
-    filter1, filter2, filter3 = tf.ones_like(f), tf.ones_like(f), tf.ones_like(f)
-    for i in range(0:2*nx):
-        for j in range(0:2*ny):
-            dist = tf.constant(((i-(nx+1))^2 + (j-(ny+1))^2)^0.5,dtype = tf.float64)
-            filter1[i,j] = tf.math.exp(-dist^2/(2*HFC^2)) # higher cut off (cuts everything above that)
-            filter2[i,j] = tf.math.exp(-dist^2/(2*LFC^2)) # low cut off (cuts everything above that)
-            filter3[i,j] = tf.cast(1,dtype= tf.float64)-filter2 # invert lower cut off so we remove all below
-            filter3[i,j] = filter3[i,j] * filter1[i,j] # multiple 1st and 3rd filter to get bandpass
-    filtered_image = fftI + filter3*fftI
-    filtered_image = tf.signal.ifftshift(filtered_image)
-    filtered_image = tf.pad(filtered_image,paddings,"CONSTANT")
-    filtered_image = tf.signal.ifft2d(filtered_image)
-    filtered_image = tf.math.real(filtered_image[0:nx-1,0:ny-1])
-    return filtered_image
+        f = tf.cast(f,dtype = tf.complex64)
+        fftI = tf.signal.fft2d(f)
+        fftI = tf.signal.fftshift(fftI)
 
-@tf.function
-def butterworth_bpf(image,LFC,HFC,order):
-    f = tf.cast(image,dtype = tf.float64)
-    n = f.get_shape()
-    nx,ny = n[0],n[1]
-    paddings = tf.constant([[nx//2, nx//2+1], [ny//2, ny//2+1]])
+        # Intialize filters
+        filter1, filter2, filter3 = np.ones(f.shape), np.ones(f.shape), np.ones(f.shape)
+        for i in range(0,2*nx):
+            for j in range(0,2*ny):
+                dist = pow(i-(nx+1),2) + pow(pow(j-(ny+1),2),0.5)
+                filter1[i,j] = np.math.exp(-pow(dist,2)/(2*pow(HFC,2))) # higher cut off (cuts everything above that)
+                filter2[i,j] = np.math.exp(-pow(dist,2)/(2*pow(LFC,2))) # low cut off (cuts everything above that)
+                filter3[i,j] = 1-filter2[i,j] # invert lower cut off so we remove all below
+                filter3[i,j] = filter3[i,j] * filter1[i,j] # multiple 1st and 3rd filter to get bandpass
+        filter3 = tf.convert_to_tensor(filter3)
+        filtered_image = fftI + tf.cast(filter3,dtype=tf.complex64)*fftI
+        filtered_image = tf.signal.ifftshift(filtered_image)
+        filtered_image = tf.signal.ifft2d(filtered_image)
+        filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
+        filtered_image = tf.expand_dims(filtered_image,0)/255
+        output = tf.concat([output,filtered_image],axis=0)
+    return output[1:]
 
-    f = tf.pad(f,paddings,"CONSTANT")
-    fftI = tf.signal.fft2d(f)
-    fftI = tf.signal.fftshift(f)
+def butterworth_bpf(images,LFC,HFC,order):
+    output = tf.zeros([1,256,256])
+    for image in images:
+        image = tf.clip_by_value(image,0,1)*255
+        f = tf.cast(image,dtype = tf.float64)
+        n = f.get_shape()
+        nx,ny = n[0],n[1]
+        paddings = tf.constant([[nx//2, nx//2], [ny//2, ny//2]])
 
-    # Intialize filters
-    filter1, filter2, filter3 = tf.ones_like(f), tf.ones_like(f), tf.ones_like(f)
-    for i in range(0:2*nx):
-        for j in range(0:2*ny):
-            dist = tf.constant(((i-(nx+1))^2 + (j-(ny+1))^2)^0.5,dtype = tf.float64)
-            filter1[i,j] = tf.constant(1/(1+(dist/HPF)^(2/*order)),dtype = tf.float64) # higher cut off (cuts everything above that)
-            filter2[i,j] = tf.constant(1/(1+(dist/LPF)^(2/*order)),dtype = tf.float64) # low cut off (cuts everything above that)
-            filter3[i,j] = tf.cast(1,dtype= tf.float64)-filter2 # invert lower cut off so we remove all below
-            filter3[i,j] = filter3[i,j] * filter1[i,j] # multiple 1st and 3rd filter to get bandpass
-    filtered_image = fftI + filter3*fftI
-    filtered_image = tf.signal.ifftshift(filtered_image)
-    filtered_image = tf.pad(filtered_image,paddings,"CONSTANT")
-    filtered_image = tf.signal.ifft2d(filtered_image)
-    filtered_image = tf.math.real(filtered_image[0:nx-1,0:ny-1])
-    return filtered_image
+        f = tf.pad(f,paddings,"CONSTANT")
 
-@tf.function
-def Otsu_filter(image):
+        f = tf.cast(f,dtype = tf.complex64)
+        fftI = tf.signal.fft2d(f)
+        fftI = tf.signal.fftshift(fftI)
+
+        # Intialize filters
+        filter1, filter2, filter3 = np.ones(f.shape), np.ones(f.shape), np.ones(f.shape)
+        for i in range(0,2*nx):
+            for j in range(0,2*ny):
+                dist = pow(i-(nx+1),2) + pow(pow(j-(ny+1),2),0.5)
+                filter1[i,j] = 1/(1+pow(dist/HFC,2*order))# higher cut off (cuts everything above that)
+                filter2[i,j] = 1/(1+pow(dist/LFC,2*order)) # low cut off (cuts everything above that)
+                filter3[i,j] = 1-filter2[i,j] # invert lower cut off so we remove all below
+                filter3[i,j] = filter3[i,j] * filter1[i,j] # multiple 1st and 3rd filter to get bandpass
+        filter3 = tf.convert_to_tensor(filter3)
+        filtered_image = fftI + tf.cast(filter3,dtype=tf.complex64)*fftI
+        filtered_image = tf.signal.ifftshift(filtered_image)
+        filtered_image = tf.signal.ifft2d(filtered_image)
+        filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
+        filtered_image = tf.expand_dims(filtered_image,0)/255
+        output = tf.concat([output,filtered_image],axis=0)
+    return output[1:]
+
+def Otsu_filter(images):
+    output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
-    image = cv.cvtColor(image.numpy(), cv.COLOR_BGR2GRAY)
-    _,thresh = cv.threshold(image,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
-    mask = np.zeros_like(thresh)
-    contours, hierarchy = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-    for contour in contours:
-      area = cv.contourArea(contour)
-      if area > noise_removal_threshold:
-        cv.fillPoly(mask, [contour], 255)
-    
-    return tf.convert_to_tensor(mask,dtype=float64)
-
+    for image in images:
+      image = image.numpy()  
+      # image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+      image = np.array(image*255).astype('uint8')
+      _,thresh = cv.threshold(image,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
+      mask = np.ones_like(thresh)
+      contours, hierarchy = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+      for contour in contours:
+        area = cv.contourArea(contour)
+        if area <= noise_removal_threshold:
+          cv.fillPoly(mask, [contour], 0)
+      mask = tf.convert_to_tensor(mask*thresh/255,dtype=tf.float64)
+      mask = tf.expand_dims(mask,0)
+      output = tf.concat([output,mask],axis=0)
+    return output[1:]
 
 def Cytoplasm_mask(y_true,y_pred):
     # Adaptive hist equilization
@@ -259,10 +281,10 @@ def RR_loss(y_true, y_pred):
     y_pred_N, y_pred_F = y_pred
     # Generate Mask
     y_true_cyto, y_pred_cyto = Cytoplasm_mask(y_true_N,y_pred_N)
-    y_NADH_true = y_true_N * y_true_cyto
-    y_FAD_true = y_true_F * y_true_cyto
-    y_NADH_pred = y_pred_N * y_pred_cyto
-    y_FAD_pred = y_pred_F * y_pred_cyto
+    y_NADH_true = y_true_N * y_true_cyto * 255
+    y_FAD_true = y_true_F * y_true_cyto * 255
+    y_NADH_pred = y_pred_N * y_pred_cyto * 255
+    y_FAD_pred = y_pred_F * y_pred_cyto * 255
     RR_true = y_FAD_true/(y_FAD_true+y_NADH_true)
     RR_pred = y_FAD_pred/(y_FAD_pred+y_NADH_pred)
     
@@ -298,6 +320,7 @@ def lookup_loss(loss_name, alpha = 0, filter_size=11 , filter_sigma=1.5):
         'SSIMFFL': lambda y_true, y_pred: SSIMFFL(y_true, y_pred, alpha, filter_size, filter_sigma),
         'MSSSIM_loss': lambda y_true, y_pred: MSSSIM_loss(y_true, y_pred, alpha),
         'ssimpcc_loss': lambda y_true, y_pred: ssimpcc_loss(y_true, y_pred, alpha, filter_size, filter_sigma),
+        'RR_loss': lambda y_true, y_pred: RR_loss(y_true, y_pred)
     }
 
     return loss_dict[loss_name]
