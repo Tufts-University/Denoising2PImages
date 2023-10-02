@@ -2,6 +2,7 @@ import pathlib
 import os
 import shutil
 import tensorflow as tf
+import numpy as np
 
 # Local dependencies
 import callbacks

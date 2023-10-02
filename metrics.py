@@ -3,7 +3,7 @@
 import keras
 import tensorflow as tf
 from tf_focal_frequency_loss import FocalFrequencyLoss as FFL
-import scipy
+import numpy as np
 import cv2 as cv
 
 binary_cross_entropy = tf.keras.losses.BinaryCrossentropy(reduction=tf.keras.losses.Reduction.SUM)
