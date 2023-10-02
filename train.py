@@ -214,7 +214,7 @@ def train(model_name, config, output_dir, data_path):
                     path, 
                     requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
                 train.append(training_data)
-                val.appen(validation_data)
+                val.append(validation_data)
             NADH_tr_data = train[0]
             FAD_tr_data = train[1]
             NADH_va_data = val[0]
