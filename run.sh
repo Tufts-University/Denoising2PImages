@@ -23,8 +23,8 @@ echo "=========================================================="
 echo "" # empty line #
 
 # RedoxRatio Test
-python -u main.py train wunet "FAD_WUNet_0928_RRLossTest" cwd=.. fad_data=NV_1213_FAD_Training.npz nadh_data=NV_1213_NADH_Training.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1 all_data=1 training_data_type="FAD"
-python -u main.py eval wunet "FAD_WUNet_0928_RRLossTest" cwd=.. fad_data=NV_1213_FAD_Testing.npz nadh_data=NV_1213_NADH_Testing.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+python -u main.py train wunet "FAD_WUNet_0928_RRLossTest" cwd=.. fad_data=NV_0928_FAD_Training.npz nadh_data=NV_0928_NADH_Training.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1 all_data=1 training_data_type="FAD"
+python -u main.py eval wunet "FAD_WUNet_0928_RRLossTest" cwd=.. fad_data=NV_0928_FAD_Testing.npz nadh_data=NV_0928_NADH_Testing.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
 # Total Data Test
 # python -u main.py train wunet "FAD_CARETesting_Wavelet_0928_cervix_SSIMR2_new_seed0" cwd=.. fad_data=NV_1213_FAD_Training.npz nadh_data=NV_1213_NADH_Training.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1 all_data=1 training_data_type="FAD"
