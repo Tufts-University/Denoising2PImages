@@ -51,6 +51,7 @@ def make_config(model_name):
 
         # Use FAD and NADH data
         'all_data': 0,
+        'training_data_type': '', # Specify if you only want train on NADH or FAD when using RR_loss
     }
 
 

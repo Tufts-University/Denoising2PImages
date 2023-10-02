@@ -64,23 +64,82 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
     return model
 
+def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data):
+    print('=== Fitting model --------------------------------------------------')
+    final_dir = pathlib.Path(output_dir)
+    os.chdir(final_dir)
+    if validation_data is not None:
+        checkpoint_filepath = 'weights_{epoch:03d}_{val_loss:.8f}.hdf5'
+    else:
+        checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
+
+    if config['training_data_type'] == 'NADH':
+        x = training_data['NADH'][0]
+        y = training_data['NADH'][1]
+        x2 = training_data['FAD'][0]
+        y2 = training_data['FAD'][1]
+    else:
+        x = training_data['FAD'][0]
+        y = training_data['FAD'][1]
+        x2 = training_data['NADH'][0]
+        y2 = training_data['NADH'][1]
+    
+
+    
+    
+    model.fit(
+        x=x,
+        y=y,
+        epochs=config['epochs'],
+        shuffle=True,
+        validation_data=validation_data,
+        verbose=0,
+        callbacks=callbacks.get_callbacks(
+            model_name,
+            config['epochs'],
+            final_dir,
+            checkpoint_filepath,
+            validation_data))
+
+    print('--------------------------------------------------------------------')
+
+    return model
+
 
 def train(model_name, config, output_dir, data_path):
     print('Training...')
 
     if config['all_data']==1:
         # Need to load both NADH and FAD data and combine them for training
-        train = []
-        val = []
-        for path in data_path:
-            (training_data, validation_data) = data_generator.gather_data(
-                config, 
-                path, 
-                requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
-            train.append(training_data)
-            val.append(validation_data)
-        training_data = train
-        validation_data = val    
+        if config['training_data_type'] == '':
+            train = np.empty([2,1,256,256,1])
+            val = np.empty([2,1,256,256,1])
+            for path in data_path:
+                (training_data, validation_data) = data_generator.gather_data(
+                    config, 
+                    path, 
+                    requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
+                train = np.concatenate((train,training_data),axis=1)
+                val = np.concatenate((val,validation_data),axis=1)
+            training_data = train[:,1:,:,:,:]
+            validation_data = val[:,1:,:,:,:]
+        else:
+            # Loading NADH and FAD for RR Loss calculation
+            train = []
+            val = []
+            for path in data_path:
+                (training_data, validation_data) = data_generator.gather_data(
+                    config, 
+                    path, 
+                    requires_channel_dim=model_name == 'care' or model_name == 'wunet' or model_name == 'UnetRCAN')
+                train.append(training_data)
+                val.appen(validation_data)
+            NADH_tr_data = train[0]
+            FAD_tr_data = train[1]
+            NADH_va_data = val[0]
+            FAD_va_data = val[1]
+            training_data = {'NADH':NADH_tr_data, 'FAD':FAD_tr_data}
+            validation_data = {'NADH':NADH_va_data, 'FAD':FAD_va_data}
     else:
         (training_data, validation_data) = data_generator.gather_data(
             config, 
@@ -104,8 +163,12 @@ def train(model_name, config, output_dir, data_path):
         initial_path = os.getcwd()
         model = model_builder.build_and_compile_model(model_name, strategy, config)
         model = determine_training_strategy(model, output_dir)
-        model = fit_model(model, model_name, config, output_dir,
-                        training_data, validation_data)
+        if loss_name == 'RR_loss':
+            model = fit_RR_model(model, model_name, config, output_dir,
+                            training_data, validation_data)
+        else:
+            model = fit_model(model, model_name, config, output_dir,
+                            training_data, validation_data)
 
         os.chdir(output_dir)
         model_paths = [model_path for model_path in os.listdir() if model_path.endswith(".hdf5") ]
