@@ -73,6 +73,10 @@ class TqdmCallback(_TqdmCallback):
                 tqdm.tqdm, dynamic_ncols=True, ascii=IS_WIN))
         self.on_batch_end = self.bar2callback(
             self.batch_bar, pop=['batch', 'size'])
+        
+    def on_batch_end(self,logs=None):
+        self.on_batch_end = self.bar2callback(
+            self.batch_bar, pop=['batch', 'size'])
 
 
 def save_model(filename, model, weights_only=False):
