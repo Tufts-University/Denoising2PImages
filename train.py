@@ -133,9 +133,9 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             final_dir,
             checkpoint_filepath,
             validation_data)
-    callbacks = tf.keras.callbacks.CallbackList(_callbacks, add_history=True, model=model)
+    callback = tf.keras.callbacks.CallbackList(_callbacks, add_history=True, model=model)
     logs = {}
-    callbacks.on_train_begin(logs=logs)
+    callback.on_train_begin(logs=logs)
     x_N, y_N, x_F, y_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
     x_val_N, y_val_N, x_val_F, y_val_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
 
@@ -149,40 +149,40 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
 
 
     for epoch in range(config['epochs']):
-        callbacks.on_epoch_begin(epoch, logs=logs)
+        callback.on_epoch_begin(epoch, logs=logs)
         # Training Loop
         for i, data in enumerate(all_training_data):
-            callbacks.on_batch_begin(i, logs=logs)
-            callbacks.on_train_batch_begin(i,logs=logs)
+            callback.on_batch_begin(i, logs=logs)
+            callback.on_train_batch_begin(i,logs=logs)
             loss_val, train_metrics = train_step(model,optimizer,loss_fn,train_metrics, data,config)
             train_loss.update_state(loss_val)
             logs["train_loss"] = train_loss.result()
             for metric_name in config['metrics']:
                 logs[metric_name] = train_metrics[metric_name]
-            callbacks.on_train_batch_end(i, logs=logs)
-            callbacks.on_batch_end(i, logs=logs)
+            callback.on_train_batch_end(i, logs=logs)
+            callback.on_batch_end(i, logs=logs)
         # Reset training metrics at the end of each epoch
         for i, metric in enumerate(train_metrics):
             train_metrics[i] = metric.reset_states()
 
         # Validation Loop
         for i, data in enumerate(all_val_data):
-            callbacks.on_batch_begin(i, logs=logs)
-            callbacks.on_test_batch_begin(i, logs=logs)
+            callback.on_batch_begin(i, logs=logs)
+            callback.on_test_batch_begin(i, logs=logs)
             loss_val, val_metrics = test_step(model,loss_fn,val_metrics, data,config)
             val_loss.update_state(loss_val)
             logs["val_loss"] = train_loss.result()
             for metric_name in config['metrics']:
                 logs[metric_name] = train_metrics[metric_name]
-            callbacks.on_test_batch_end(i, logs=logs)
-            callbacks.on_batch_end(i, logs=logs)
+            callback.on_test_batch_end(i, logs=logs)
+            callback.on_batch_end(i, logs=logs)
         
         # Reset training metrics at the end of each epoch
         for i, metric in enumerate(val_metrics):
             val_metrics[i] = metric.reset_states()
 
-        callbacks.on_epoch_end(epoch, logs=logs)
-    callbacks.on_train_end(logs=logs)
+        callback.on_epoch_end(epoch, logs=logs)
+    callback.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
 
     return model
