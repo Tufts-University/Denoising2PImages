@@ -69,6 +69,7 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
 @tf.function
 def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
+    wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
@@ -76,12 +77,16 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
         Y_F = data['FAD'][1]
         if config['training_data_type'] == 'NADH':
             logits = model(X_N, training=True)
+            logits = data_generator.wavelet_inverse_transform(logits,wavelet_config)
             logits2 = model(X_F, training=False)
+            logits2 = data_generator.wavelet_inverse_transform(logits2,wavelet_config)
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
             training_y = Y_N
         else:
             logits = model(X_F, training=True)
+            logits = data_generator.wavelet_inverse_transform(logits,wavelet_config)
             logits2 = model(X_N, training=False)
+            logits2 = data_generator.wavelet_inverse_transform(logits2,wavelet_config)
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
             training_y = Y_F
     grads = tape.gradient(loss_value, model.trainable_weights)
@@ -94,18 +99,23 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
 
 @tf.function
 def test_step(model,loss_fn,val_metrics,data,config):
+    wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
     X_F = data['FAD'][1]
     Y_F = data['FAD'][1]
     if config['training_data_type'] == 'NADH':
         logits = model(X_N, training=True)
+        logits = data_generator.wavelet_inverse_transform(logits,wavelet_config)
         logits2 = model(X_F, training=False)
+        logits2 = data_generator.wavelet_inverse_transform(logits2,wavelet_config)
         loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
         val_y = Y_N
     else:
         logits = model(X_F, training=True)
+        logits = data_generator.wavelet_inverse_transform(logits,wavelet_config)
         logits2 = model(X_N, training=False)
+        logits2 = data_generator.wavelet_inverse_transform(logits2,wavelet_config)
         loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
         val_y = Y_F
     metrics_val = {}
