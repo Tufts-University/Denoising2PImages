@@ -76,12 +76,12 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
         Y_F = data['FAD'][1]
         if config['training_data_type'] == 'NADH':
             logits = model(X_N, training=True)
-            logits2 = model(X_F, trianing=False)
+            logits2 = model(X_F, training=False)
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
             training_y = Y_N
         else:
             logits = model(X_F, training=True)
-            logits2 = model(X_N, trianing=False)
+            logits2 = model(X_N, training=False)
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
             training_y = Y_F
     grads = tape.gradient(loss_value, model.trainable_weights)
@@ -100,12 +100,12 @@ def test_step(model,loss_fn,val_metrics,data,config):
     Y_F = data['FAD'][1]
     if config['training_data_type'] == 'NADH':
         logits = model(X_N, training=True)
-        logits2 = model(X_F, trianing=False)
+        logits2 = model(X_F, training=False)
         loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
         val_y = Y_N
     else:
         logits = model(X_F, training=True)
-        logits2 = model(X_N, trianing=False)
+        logits2 = model(X_N, training=False)
         loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
         val_y = Y_F
     metrics_val = {}
