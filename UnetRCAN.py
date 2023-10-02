@@ -146,6 +146,9 @@ def build_and_compile_UNetRCAN(config):
                                 filters_cab=config['channel_reduction'],num_RG=config['num_residual_groups'],
                                 num_RCAB=config['num_residual_blocks'],kernel_shape=3,dropout=0.2)
 
-    UnetRCAN = model_builder.compile_model(UnetRCAN, config['initial_learning_rate'], config['loss'], config['metrics'])
+    if config['loss'] == 'RR_loss':
+        return UnetRCAN
+    else:
+        UnetRCAN = model_builder.compile_model(UnetRCAN, config['initial_learning_rate'], config['loss'], config['metrics'])
     print('--------------------------------------------------------------------')
     return UnetRCAN

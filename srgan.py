@@ -89,9 +89,11 @@ def build_and_compile_srgan(config):
                 num_channels=config['num_channels'],
                 num_residual_blocks=config['num_residual_blocks'],
                 num_channel_out = 1)
-    
-    generator = model_builder.compile_model(generator, learning_rate, config['loss'], config['metrics'],0,
-                config['ssim_FSize'],config['ssim_FSig'])
+    if config['loss'] == 'RR_loss':
+        generator = generator
+    else:
+        generator = model_builder.compile_model(generator, learning_rate, config['loss'], config['metrics'],0,
+                    config['ssim_FSize'],config['ssim_FSig'])
     
     discriminator = build_discriminator_model((*config['input_shape'], 1),
                 num_channels=config['num_channels'],

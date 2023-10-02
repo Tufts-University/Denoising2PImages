@@ -1,12 +1,14 @@
 import pathlib
 import os
 import shutil
+import tensorflow as tf
 
 # Local dependencies
 import callbacks
 import model_builder
 import data_generator
 import basics
+import metrics
 import srgan
 
 def determine_training_strategy(model, output_dir):
@@ -64,6 +66,53 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
     return model
 
+@tf.function
+def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
+    with tf.GradientTape() as tape:
+        X_N = data['NADH'][0]
+        Y_N = data['NADH'][1]
+        X_F = data['FAD'][1]
+        Y_F = data['FAD'][1]
+        if config['training_data_type'] == 'NADH':
+            logits = model(X_N, training=True)
+            logits2 = model(X_F, trianing=False)
+            loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
+            training_y = Y_N
+        else:
+            logits = model(X_F, training=True)
+            logits2 = model(X_N, trianing=False)
+            loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
+            training_y = Y_F
+    grads = tape.gradient(loss_value, model.trainable_weights)
+    optimizer.apply_gradients(zip(grads, model.trainable_weights))
+    metrics_eval = {}
+    for i, metric in enumerate(eval_metrics):
+        eval_metrics[i] = metric.update_state(training_y, logits)
+        metrics_eval[config['metrics'][i]] = metric.result()
+    return loss_value,metrics_eval
+
+@tf.function
+def test_step(model,loss_fn,val_metrics,data,config):
+    X_N = data['NADH'][0]
+    Y_N = data['NADH'][1]
+    X_F = data['FAD'][1]
+    Y_F = data['FAD'][1]
+    if config['training_data_type'] == 'NADH':
+        logits = model(X_N, training=True)
+        logits2 = model(X_F, trianing=False)
+        loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
+        val_y = Y_N
+    else:
+        logits = model(X_F, training=True)
+        logits2 = model(X_N, trianing=False)
+        loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
+        val_y = Y_F
+    metrics_val = {}
+    for i, metric in enumerate(val_metrics):
+        val_metrics[i] = metric.update_state(val_y, logits)
+        metrics_val[config['metrics'][i]] = metric.result()
+    return loss_value, metrics_val
+
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data):
     print('=== Fitting model --------------------------------------------------')
     final_dir = pathlib.Path(output_dir)
@@ -73,38 +122,69 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
     else:
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
 
-    if config['training_data_type'] == 'NADH':
-        x = training_data['NADH'][0]
-        y = training_data['NADH'][1]
-        x2 = training_data['FAD'][0]
-        y2 = training_data['FAD'][1]
-    else:
-        x = training_data['FAD'][0]
-        y = training_data['FAD'][1]
-        x2 = training_data['NADH'][0]
-        y2 = training_data['NADH'][1]
-    
-
-    
-    
-    model.fit(
-        x=x,
-        y=y,
-        epochs=config['epochs'],
-        shuffle=True,
-        validation_data=validation_data,
-        verbose=0,
-        callbacks=callbacks.get_callbacks(
+    # Initialize model training loops
+    optimizer = tf.keras.optimizers.Adam(learning_rate=config['initial_learning_rate'])
+    loss_fn = metrics.lookup_loss('RR_loss')
+    eval_metrics = metrics.lookup_metrics(config['metrics'])
+    _callbacks = callbacks.get_callbacks(
             model_name,
             config['epochs'],
             final_dir,
             checkpoint_filepath,
-            validation_data))
+            validation_data)
+    callbacks = tf.keras.callbacks.CallbackList(_callbacks, add_history=True, model=model)
+    logs = {}
+    callbacks.on_train_begin(logs=logs)
+    x_N, y_N, x_F, y_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
+    x_val_N, y_val_N, x_val_F, y_val_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
 
+    all_training_data = data_generator.RR_loss_Generator(x_N,y_N,x_F,y_F,config['batch_size'],config,True)
+    all_val_data = data_generator.RR_loss_Generator(x_val_N,y_val_N,x_val_F,y_val_F,config['batch_size'],config,False)
+    
+    train_metrics = eval_metrics.copy()
+    val_metrics = eval_metrics.copy()
+    train_loss = tf.keras.metrics.Mean()
+    val_loss = tf.keras.metrics.Mean()
+
+
+    for epoch in range(config['epochs']):
+        callbacks.on_epoch_begin(epoch, logs=logs)
+        # Training Loop
+        for i, data in enumerate(all_training_data):
+            callbacks.on_batch_begin(i, logs=logs)
+            callbacks.on_train_batch_begin(i,logs=logs)
+            loss_val, train_metrics = train_step(model,optimizer,loss_fn,train_metrics, data,config)
+            train_loss.update_state(loss_val)
+            logs["train_loss"] = train_loss.result()
+            for metric_name in config['metrics']:
+                logs[metric_name] = train_metrics[metric_name]
+            callbacks.on_train_batch_end(i, logs=logs)
+            callbacks.on_batch_end(i, logs=logs)
+        # Reset training metrics at the end of each epoch
+        for i, metric in enumerate(train_metrics):
+            train_metrics[i] = metric.reset_states()
+
+        # Validation Loop
+        for i, data in enumerate(all_val_data):
+            callbacks.on_batch_begin(i, logs=logs)
+            callbacks.on_test_batch_begin(i, logs=logs)
+            loss_val, val_metrics = test_step(model,loss_fn,val_metrics, data,config)
+            val_loss.update_state(loss_val)
+            logs["val_loss"] = train_loss.result()
+            for metric_name in config['metrics']:
+                logs[metric_name] = train_metrics[metric_name]
+            callbacks.on_test_batch_end(i, logs=logs)
+            callbacks.on_batch_end(i, logs=logs)
+        
+        # Reset training metrics at the end of each epoch
+        for i, metric in enumerate(val_metrics):
+            val_metrics[i] = metric.reset_states()
+
+        callbacks.on_epoch_end(epoch, logs=logs)
+    callbacks.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
 
     return model
-
 
 def train(model_name, config, output_dir, data_path):
     print('Training...')
@@ -163,7 +243,7 @@ def train(model_name, config, output_dir, data_path):
         initial_path = os.getcwd()
         model = model_builder.build_and_compile_model(model_name, strategy, config)
         model = determine_training_strategy(model, output_dir)
-        if loss_name == 'RR_loss':
+        if config['loss'] == 'RR_loss':
             model = fit_RR_model(model, model_name, config, output_dir,
                             training_data, validation_data)
         else:

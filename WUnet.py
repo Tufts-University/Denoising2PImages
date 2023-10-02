@@ -26,6 +26,8 @@ def build_and_compile_WUnet(config):
     config['input_shape'] = [int(a/2) for a in config['input_shape']] #Resize the input from a n x n to n/2 x n/2 due to wavelet transformation 
     wunet = build_wunet(config,
                 (*config['input_shape'], 4))
-
-    wunet = model_builder.compile_model(wunet, config['initial_learning_rate'], config['loss'], config['metrics'])
+    if config['loss'] == 'RR_loss':
+        return wunet
+    else:
+        wunet = model_builder.compile_model(wunet, config['initial_learning_rate'], config['loss'], config['metrics'])
     return wunet

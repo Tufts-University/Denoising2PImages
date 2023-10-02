@@ -70,7 +70,7 @@ def build_and_compile_model(model_name, strategy, config):
         else:
             raise ValueError(f'Non-implemented model: {model_name}')
 
-        if model_name != 'srgan':
+        if model_name != 'srgan' and config['loss']!= 'RR_loss':
             model = compile_model(
                 model,
                 config['initial_learning_rate'],

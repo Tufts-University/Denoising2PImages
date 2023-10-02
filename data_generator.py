@@ -7,6 +7,7 @@ import collections
 from csbdeep.utils import axes_dict
 import pywt
 import random
+import tensorflow as tf
 # Contains code for data loading and generation before
 # being passed into the network.
 
@@ -838,3 +839,34 @@ def gather_data(config, data_path, requires_channel_dim):
     print('----------------------------------------------------------------------')
 
     return (training_data, validation_data)
+
+class RR_loss_Generator(tf.keras.utils.Sequence):
+    def __init__(self, NADH_X, NADH_Y, FAD_X, FAD_Y,
+                 batch_size,
+                 config,
+                 shuffle=True):
+        
+        self.NADH_X = NADH_X
+        self.NADH_Y = NADH_Y
+        self.FAD_X = FAD_X
+        self.FAD_Y = FAD_Y
+        self.batch_size = batch_size
+        self.config = config 
+        self.indices = np.arange(self.NADH_X.shape[0])
+        self.shuffle = shuffle
+        
+        self.n = len(self.NADH_X)
+    
+    def on_epoch_end(self):
+      if self.shuffle:
+        np.random.shuffle(self.indices)
+    
+    def __getitem__(self, index):
+        X_N = self.NADH_X[index * self.batch_size:(index + 1) * self.batch_size]
+        Y_N = self.NADH_Y[index * self.batch_size:(index + 1) * self.batch_size]
+        X_F = self.FAD_X[index * self.batch_size:(index + 1) * self.batch_size]
+        Y_F = self.FAD_Y[index * self.batch_size:(index + 1) * self.batch_size]
+        return {'NADH':(X_N,Y_N),'FAD':(X_F,Y_F)}
+    
+    def __len__(self):
+        return self.n // self.batch_size
