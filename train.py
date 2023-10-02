@@ -85,15 +85,22 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
             logits = model(X_N, training=True)
             logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
             logits = tf.convert_to_tensor(logits)
+
             logits2 = model(X_F, training=False)
             logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
+            logits2 = tf.convert_to_tensor(logits2)
+
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
             training_y = Y_N
         else:
             logits = model(X_F, training=True)
             logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
+            logits = tf.convert_to_tensor(logits)
+
             logits2 = model(X_N, training=False)
             logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
+            logits2 = tf.convert_to_tensor(logits2)
+
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
             training_y = Y_F
     grads = tape.gradient(loss_value, model.trainable_weights)
@@ -115,18 +122,22 @@ def test_step(model,loss_fn,val_metrics,data,config):
         logits = model(X_N, training=True)
         logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
         logits = tf.convert_to_tensor(logits)
+
         logits2 = model(X_F, training=False)
         logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
         logits2 = tf.convert_to_tensor(logits)
+
         loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
         val_y = Y_N
     else:
         logits = model(X_F, training=True)
         logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
         logits = tf.convert_to_tensor(logits)
+
         logits2 = model(X_N, training=False)
         logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
         logits2 = tf.convert_to_tensor(logits2)
+        
         loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
         val_y = Y_F
     metrics_val = {}
