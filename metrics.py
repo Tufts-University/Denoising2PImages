@@ -175,8 +175,9 @@ def tf_equalize_histogram(images):
         eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
         output.write(idx,eq_hist)
-        idx += 1    
-    return tf.stack(output.stack())
+        idx += 1
+    print(output.stack())        
+    return output.stack()
 
 def guassian_bpf(images,LFC,HFC):
     output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
