@@ -158,33 +158,27 @@ def calculate_discriminator_loss(hr_out, sr_out):
 
 def tf_equalize_histogram(images):
     values_range = tf.constant([0., 255.], dtype = tf.float32)
-    output = tf.zeros([1,256,256])
-    for image in images:
-      tf.autograph.experimental.set_loop_options(
-                shape_invariants=[(output, tf.TensorShape([None]))]
-            )
-      image = tf.expand_dims(image,2)
-      histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
-      cdf = tf.cumsum(histogram)
-      histogram = tf.cast(histogram,tf.float32)
-      cdf = cdf/tf.reduce_sum(cdf)
+    output = tf.zeros([len(images),256,256])
+    for i,image in enumerate(images):
+        image = tf.expand_dims(image,2)
+        histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
+        cdf = tf.cumsum(histogram)
+        histogram = tf.cast(histogram,tf.float32)
+        cdf = cdf/tf.reduce_sum(cdf)
 
-      px_map = 255.0*(cdf / tf.reduce_max(cdf))
-      px_map = tf.expand_dims(tf.cast(px_map, tf.uint8),1)
-      px_map = tf.reshape(px_map,[256,1])
-      image = tf.clip_by_value(image,0,1)
+        px_map = 255.0*(cdf / tf.reduce_max(cdf))
+        px_map = tf.expand_dims(tf.cast(px_map, tf.uint8),1)
+        px_map = tf.reshape(px_map,[256,1])
+        image = tf.clip_by_value(image,0,1)
 
-      eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
-      eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
-      output = tf.concat([output,eq_hist],axis=0)
-    return output[1:]
+        eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
+        eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
+        output[i] = eq_hist
+    return output
 
 def guassian_bpf(images,LFC,HFC):
-    output = tf.zeros([1,256,256])
-    for image in images:
-        tf.autograph.experimental.set_loop_options(
-                shape_invariants=[(output, tf.TensorShape([None]))]
-            )
+    output = tf.zeros([len(images),256,256])
+    for i,image in enumerate(images):
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
         n = f.get_shape()
@@ -212,15 +206,12 @@ def guassian_bpf(images,LFC,HFC):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output = tf.concat([output,filtered_image],axis=0)
-    return output[1:]
+        output[i] = filtered_image
+    return output
 
 def butterworth_bpf(images,LFC,HFC,order):
-    output = tf.zeros([1,256,256])
-    for image in images:
-        tf.autograph.experimental.set_loop_options(
-                shape_invariants=[(output, tf.TensorShape([None]))]
-            )
+    output = tf.zeros([len(images),256,256])
+    for i,image in enumerate(images):
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
         n = f.get_shape()
@@ -248,26 +239,26 @@ def butterworth_bpf(images,LFC,HFC,order):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output = tf.concat([output,filtered_image],axis=0)
-    return output[1:]
+        output[i] = filtered_image
+    return output
 
 def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
     for image in images:
-      image = image.numpy()  
-      # image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
-      image = np.array(image*255).astype('uint8')
-      _,thresh = cv.threshold(image,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
-      mask = np.ones_like(thresh)
-      contours, hierarchy = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
-      for contour in contours:
-        area = cv.contourArea(contour)
-        if area <= noise_removal_threshold:
-          cv.fillPoly(mask, [contour], 0)
-      mask = tf.convert_to_tensor(mask*thresh/255,dtype=tf.float64)
-      mask = tf.expand_dims(mask,0)
-      output = tf.concat([output,mask],axis=0)
+        image = image.numpy()  
+        # image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+        image = np.array(image*255).astype('uint8')
+        _,thresh = cv.threshold(image,0,255,cv.THRESH_BINARY+cv.THRESH_OTSU)
+        mask = np.ones_like(thresh)
+        contours, hierarchy = cv.findContours(thresh, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_NONE)
+        for contour in contours:
+            area = cv.contourArea(contour)
+            if area <= noise_removal_threshold:
+                cv.fillPoly(mask, [contour], 0)
+        mask = tf.convert_to_tensor(mask*thresh/255,dtype=tf.float64)
+        mask = tf.expand_dims(mask,0)
+        output = tf.concat([output,mask],axis=0)
     return output[1:]
 
 def Cytoplasm_mask(y_true,y_pred):
