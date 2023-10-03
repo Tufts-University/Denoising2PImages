@@ -159,6 +159,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         optimizer = tf.keras.optimizers.Adam(learning_rate=config['initial_learning_rate'])
         loss_fn = metrics.lookup_loss('RR_loss')
         eval_metrics = metrics.lookup_metrics(config['metrics'])
+        print(eval_metrics)
         _callbacks = callbacks.get_callbacks(
                 model_name,
                 config['epochs'],
