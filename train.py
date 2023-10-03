@@ -116,7 +116,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
         ssimmetric((metrics.ssim(training_y, tf.cast(logits,dtype=tf.float64))))
         metrics_eval['ssim'] = ssimmetric.result()
     else:
-        train_metrics(metrics.psnr((training_y, tf.cast(logits,dtype=tf.float64)))
+        train_metrics(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval[config['metrics']] = train_metrics.result()
     return loss_value,metrics_eval
 
