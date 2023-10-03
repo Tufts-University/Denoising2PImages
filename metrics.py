@@ -176,7 +176,7 @@ def tf_equalize_histogram(images):
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
         output.write(idx,eq_hist)
         idx += 1    
-    return output.stack()
+    return tf.stack(output.stack())
 
 def guassian_bpf(images,LFC,HFC):
     output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
@@ -211,7 +211,7 @@ def guassian_bpf(images,LFC,HFC):
         filtered_image = tf.expand_dims(filtered_image,0)/255
         output.write(idx,filtered_image)
         idx += 1    
-    return output.stack()
+    return tf.stack(output.stack())
 
 def butterworth_bpf(images,LFC,HFC,order):
     output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
@@ -247,8 +247,8 @@ def butterworth_bpf(images,LFC,HFC,order):
         filtered_image = tf.expand_dims(filtered_image,0)/255
         output.write(idx,filtered_image)
         idx += 1    
-    return output.stack()
-    
+    return tf.stack(output.stack())
+
 def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
