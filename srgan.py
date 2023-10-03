@@ -211,6 +211,7 @@ def SRGAN_fit_model(model_name, strategy, config, initial_path, output_dir,train
             psnr_metric.reset_states()
             ssim_metric.reset_states()
     return srgan_checkpoint, srgan_checkpoint_manager
+
 learning_rate=tf.keras.optimizers.schedules.PiecewiseConstantDecay(boundaries=[100000], values=[1e-4, 1e-5])
 generator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate)
 discriminator_optimizer = tf.keras.optimizers.Adam(learning_rate=learning_rate) 
