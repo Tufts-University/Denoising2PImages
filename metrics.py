@@ -160,6 +160,9 @@ def tf_equalize_histogram(images):
     values_range = tf.constant([0., 255.], dtype = tf.float32)
     output = tf.zeros([1,256,256])
     for image in images:
+      tf.autograph.experimental.set_loop_options(
+                shape_invariants=[(output, tf.TensorShape([None]))]
+            )
       image = tf.expand_dims(image,2)
       histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
       cdf = tf.cumsum(histogram)
@@ -179,6 +182,9 @@ def tf_equalize_histogram(images):
 def guassian_bpf(images,LFC,HFC):
     output = tf.zeros([1,256,256])
     for image in images:
+        tf.autograph.experimental.set_loop_options(
+                shape_invariants=[(output, tf.TensorShape([None]))]
+            )
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
         n = f.get_shape()
@@ -212,6 +218,9 @@ def guassian_bpf(images,LFC,HFC):
 def butterworth_bpf(images,LFC,HFC,order):
     output = tf.zeros([1,256,256])
     for image in images:
+        tf.autograph.experimental.set_loop_options(
+                shape_invariants=[(output, tf.TensorShape([None]))]
+            )
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
         n = f.get_shape()
@@ -242,6 +251,7 @@ def butterworth_bpf(images,LFC,HFC,order):
         output = tf.concat([output,filtered_image],axis=0)
     return output[1:]
 
+@tf.py_function(Tout=tf.float64)
 def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
