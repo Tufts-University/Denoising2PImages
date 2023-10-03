@@ -107,7 +107,7 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     for i, metric in enumerate(eval_metrics):
         eval_metrics[i] = metric.update_state(training_y, logits)
         metrics_eval[config['metrics'][i]] = metric.result()
-    return loss_value,metrics_eval
+    return loss_value,metrics_eval,optimizer
 
 # @tf.function
 def test_step(model,loss_fn,val_metrics,data,config):
@@ -184,7 +184,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         for i, data in enumerate(all_training_data):
             callback.on_batch_begin(i, logs=logs)
             callback.on_train_batch_begin(i,logs=logs)
-            loss_val, train_metrics = train_step(model,optimizer,loss_fn,train_metrics,data,config)
+            loss_val, train_metrics,optimizer = train_step(model,optimizer,loss_fn,train_metrics,data,config)
             train_loss.update_state(loss_val)
             logs["train_loss"] = train_loss.result()
             for metric_name in config['metrics']:
