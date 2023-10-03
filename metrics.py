@@ -184,6 +184,7 @@ def guassian_bpf(images,LFC,HFC):
     for image in images:
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
+        f = tf.squeeze(f)
         n = f.get_shape()
         nx,ny = n[0],n[1]
         paddings = tf.constant([[nx//2, nx//2], [ny//2, ny//2]])
@@ -220,6 +221,7 @@ def butterworth_bpf(images,LFC,HFC,order):
     for image in images:
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
+        f = tf.squeeze(f)
         n = f.get_shape()
         nx,ny = n[0],n[1]
         paddings = tf.constant([[nx//2, nx//2], [ny//2, ny//2]])
@@ -253,6 +255,7 @@ def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
     for image in images:
+        image = tf.squeeze(image)
         image = image.numpy()  
         # image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         image = np.array(image*255).astype('uint8')
