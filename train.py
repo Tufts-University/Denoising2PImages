@@ -106,9 +106,9 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
-    for i, metric in enumerate(eval_metrics):
-        eval_metrics[i] = metric.update_state(training_y, logits)
-        metrics_eval[config['metrics'][i]] = metric.result()
+    for i in range(len(eval_metrics)):
+        eval_metrics[i].update_state(training_y, logits)
+        metrics_eval[config['metrics'][i]] = eval_metrics[i].result()
     return loss_value,metrics_eval,optimizer
 
 def test_step(model,loss_fn,val_metrics,data,config):
@@ -140,9 +140,9 @@ def test_step(model,loss_fn,val_metrics,data,config):
         val_y = Y_F
 
     metrics_val = {}
-    for i, metric in enumerate(val_metrics):
-        val_metrics[i] = metric.update_state(val_y, logits)
-        metrics_val[config['metrics'][i]] = metric.result()
+    for i in range(len(val_metrics)):
+        val_metrics[i].update_state(val_y, logits)
+        metrics_val[config['metrics'][i]] = val_metrics[i].result()
     return loss_value, metrics_val
 
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data,strategy):
@@ -194,8 +194,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 callback.on_train_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
             # Reset training metrics at the end of each epoch
-            for i, metric in enumerate(train_metrics):
-                train_metrics[i] = metric.reset_states()
+            for i in range(len(train_metrics)):
+                train_metrics[i].reset_states()
 
             # Validation Loop
             for i, data in enumerate(all_val_data):
@@ -205,13 +205,13 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 val_loss.update_state(loss_val)
                 logs["val_loss"] = train_loss.result()
                 for metric_name in config['metrics']:
-                    logs[metric_name] = train_metrics[metric_name]
+                    logs[metric_name] = val_metrics[metric_name]
                 callback.on_test_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
             
             # Reset training metrics at the end of each epoch
-            for i, metric in enumerate(val_metrics):
-                val_metrics[i] = metric.reset_states()
+            for i in range(len(val_metrics)):
+                val_metrics[i].reset_states()
 
             callback.on_epoch_end(epoch, logs=logs)
         callback.on_train_end(logs=logs)
