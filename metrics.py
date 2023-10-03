@@ -285,6 +285,7 @@ def Filter_images(y_true,y_pred):
     y_true_norm, y_pred_norm = y_true_bpf3 / tf.math.reduce_max(y_true_bpf3), y_pred_bpf3 / tf.math.reduce_max(y_pred_bpf3)
     return y_true_norm, y_pred_norm
 
+@tf.function()
 def RR_loss(y_true, y_pred):
     y_true_N, y_true_F = y_true
     y_pred_N, y_pred_F = y_pred
