@@ -79,7 +79,7 @@ def final_image_generator(images,config):
 def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     with tf.GradientTape() as tape:
         eval_metrics = metrics.lookup_metrics(config['metrics'])
-        if len(eval_metrics)>2:
+        if len(eval_metrics)>1:
             psnrmetric, ssimmetric = train_metrics
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
@@ -122,7 +122,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
 
 def test_step(model,loss_fn,val_metrics,data,config):
     eval_metrics = metrics.lookup_metrics(config['metrics'])
-    if len(val_metrics)>2:
+    if len(val_metrics)>1:
         psnrmetric, ssimmetric = val_metrics
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
