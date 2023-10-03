@@ -110,7 +110,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
-    if len(eval_metrics) >2:
+    if len(config['metrics']) >2:
         psnrmetric(eval_metrics[0](training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval['psnr'] = psnrmetric.result()
         ssimmetric((eval_metrics[1](training_y, tf.cast(logits,dtype=tf.float64))))
