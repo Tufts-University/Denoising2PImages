@@ -277,7 +277,6 @@ def Cytoplasm_mask(y_true,y_pred):
     y_pred_cyto = tf.py_function(func=Otsu_filter,inp=y_pred_norm, Tout=tf.float64)
     return tf.expand_dims(y_true_cyto,-1),tf.expand_dims(y_pred_cyto,-1)
 
-@tf.function
 def RR_loss(y_true, y_pred):
     y_true_N, y_true_F = y_true
     y_pred_N, y_pred_F = y_pred
