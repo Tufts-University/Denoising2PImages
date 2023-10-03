@@ -261,10 +261,10 @@ def train(model_name, config, output_dir, data_path):
             FAD_tr_data = train[1]
             NADH_va_data = val[0]
             FAD_va_data = val[1]
-            print(f'Got final training data with shape {np.shape(train)}.')
-            print(f'Got final validation data with shape {np.shape(val)}.')
+            # print(f'Got final training data with shape {np.shape(train)}.')
+            # print(f'Got final validation data with shape {np.shape(val)}.')
 
-            print('----------------------------------------------------------------------')
+            # print('----------------------------------------------------------------------')
             training_data = {'NADH':NADH_tr_data, 'FAD':FAD_tr_data}
             validation_data = {'NADH':NADH_va_data, 'FAD':FAD_va_data}
     else:
