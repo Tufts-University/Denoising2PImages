@@ -251,7 +251,6 @@ def butterworth_bpf(images,LFC,HFC,order):
         output = tf.concat([output,filtered_image],axis=0)
     return output[1:]
 
-@tf.py_function(Tout=tf.float64)
 def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
@@ -271,7 +270,7 @@ def Otsu_filter(images):
       output = tf.concat([output,mask],axis=0)
     return output[1:]
 
-@tf.function
+@tf.py_function(Tout=tf.float64)
 def Cytoplasm_mask(y_true,y_pred):
     # Adaptive hist equilization
     y_true_hist, y_pred_hist = tf_equalize_histogram(y_true), tf_equalize_histogram(y_pred)
