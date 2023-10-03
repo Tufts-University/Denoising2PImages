@@ -156,10 +156,10 @@ def calculate_discriminator_loss(hr_out, sr_out):
     sr_loss = binary_cross_entropy(tf.zeros_like(sr_out), sr_out)
     return hr_loss + sr_loss
 
-@tf.function()
 def tf_equalize_histogram(images):
+    output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
     values_range = tf.constant([0., 255.], dtype = tf.float32)
-    output = []
+    idx = 0
     for image in images:
         image = tf.expand_dims(image,2)
         histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
@@ -174,12 +174,13 @@ def tf_equalize_histogram(images):
 
         eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
-        output.append(eq_hist)    
-    return tf.stack(output)
+        output.write(idx,eq_hist)
+        idx += 1    
+    return output.stack()
 
-@tf.function()
 def guassian_bpf(images,LFC,HFC):
-    output = []
+    output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
+    idx = 0
     for image in images:
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
@@ -208,12 +209,14 @@ def guassian_bpf(images,LFC,HFC):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output.append(filtered_image)    
-    return tf.stack(output)
+        output.write(idx,filtered_image)
+        idx += 1    
+    return output.stack()
 
-@tf.function()
 def butterworth_bpf(images,LFC,HFC,order):
-    output = []
+    output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
+    idx = 0
+
     for image in images:
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
@@ -242,9 +245,10 @@ def butterworth_bpf(images,LFC,HFC,order):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output.append(filtered_image)    
-    return tf.stack(output)
-
+        output.write(idx,filtered_image)
+        idx += 1    
+    return output.stack()
+    
 def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
@@ -264,6 +268,7 @@ def Otsu_filter(images):
         output = tf.concat([output,mask],axis=0)
     return output[1:]
 
+@tf.function()
 def Cytoplasm_mask(y_true,y_pred):
     # Adaptive hist equilization
     y_true_hist, y_pred_hist = tf_equalize_histogram(y_true), tf_equalize_histogram(y_pred)
