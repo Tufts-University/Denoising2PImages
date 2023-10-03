@@ -185,13 +185,19 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     logs['pnsr'] = train_metrics.result()
                 callback.on_train_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
+            # Print numbers
             # Reset training metrics at the end of each epoch
             if len(config['metrics'])>1:
-                print(f'Training --> Epoch # {i}: Training_loss = {train_loss:.4f}, Train_PSNR = {tr_psnrMetric:.4f}, Train_SSIM = {tr_ssimMetric:.4f}')
+                trainpsnr = tr_psnrMetric.result()
+                trainssim = tr_ssimMetric.result()
+                trainloss = train_loss.result()
+                print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
-                print(f'Training --> Epoch # {i}: Training_loss = {train_loss:.4f}, Train_PSNR = {train_metrics:.4f}')
+                trainpsnr = train_metrics.result()
+                trainloss = train_loss.result()
+                print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
                 train_metrics.reset_states()
 
             # Validation Loop
@@ -225,7 +231,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
                     val_y = Y_F
                 val_loss(loss_value)
-                logs["val_loss"] = train_loss.result()
+                logs["val_loss"] = val_loss.result()
 
                 logits = model.predict(val_y)
 
@@ -247,11 +253,16 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             
             # Reset validation metrics at the end of each epoch
             if len(config['metrics'])>1:
-                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss:.4f}, Val_PSNR = {va_psnrMetric:.4f}, Val_SSIM = {va_ssimMetric:.4f}')
+                valpsnr = va_psnrMetric.result()
+                valssim = va_ssimMetric.result()
+                valloss = val_loss.result()
+                print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}, Val_SSIM = {valssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
-                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss:.4f}, Val_PSNR = {val_metrics:.4f}')
+                valpsnr = val_metrics.result()
+                valloss = val_loss.result()
+                print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
                 train_metrics.reset_states()
             callback.on_epoch_end(epoch, logs=logs)
         callback.on_train_end(logs=logs)
