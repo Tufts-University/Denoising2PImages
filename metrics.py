@@ -159,6 +159,7 @@ def calculate_discriminator_loss(hr_out, sr_out):
 def tf_equalize_histogram(images):
     values_range = tf.constant([0., 255.], dtype = tf.float32)
     output = tf.zeros([len(images),256,256])
+    i = 0
     for i,image in enumerate(images):
         image = tf.expand_dims(image,2)
         histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
@@ -174,10 +175,12 @@ def tf_equalize_histogram(images):
         eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
         output[i] = eq_hist
+        i += 1
     return output
 
 def guassian_bpf(images,LFC,HFC):
     output = tf.zeros([len(images),256,256])
+    i = 0
     for i,image in enumerate(images):
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
@@ -207,11 +210,13 @@ def guassian_bpf(images,LFC,HFC):
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
         output[i] = filtered_image
+        i += 1
     return output
 
 def butterworth_bpf(images,LFC,HFC,order):
     output = tf.zeros([len(images),256,256])
-    for i,image in enumerate(images):
+    i = 0
+    for image in images:
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
         n = f.get_shape()
@@ -240,6 +245,7 @@ def butterworth_bpf(images,LFC,HFC,order):
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
         output[i] = filtered_image
+        i += 1
     return output
 
 def Otsu_filter(images):
