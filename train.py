@@ -111,12 +111,12 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
     if len(config['metrics']) >2:
-        psnrmetric(eval_metrics[0](training_y, tf.cast(logits,dtype=tf.float64)))
+        psnrmetric(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval['psnr'] = psnrmetric.result()
-        ssimmetric((eval_metrics[1](training_y, tf.cast(logits,dtype=tf.float64))))
+        ssimmetric((metrics.ssim(training_y, tf.cast(logits,dtype=tf.float64))))
         metrics_eval['ssim'] = ssimmetric.result()
     else:
-        train_metrics(eval_metrics[0](training_y, tf.cast(logits,dtype=tf.float64)))
+        train_metrics(metrics.psnr((training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval[config['metrics']] = train_metrics.result()
     return loss_value,metrics_eval
 
