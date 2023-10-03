@@ -157,7 +157,7 @@ def calculate_discriminator_loss(hr_out, sr_out):
     return hr_loss + sr_loss
 
 def tf_equalize_histogram(images):
-    output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
+    output = tf.TensorArray(tf.float32,size=[tf.shape(images)])
     values_range = tf.constant([0., 255.], dtype = tf.float32)
     idx = 0
     for image in images:
