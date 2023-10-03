@@ -74,6 +74,7 @@ def final_image_generator(images,config):
         return tf.convert_to_tensor(restored_images)
     else: 
         return  tf.convert_to_tensor(images)
+    
 @tf.function()
 def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     with tf.GradientTape() as tape:
@@ -110,7 +111,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     for i in range(len(eval_metrics)):
         train_metrics[i].update_state(eval_metrics[i](training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval[config['metrics'][i]] = train_metrics[i].result()
-    return loss_value,metrics_eval,optimizer
+    return loss_value,metrics_eval
 
 def test_step(model,loss_fn,val_metrics,data,config):
     eval_metrics = metrics.lookup_metrics(config['metrics'])
@@ -188,7 +189,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             for i, data in enumerate(all_training_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
-                loss_val, train_metrics,optimizer = strategy.run(train_step, args=(model,optimizer,loss_fn,train_metrics,data,config))
+                loss_val, train_metrics = strategy.run(train_step, args=(model,optimizer,loss_fn,train_metrics,data,config))
                 train_loss.update_state(loss_val)
                 logs["train_loss"] = train_loss.result()
                 for metric_name in config['metrics']:
