@@ -252,11 +252,10 @@ def butterworth_bpf(images,LFC,HFC,order):
     return output.stack()
 
 def Otsu_filter(images):
-    output = tf.TensorArray(tf.float64,size=len(images))
-    idx = 0
+    output = np.zeros([1,256,256],dtype=np.float64)
     noise_removal_threshold = 25
     for image in images:
-        image = tf.squeeze(image)
+        image = np.squeeze(image)
         image = image.numpy()  
         # image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         image = np.array(image*255).astype('uint8')
@@ -267,11 +266,10 @@ def Otsu_filter(images):
             area = cv.contourArea(contour)
             if area <= noise_removal_threshold:
                 cv.fillPoly(mask, [contour], 0)
-        mask = tf.convert_to_tensor(mask*thresh/255,dtype=tf.float64)
-        mask = tf.expand_dims(mask,0)
-        output = output.write(idx,mask)
-        idx += 1    
-    return output.stack()
+        mask = mask*thresh/255
+        mask = np.expand_dims(mask,0)
+        output = np.concat([output,mask],axis=0)
+    return output[1:]
 
 @tf.function()
 def Cytoplasm_mask(y_true,y_pred):
@@ -286,8 +284,8 @@ def Cytoplasm_mask(y_true,y_pred):
     y_true_bpf3, y_pred_bpf3 = y_true_bpf3 - tf.math.reduce_min(y_true_bpf3), y_pred_bpf3 - tf.math.reduce_min(y_pred_bpf3)
     y_true_norm, y_pred_norm = y_true_bpf3 / tf.math.reduce_max(y_true_bpf3), y_pred_bpf3 / tf.math.reduce_max(y_pred_bpf3)
     # Thresholding
-    y_true_cyto = tf.py_function(func=Otsu_filter,inp=y_true_norm, Tout=tf.float64)
-    y_pred_cyto = tf.py_function(func=Otsu_filter,inp=y_pred_norm, Tout=tf.float64)
+    y_true_cyto = tf.numpy_funcyion(func=Otsu_filter,inp=y_true_norm, Tout=tf.float64)
+    y_pred_cyto = tf.numpy_funcyion(func=Otsu_filter,inp=y_pred_norm, Tout=tf.float64)
     return tf.expand_dims(y_true_cyto,-1),tf.expand_dims(y_pred_cyto,-1)
 
 def RR_loss(y_true, y_pred):
