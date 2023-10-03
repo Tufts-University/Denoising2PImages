@@ -160,7 +160,7 @@ def tf_equalize_histogram(images):
     values_range = tf.constant([0., 255.], dtype = tf.float32)
     output = tf.zeros([len(images),256,256])
     i = 0
-    for i,image in enumerate(images):
+    for image in images:
         image = tf.expand_dims(image,2)
         histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
         cdf = tf.cumsum(histogram)
@@ -181,7 +181,7 @@ def tf_equalize_histogram(images):
 def guassian_bpf(images,LFC,HFC):
     output = tf.zeros([len(images),256,256])
     i = 0
-    for i,image in enumerate(images):
+    for image in images:
         image = tf.clip_by_value(image,0,1)*255
         f = tf.cast(image,dtype = tf.float64)
         n = f.get_shape()
