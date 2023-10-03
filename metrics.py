@@ -157,12 +157,12 @@ def calculate_discriminator_loss(hr_out, sr_out):
     return hr_loss + sr_loss
 
 def tf_equalize_histogram(images):
-    output = tf.TensorArray(tf.float32,size=len(images))
-    values_range = tf.constant([0., 255.], dtype = tf.float32)
+    output = tf.TensorArray(tf.float64,size=len(images))
+    values_range = tf.constant([0., 255.], dtype = tf.float64)
     idx = 0
     for image in images:
         image = tf.expand_dims(image,2)
-        histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float32), values_range, 256)
+        histogram = tf.histogram_fixed_width(tf.cast(image*255,dtype=tf.float64), values_range, 256)
         cdf = tf.cumsum(histogram)
         histogram = tf.cast(histogram,tf.float32)
         cdf = cdf/tf.reduce_sum(cdf)
@@ -172,7 +172,7 @@ def tf_equalize_histogram(images):
         px_map = tf.reshape(px_map,[256,1])
         image = tf.clip_by_value(image,0,1)
 
-        eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
+        eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int64))/255
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
         output = output.write(idx,eq_hist)
         idx += 1    
@@ -252,7 +252,8 @@ def butterworth_bpf(images,LFC,HFC,order):
     return output.stack()
 
 def Otsu_filter(images):
-    output = tf.zeros([1,256,256],dtype=tf.float64)
+    output = tf.TensorArray(tf.float64,size=len(images))
+    idx = 0
     noise_removal_threshold = 25
     for image in images:
         image = tf.squeeze(image)
@@ -268,8 +269,9 @@ def Otsu_filter(images):
                 cv.fillPoly(mask, [contour], 0)
         mask = tf.convert_to_tensor(mask*thresh/255,dtype=tf.float64)
         mask = tf.expand_dims(mask,0)
-        output = tf.concat([output,mask],axis=0)
-    return output[1:]
+        output = output.write(idx,mask)
+        idx += 1    
+    return output.stack()
 
 @tf.function()
 def Cytoplasm_mask(y_true,y_pred):
