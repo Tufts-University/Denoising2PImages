@@ -270,7 +270,6 @@ def Otsu_filter(images):
       output = tf.concat([output,mask],axis=0)
     return output[1:]
 
-@tf.py_function(Tout=tf.float64)
 def Cytoplasm_mask(y_true,y_pred):
     # Adaptive hist equilization
     y_true_hist, y_pred_hist = tf_equalize_histogram(y_true), tf_equalize_histogram(y_pred)
@@ -283,7 +282,8 @@ def Cytoplasm_mask(y_true,y_pred):
     y_true_bpf3, y_pred_bpf3 = y_true_bpf3 - tf.math.reduce_min(y_true_bpf3), y_pred_bpf3 - tf.math.reduce_min(y_pred_bpf3)
     y_true_norm, y_pred_norm = y_true_bpf3 / tf.math.reduce_max(y_true_bpf3), y_pred_bpf3 / tf.math.reduce_max(y_pred_bpf3)
     # Thresholding
-    y_true_cyto, y_pred_cyto = Otsu_filter(y_true_norm), Otsu_filter(y_pred_norm)
+    y_true_cyto = tf.py_function(func=Otsu_filter,inp=y_true_norm, Tout=tf.float64)
+    y_pred_cyto = tf.py_function(func=Otsu_filter,inp=y_pred_norm, Tout=tf.float64)
     return tf.expand_dims(y_true_cyto,-1),tf.expand_dims(y_pred_cyto,-1)
 
 @tf.function
