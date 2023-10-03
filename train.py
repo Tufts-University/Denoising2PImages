@@ -76,11 +76,8 @@ def final_image_generator(images,config):
         return  tf.convert_to_tensor(images)
     
 @tf.function()
-def train_step(model,optimizer,loss_fn,train_metrics, data,config):
+def train_step(model,optimizer,loss_fn, data,config):
     with tf.GradientTape() as tape:
-        eval_metrics = metrics.lookup_metrics(config['metrics'])
-        if len(eval_metrics)>1:
-            psnrmetric, ssimmetric = tf.keras.metrics.Mean(), tf.keras.metrics.Mean()
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
         Y_N = final_image_generator(Y_N,config)
@@ -109,58 +106,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
             training_y = Y_F
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
-    metrics_eval = {}
-    if len(config['metrics']) >1:
-        psnrmetric.update_state(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_eval['psnr'] = psnrmetric.result()
-        ssimmetric.update_state(metrics.ssim(training_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_eval['ssim'] = ssimmetric.result()
-    else:
-        train_metrics(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_eval[config['metrics']] = train_metrics.result()
-    return loss_value,metrics_eval
-
-def test_step(model,loss_fn,val_metrics,data,config):
-    eval_metrics = metrics.lookup_metrics(config['metrics'])
-    if len(val_metrics)>1:
-        psnrmetric, ssimmetric = tf.keras.metrics.Mean(), tf.keras.metrics.Mean()
-    X_N = data['NADH'][0]
-    Y_N = data['NADH'][1]
-    Y_N = final_image_generator(Y_N,config)
-    
-    X_F = data['FAD'][0]
-    Y_F = data['FAD'][1]
-    Y_F = final_image_generator(Y_F,config)
-
-    if config['training_data_type'] == 'NADH':
-        logits = model(X_N, training=True)
-        logits = final_image_generator(logits,config)
-
-        logits2 = model(X_F, training=False)
-        logits2 = final_image_generator(logits2,config)
-
-        loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
-        val_y = Y_N
-    else:
-        logits = model(X_F, training=True)
-        logits = final_image_generator(logits,config)
-
-        logits2 = model(X_N, training=False)
-        logits2 = final_image_generator(logits2,config)
-
-        loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
-        val_y = Y_F
-
-    metrics_val = {}
-    if len(config['metrics']) >1:
-        psnrmetric.update_state(metrics.psnr(val_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_val['psnr'] = psnrmetric.result()
-        ssimmetric.update_state(metrics.ssim(val_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_val['ssim'] = ssimmetric.result()
-    else:
-        val_metrics(eval_metrics[0](val_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_val[config['metrics']] = val_metrics.result()
-    return loss_value, metrics_val
+    return loss_value
 
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data,strategy):
     print('=== Fitting model --------------------------------------------------')
@@ -175,7 +121,6 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
     with strategy.scope():   
         optimizer = tf.keras.optimizers.Adam(learning_rate=config['initial_learning_rate'])
         loss_fn = metrics.lookup_loss('RR_loss')
-        eval_metrics = metrics.lookup_metrics(config['metrics'])
         _callbacks = callbacks.get_callbacks(
                 model_name,
                 config['epochs'],
@@ -196,8 +141,6 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             tr_ssimMetric = tf.keras.metrics.Mean()
             va_psnrMetric = tf.keras.metrics.Mean()
             va_ssimMetric = tf.keras.metrics.Mean()
-            train_metrics = [tr_psnrMetric,tr_ssimMetric]
-            val_metrics = [va_psnrMetric,va_ssimMetric]
         else:
             train_metrics = tf.keras.metrics.Mean()
             val_metrics = tf.keras.metrics.Mean()
@@ -212,33 +155,100 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             for i, data in enumerate(all_training_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
-                loss_val, train_metrics = strategy.run(train_step, args=(model,optimizer,loss_fn,train_metrics,data,config))
+                loss_val, train_metrics = strategy.run(train_step, args=(model,optimizer,loss_fn,data,config))
                 train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
-                for metric_name in config['metrics']:
-                    logs[metric_name] = train_metrics[metric_name]
+
+                if config['training_data_type'] == 'NADH':
+                    X = data['NADH'][0]
+                    Y = data['NADH'][1]
+                    Y = final_image_generator(Y,config)
+                else:
+                    X = data['FAD'][0]
+                    Y = data['FAD'][1]
+                    Y = final_image_generator(Y,config)
+
+                logits = model.predict(Y)
+
+                if len(config['metrics'])>1:
+                    psnr = metrics.psnr(Y,logits)
+                    tr_psnrMetric(psnr)
+                    logs['pnsr'] = tr_psnrMetric.result()
+                    ssim = metrics.ssim(Y,logits)
+                    tr_ssimMetric(ssim)
+                    logs['ssim'] = tr_ssimMetric.result()
+                else:
+                    psnr = metrics.psnr(Y,logits)
+                    train_metrics(psnr)
+                    logs['pnsr'] = train_metrics.result()
                 callback.on_train_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
             # Reset training metrics at the end of each epoch
-            for i in range(len(train_metrics)):
-                train_metrics[i].reset_states()
+            if len(config['metrics'])>1:
+                print(f'Training --> Epoch # {i}: Training_loss = {train_loss.result():.4f}, Train_PSNR = {tr_psnrMetric.results():.4f}, Train_SSIM = {tr_ssimMetric.results():.4f}')
+                tr_psnrMetric.reset_states()
+                tr_ssimMetric.reset_states()
+            else:
+                print(f'Training --> Epoch # {i}: Training_loss = {train_loss.result():.4f}, Train_PSNR = {train_metrics.results():.4f}')
+                train_metrics.reset_states()
 
             # Validation Loop
             for i, data in enumerate(all_val_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_test_batch_begin(i, logs=logs)
-                loss_val, val_metrics = test_step(model,loss_fn,val_metrics, data,config)
-                val_loss(loss_val)
+                X_N = data['NADH'][0]
+                Y_N = data['NADH'][1]
+                Y_N = final_image_generator(Y_N,config)
+                
+                X_F = data['FAD'][0]
+                Y_F = data['FAD'][1]
+                Y_F = final_image_generator(Y_F,config)
+
+                if config['training_data_type'] == 'NADH':
+                    logits = model(X_N, training=True)
+                    logits = final_image_generator(logits,config)
+
+                    logits2 = model(X_F, training=False)
+                    logits2 = final_image_generator(logits2,config)
+
+                    loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
+                    val_y = Y_N
+                else:
+                    logits = model(X_F, training=True)
+                    logits = final_image_generator(logits,config)
+
+                    logits2 = model(X_N, training=False)
+                    logits2 = final_image_generator(logits2,config)
+
+                    loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
+                    val_y = Y_F
+                val_loss(loss_value)
                 logs["val_loss"] = train_loss.result()
-                for metric_name in config['metrics']:
-                    logs[metric_name] = val_metrics[metric_name]
+
+                logits = model.predict(val_y)
+
+                if len(config['metrics'])>1:
+                    psnr = metrics.psnr(val_y,logits)
+                    va_psnrMetric(psnr)
+                    logs['pnsr_val'] = va_psnrMetric.result()
+                    ssim = metrics.ssim(val_y,logits)
+                    va_ssimMetric(ssim)
+                    logs['ssim_val'] = va_ssimMetric.result()
+                else:
+                    psnr = metrics.psnr(val_y,logits)
+                    val_metrics(psnr)
+                    logs['pnsr_val'] = val_metrics.result()
                 callback.on_test_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
             
-            # Reset training metrics at the end of each epoch
-            for i in range(len(val_metrics)):
-                val_metrics[i].reset_states()
-
+            # Reset validation metrics at the end of each epoch
+            if len(config['metrics'])>1:
+                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss.result():.4f}, Val_PSNR = {va_psnrMetric.results():.4f}, Val_SSIM = {va_ssimMetric.results():.4f}')
+                tr_psnrMetric.reset_states()
+                tr_ssimMetric.reset_states()
+            else:
+                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss.result():.4f}, Val_PSNR = {val_metrics.results():.4f}')
+                train_metrics.reset_states()
             callback.on_epoch_end(epoch, logs=logs)
         callback.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
