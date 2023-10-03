@@ -106,7 +106,7 @@ def train_step(model,optimizer,loss_fn, data,config):
             training_y = Y_F
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
-    return loss_value
+    return loss_value, optimizer
 
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data,strategy):
     print('=== Fitting model --------------------------------------------------')
@@ -155,7 +155,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             for i, data in enumerate(all_training_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
-                loss_val = strategy.run(train_step, args=(model,optimizer,loss_fn,data,config))
+                loss_val, optimizer = strategy.run(train_step, args=(model,optimizer,loss_fn,data,config))
                 train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
 
