@@ -75,8 +75,9 @@ def final_image_generator(images,config):
     else: 
         return  tf.convert_to_tensor(images)
 @tf.function()
-def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
+def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     with tf.GradientTape() as tape:
+        eval_metrics = metrics.lookup_metrics(config['metrics'])
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
         Y_N = final_image_generator(Y_N,config)
@@ -107,11 +108,12 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
     for i in range(len(eval_metrics)):
-        eval_metrics[i].update_state(training_y, logits)
-        metrics_eval[config['metrics'][i]] = eval_metrics[i].result()
+        train_metrics[i].update_state(eval_metrics[i](training_y, logits))
+        metrics_eval[config['metrics'][i]] = train_metrics[i].result()
     return loss_value,metrics_eval,optimizer
 
 def test_step(model,loss_fn,val_metrics,data,config):
+    eval_metrics = metrics.lookup_metrics(config['metrics'])
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
     Y_N = final_image_generator(Y_N,config)
@@ -141,7 +143,7 @@ def test_step(model,loss_fn,val_metrics,data,config):
 
     metrics_val = {}
     for i in range(len(val_metrics)):
-        val_metrics[i].update_state(val_y, logits)
+        val_metrics[i].update_state(eval_metrics[i](val_y, logits))
         metrics_val[config['metrics'][i]] = val_metrics[i].result()
     return loss_value, metrics_val
 
@@ -175,8 +177,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         all_training_data = data_generator.RR_loss_Generator(x_N,y_N,x_F,y_F,config['batch_size'],config,True)
         all_val_data = data_generator.RR_loss_Generator(x_val_N,y_val_N,x_val_F,y_val_F,config['batch_size'],config,False)
         
-        train_metrics = eval_metrics.copy()
-        val_metrics = eval_metrics.copy()
+        train_metrics = [tf.keras.metrics.Mean()]*len(eval_metrics)
+        val_metrics = [tf.keras.metrics.Mean()]*len(eval_metrics)
         train_loss = tf.keras.metrics.Mean()
         val_loss = tf.keras.metrics.Mean()
 
