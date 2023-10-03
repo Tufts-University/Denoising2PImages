@@ -79,6 +79,8 @@ def final_image_generator(images,config):
 def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     with tf.GradientTape() as tape:
         eval_metrics = metrics.lookup_metrics(config['metrics'])
+        if len(eval_metrics)>2:
+            psnrmetric, ssimmetric = train_metrics
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
         Y_N = final_image_generator(Y_N,config)
@@ -108,13 +110,20 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
-    for i in range(len(eval_metrics)):
-        train_metrics[i](eval_metrics[i](training_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_eval[config['metrics'][i]] = train_metrics[i].result()
+    if len(eval_metrics) >2:
+        psnrmetric(eval_metrics[0](training_y, tf.cast(logits,dtype=tf.float64)))
+        metrics_eval['psnr'] = psnrmetric.result()
+        ssimmetric((eval_metrics[1](training_y, tf.cast(logits,dtype=tf.float64))))
+        metrics_eval['ssim'] = ssimmetric.result()
+    else:
+        train_metrics(eval_metrics[0](training_y, tf.cast(logits,dtype=tf.float64)))
+        metrics_eval[config['metrics']] = train_metrics.result()
     return loss_value,metrics_eval
 
 def test_step(model,loss_fn,val_metrics,data,config):
     eval_metrics = metrics.lookup_metrics(config['metrics'])
+    if len(val_metrics)>2:
+        psnrmetric, ssimmetric = val_metrics
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
     Y_N = final_image_generator(Y_N,config)
@@ -143,9 +152,14 @@ def test_step(model,loss_fn,val_metrics,data,config):
         val_y = Y_F
 
     metrics_val = {}
-    for i in range(len(val_metrics)):
-        val_metrics[i](eval_metrics[i](val_y, tf.cast(logits,dtype=tf.float64)))
-        metrics_val[config['metrics'][i]] = val_metrics[i].result()
+    if len(eval_metrics) >2:
+        psnrmetric(eval_metrics[0](val_y, tf.cast(logits,dtype=tf.float64)))
+        metrics_val['psnr'] = psnrmetric.result()
+        ssimmetric((eval_metrics[1](val_y, tf.cast(logits,dtype=tf.float64))))
+        metrics_val['ssim'] = ssimmetric.result()
+    else:
+        val_metrics(eval_metrics[0](val_y, tf.cast(logits,dtype=tf.float64)))
+        metrics_val[config['metrics']] = val_metrics.result()
     return loss_value, metrics_val
 
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data,strategy):
@@ -177,8 +191,17 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         all_training_data = data_generator.RR_loss_Generator(x_N,y_N,x_F,y_F,config['batch_size'],config,True)
         all_val_data = data_generator.RR_loss_Generator(x_val_N,y_val_N,x_val_F,y_val_F,config['batch_size'],config,False)
         
-        train_metrics = [tf.keras.metrics.Mean() for i in range(len(eval_metrics))]
-        val_metrics = [tf.keras.metrics.Mean() for i in range(len(eval_metrics))]
+        if len(eval_metrics)>1:
+            tr_psnrMetric = tf.keras.metrics.Mean()
+            tr_ssimMetric = tf.keras.metrics.Mean()
+            va_psnrMetric = tf.keras.metrics.Mean()
+            va_ssimMetric = tf.keras.metrics.Mean()
+            train_metrics = [tr_psnrMetric,tr_ssimMetric]
+            val_metrics = [va_psnrMetric,va_ssimMetric]
+        else:
+            train_metrics = tf.keras.metrics.Mean()
+            val_metrics = tf.keras.metrics.Mean()
+
         train_loss = tf.keras.metrics.Mean()
         val_loss = tf.keras.metrics.Mean()
 
