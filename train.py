@@ -187,11 +187,11 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 callback.on_batch_end(i, logs=logs)
             # Reset training metrics at the end of each epoch
             if len(config['metrics'])>1:
-                print(f'Training --> Epoch # {i}: Training_loss = {train_loss.result():.4f}, Train_PSNR = {tr_psnrMetric.results():.4f}, Train_SSIM = {tr_ssimMetric.results():.4f}')
+                print(f'Training --> Epoch # {i}: Training_loss = {train_loss:.4f}, Train_PSNR = {tr_psnrMetric:.4f}, Train_SSIM = {tr_ssimMetric:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
-                print(f'Training --> Epoch # {i}: Training_loss = {train_loss.result():.4f}, Train_PSNR = {train_metrics.results():.4f}')
+                print(f'Training --> Epoch # {i}: Training_loss = {train_loss:.4f}, Train_PSNR = {train_metrics:.4f}')
                 train_metrics.reset_states()
 
             # Validation Loop
@@ -247,11 +247,11 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             
             # Reset validation metrics at the end of each epoch
             if len(config['metrics'])>1:
-                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss.result():.4f}, Val_PSNR = {va_psnrMetric.results():.4f}, Val_SSIM = {va_ssimMetric.results():.4f}')
+                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss:.4f}, Val_PSNR = {va_psnrMetric:.4f}, Val_SSIM = {va_ssimMetric:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
-                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss.result():.4f}, Val_PSNR = {val_metrics.results():.4f}')
+                print(f'Validation --> Epoch # {i}: Validation_loss = {val_loss:.4f}, Val_PSNR = {val_metrics:.4f}')
                 train_metrics.reset_states()
             callback.on_epoch_end(epoch, logs=logs)
         callback.on_train_end(logs=logs)
