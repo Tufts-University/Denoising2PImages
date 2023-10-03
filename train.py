@@ -143,7 +143,7 @@ def test_step(model,loss_fn,val_metrics,data,config):
 
     metrics_val = {}
     for i in range(len(val_metrics)):
-        val_metrics[i].update_state(eval_metrics[i](val_y, tf.cast(logits,dtype=tf.float64))
+        val_metrics[i].update_state(eval_metrics[i](val_y, tf.cast(logits,dtype=tf.float64)))
         metrics_val[config['metrics'][i]] = val_metrics[i].result()
     return loss_value, metrics_val
 
