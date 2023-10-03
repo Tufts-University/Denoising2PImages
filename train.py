@@ -110,7 +110,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
-    if len(config['metrics']) >2:
+    if len(config['metrics']) >1:
         psnrmetric(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval['psnr'] = psnrmetric.result()
         ssimmetric((metrics.ssim(training_y, tf.cast(logits,dtype=tf.float64))))
@@ -152,7 +152,7 @@ def test_step(model,loss_fn,val_metrics,data,config):
         val_y = Y_F
 
     metrics_val = {}
-    if len(config['metrics']) >2:
+    if len(config['metrics']) >1:
         psnrmetric(metrics.psnr(val_y, tf.cast(logits,dtype=tf.float64)))
         metrics_val['psnr'] = psnrmetric.result()
         ssimmetric((metrics.ssim(val_y, tf.cast(logits,dtype=tf.float64))))
