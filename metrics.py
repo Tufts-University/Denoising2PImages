@@ -174,7 +174,7 @@ def tf_equalize_histogram(images):
 
         eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int64))/255
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
-        output = output.write(idx,eq_hist)
+        output = output.write(idx,tf.cast(eq_hist,dtype=tf.float64))
         idx += 1    
     return output.stack()
 
@@ -210,7 +210,7 @@ def guassian_bpf(images,LFC,HFC):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output = output.write(idx,filtered_image)
+        output = output.write(idx,tf.cast(filtered_image,dtype=tf.float64))
         idx += 1    
     return output.stack()
 
@@ -247,15 +247,15 @@ def butterworth_bpf(images,LFC,HFC,order):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output = output.write(idx,filtered_image)
+        output = output.write(idx,tf.cast(filtered_image,dtype=tf.float64))
         idx += 1    
     return output.stack()
 
 def Otsu_filter(images):
-    output = np.zeros([1,256,256],dtype=np.float64)
+    output = tf.zeros([1,256,256],dtype=tf.float64)
     noise_removal_threshold = 25
     for image in images:
-        image = np.squeeze(image)
+        image = tf.squeeze(image)
         image = image.numpy()  
         # image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
         image = np.array(image*255).astype('uint8')
@@ -266,13 +266,13 @@ def Otsu_filter(images):
             area = cv.contourArea(contour)
             if area <= noise_removal_threshold:
                 cv.fillPoly(mask, [contour], 0)
-        mask = mask*thresh/255
-        mask = np.expand_dims(mask,0)
-        output = np.concat([output,mask],axis=0)
+        mask = tf.convert_to_tensor(mask*thresh/255,dtype=tf.float64)
+        mask = tf.expand_dims(mask,0)
+        output = tf.concat([output,mask],axis=0)
     return output[1:]
 
 @tf.function()
-def Cytoplasm_mask(y_true,y_pred):
+def Filter_images(y_true,y_pred):
     # Adaptive hist equilization
     y_true_hist, y_pred_hist = tf_equalize_histogram(y_true), tf_equalize_histogram(y_pred)
     # Guassian Bandpass Filter
@@ -283,16 +283,16 @@ def Cytoplasm_mask(y_true,y_pred):
     # Normalization
     y_true_bpf3, y_pred_bpf3 = y_true_bpf3 - tf.math.reduce_min(y_true_bpf3), y_pred_bpf3 - tf.math.reduce_min(y_pred_bpf3)
     y_true_norm, y_pred_norm = y_true_bpf3 / tf.math.reduce_max(y_true_bpf3), y_pred_bpf3 / tf.math.reduce_max(y_pred_bpf3)
-    # Thresholding
-    y_true_cyto = tf.numpy_funcyion(func=Otsu_filter,inp=y_true_norm, Tout=tf.float64)
-    y_pred_cyto = tf.numpy_funcyion(func=Otsu_filter,inp=y_pred_norm, Tout=tf.float64)
-    return tf.expand_dims(y_true_cyto,-1),tf.expand_dims(y_pred_cyto,-1)
+    return y_true_norm, y_pred_norm
 
 def RR_loss(y_true, y_pred):
     y_true_N, y_true_F = y_true
     y_pred_N, y_pred_F = y_pred
     # Generate Mask
-    y_true_cyto, y_pred_cyto = Cytoplasm_mask(y_true_N,y_pred_N)
+    y_true_norm, y_pred_norm = Filter_images(y_true_N,y_pred_N)
+    # Thresholding
+    y_true_cyto, y_pred_cyto = Otsu_filter(y_true_norm), Otsu_filter(y_pred_norm)
+    y_true_cyto, y_pred_cyto = tf.expand_dims(y_true_cyto,-1),tf.expand_dims(y_pred_cyto,-1)
     y_NADH_true = y_true_N * y_true_cyto * 255
     y_FAD_true = y_true_F * y_true_cyto * 255
     y_NADH_pred = y_pred_N * y_pred_cyto * 255
