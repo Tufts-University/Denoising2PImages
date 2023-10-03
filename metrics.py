@@ -157,7 +157,7 @@ def calculate_discriminator_loss(hr_out, sr_out):
     return hr_loss + sr_loss
 
 def tf_equalize_histogram(images):
-    output = tf.TensorArray(tf.float32,size=[tf.shape(images)])
+    output = tf.TensorArray(tf.float32,size=len(images))
     values_range = tf.constant([0., 255.], dtype = tf.float32)
     idx = 0
     for image in images:
@@ -174,13 +174,12 @@ def tf_equalize_histogram(images):
 
         eq_hist = tf.gather_nd(px_map, tf.cast(image*255, tf.int32))/255
         eq_hist = tf.reshape(eq_hist,[1,eq_hist.shape[0],eq_hist.shape[1]])
-        output.write(idx,eq_hist)
-        idx += 1
-    print(output.stack())        
+        output = output.write(idx,eq_hist)
+        idx += 1    
     return output.stack()
 
 def guassian_bpf(images,LFC,HFC):
-    output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
+    output = tf.TensorArray(tf.float64,size=len(images))
     idx = 0
     for image in images:
         image = tf.clip_by_value(image,0,1)*255
@@ -210,12 +209,12 @@ def guassian_bpf(images,LFC,HFC):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output.write(idx,filtered_image)
+        output = output.write(idx,filtered_image)
         idx += 1    
-    return tf.stack(output.stack())
+    return output.stack()
 
 def butterworth_bpf(images,LFC,HFC,order):
-    output = tf.TensorArray(tf.float64,size=[tf.shape(images)])
+    output = tf.TensorArray(tf.float64,size=len(images))
     idx = 0
 
     for image in images:
@@ -246,9 +245,9 @@ def butterworth_bpf(images,LFC,HFC,order):
         filtered_image = tf.signal.ifft2d(filtered_image)
         filtered_image = tf.math.real(filtered_image[nx//2:nx//2+256,ny//2:ny//2+256])
         filtered_image = tf.expand_dims(filtered_image,0)/255
-        output.write(idx,filtered_image)
+        output = output.write(idx,filtered_image)
         idx += 1    
-    return tf.stack(output.stack())
+    return output.stack()
 
 def Otsu_filter(images):
     output = tf.zeros([1,256,256],dtype=tf.float64)
