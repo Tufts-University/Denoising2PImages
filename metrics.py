@@ -261,6 +261,7 @@ def Otsu_filter(images):
       output = tf.concat([output,mask],axis=0)
     return output[1:]
 
+@tf.function
 def Cytoplasm_mask(y_true,y_pred):
     # Adaptive hist equilization
     y_true_hist, y_pred_hist = tf_equalize_histogram(y_true), tf_equalize_histogram(y_pred)
@@ -276,6 +277,7 @@ def Cytoplasm_mask(y_true,y_pred):
     y_true_cyto, y_pred_cyto = Otsu_filter(y_true_norm), Otsu_filter(y_pred_norm)
     return tf.expand_dims(y_true_cyto,-1),tf.expand_dims(y_pred_cyto,-1)
 
+@tf.function
 def RR_loss(y_true, y_pred):
     y_true_N, y_true_F = y_true
     y_pred_N, y_pred_F = y_pred
