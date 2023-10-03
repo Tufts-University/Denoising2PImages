@@ -268,7 +268,7 @@ def Cytoplasm_mask(y_true,y_pred):
     y_true_bpf, y_pred_bpf = guassian_bpf(y_true_hist,25,256), guassian_bpf(y_pred_hist,25,256) 
     y_true_bpf2, y_pred_bpf2 = guassian_bpf(y_true_bpf,20,120), guassian_bpf(y_pred_bpf,20,120) 
     # Butterworth Bandpass Filter
-    y_true_bpf3, y_pred_bpf3 = guassian_bpf(y_true_bpf2,10,120,3), guassian_bpf(y_pred_bpf2,10,120,3) 
+    y_true_bpf3, y_pred_bpf3 = butterworth_bpf(y_true_bpf2,10,120,3), butterworth_bpf(y_pred_bpf2,10,120,3) 
     # Normalization
     y_true_bpf3, y_pred_bpf3 = y_true_bpf3 - tf.math.reduce_min(y_true_bpf3), y_pred_bpf3 - tf.math.reduce_min(y_pred_bpf3)
     y_true_norm, y_pred_norm = y_true_bpf3 / tf.math.reduce_max(y_true_bpf3), y_pred_bpf3 / tf.math.reduce_max(y_pred_bpf3)
