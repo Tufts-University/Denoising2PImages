@@ -116,8 +116,13 @@ def test_step(model,loss_fn,val_metrics,data,config):
     wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
+    Y_N = data_generator.wavelet_inverse_transform(Y_N.numpy(),wavelet_config)
+    Y_N = tf.convert_to_tensor(Y_N)
+    
     X_F = data['FAD'][1]
     Y_F = data['FAD'][1]
+    Y_F = data_generator.wavelet_inverse_transform(Y_F.numpy(),wavelet_config)
+    Y_F = tf.convert_to_tensor(Y_F)
     if config['training_data_type'] == 'NADH':
         logits = model(X_N, training=True)
         logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
@@ -137,7 +142,7 @@ def test_step(model,loss_fn,val_metrics,data,config):
         logits2 = model(X_N, training=False)
         logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
         logits2 = tf.convert_to_tensor(logits2)
-        
+
         loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
         val_y = Y_F
     metrics_val = {}
@@ -169,7 +174,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
     logs = {}
     callback.on_train_begin(logs=logs)
     x_N, y_N, x_F, y_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
-    x_val_N, y_val_N, x_val_F, y_val_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
+    x_val_N, y_val_N, x_val_F, y_val_F  = validation_data['NADH'][0], validation_data['NADH'][1], validation_data['FAD'][0], validation_data['FAD'][1]
 
     all_training_data = data_generator.RR_loss_Generator(x_N,y_N,x_F,y_F,config['batch_size'],config,True)
     all_val_data = data_generator.RR_loss_Generator(x_val_N,y_val_N,x_val_F,y_val_F,config['batch_size'],config,False)
@@ -236,6 +241,11 @@ def train(model_name, config, output_dir, data_path):
                 val = np.concatenate((val,validation_data),axis=1)
             training_data = train[:,1:,:,:,:]
             validation_data = val[:,1:,:,:,:]
+
+            print(f'Got final training data with shape {np.shape(training_data)}.')
+            print(f'Got final validation data with shape {np.shape(validation_data)}.')
+
+            print('----------------------------------------------------------------------')
         else:
             # Loading NADH and FAD for RR Loss calculation
             train = []
@@ -251,6 +261,10 @@ def train(model_name, config, output_dir, data_path):
             FAD_tr_data = train[1]
             NADH_va_data = val[0]
             FAD_va_data = val[1]
+            print(f'Got final training data with shape {np.shape(train)}.')
+            print(f'Got final validation data with shape {np.shape(val)}.')
+
+            print('----------------------------------------------------------------------')
             training_data = {'NADH':NADH_tr_data, 'FAD':FAD_tr_data}
             validation_data = {'NADH':NADH_va_data, 'FAD':FAD_va_data}
     else:
