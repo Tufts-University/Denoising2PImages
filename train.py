@@ -74,7 +74,7 @@ def final_image_generator(images,config):
         return tf.convert_to_tensor(restored_images)
     else: 
         return  tf.convert_to_tensor(images)
-
+@tf.function()
 def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
