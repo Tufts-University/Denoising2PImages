@@ -73,6 +73,7 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
+        print(tf.shape(Y_N))
         Y_N = data_generator.wavelet_inverse_transform(Y_N.numpy(),wavelet_config)
         Y_N = tf.convert_to_tensor(Y_N)
         
@@ -83,22 +84,22 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
 
         if config['training_data_type'] == 'NADH':
             logits = model(X_N, training=True)
-            logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
+            logits = data_generator.wavelet_inverse_transform(logits.numpy,wavelet_config)
             logits = tf.convert_to_tensor(logits)
 
             logits2 = model(X_F, training=False)
-            logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
+            logits2 = data_generator.wavelet_inverse_transform(logits2.numpy,wavelet_config)
             logits2 = tf.convert_to_tensor(logits2)
 
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
             training_y = Y_N
         else:
             logits = model(X_F, training=True)
-            logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
+            logits = data_generator.wavelet_inverse_transform(logits.numpy,wavelet_config)
             logits = tf.convert_to_tensor(logits)
 
             logits2 = model(X_N, training=False)
-            logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
+            logits2 = data_generator.wavelet_inverse_transform(logits2.numpy,wavelet_config)
             logits2 = tf.convert_to_tensor(logits2)
 
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
@@ -116,31 +117,31 @@ def test_step(model,loss_fn,val_metrics,data,config):
     wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
-    Y_N = data_generator.wavelet_inverse_transform(Y_N.numpy(),wavelet_config)
+    Y_N = data_generator.wavelet_inverse_transform(Y_N.numpy,wavelet_config)
     Y_N = tf.convert_to_tensor(Y_N)
     
     X_F = data['FAD'][1]
     Y_F = data['FAD'][1]
-    Y_F = data_generator.wavelet_inverse_transform(Y_F.numpy(),wavelet_config)
+    Y_F = data_generator.wavelet_inverse_transform(Y_F.numpy,wavelet_config)
     Y_F = tf.convert_to_tensor(Y_F)
     if config['training_data_type'] == 'NADH':
         logits = model(X_N, training=True)
-        logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
+        logits = data_generator.wavelet_inverse_transform(logits.numpy,wavelet_config)
         logits = tf.convert_to_tensor(logits)
 
         logits2 = model(X_F, training=False)
-        logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
+        logits2 = data_generator.wavelet_inverse_transform(logits2.numpy,wavelet_config)
         logits2 = tf.convert_to_tensor(logits)
 
         loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
         val_y = Y_N
     else:
         logits = model(X_F, training=True)
-        logits = data_generator.wavelet_inverse_transform(logits.numpy(),wavelet_config)
+        logits = data_generator.wavelet_inverse_transform(logits.numpy,wavelet_config)
         logits = tf.convert_to_tensor(logits)
 
         logits2 = model(X_N, training=False)
-        logits2 = data_generator.wavelet_inverse_transform(logits2.numpy(),wavelet_config)
+        logits2 = data_generator.wavelet_inverse_transform(logits2.numpy,wavelet_config)
         logits2 = tf.convert_to_tensor(logits2)
 
         loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
@@ -261,10 +262,10 @@ def train(model_name, config, output_dir, data_path):
             FAD_tr_data = train[1]
             NADH_va_data = val[0]
             FAD_va_data = val[1]
-            # print(f'Got final training data with shape {np.shape(train)}.')
-            # print(f'Got final validation data with shape {np.shape(val)}.')
+            print(f'Got final training data with shape {np.shape(NADH_tr_data)}.')
+            print(f'Got final validation data with shape {np.shape(NADH_va_data)}.')
 
-            # print('----------------------------------------------------------------------')
+            print('----------------------------------------------------------------------')
             training_data = {'NADH':NADH_tr_data, 'FAD':FAD_tr_data}
             validation_data = {'NADH':NADH_va_data, 'FAD':FAD_va_data}
     else:
