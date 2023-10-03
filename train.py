@@ -71,9 +71,11 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
     with tf.GradientTape() as tape:
+        print(data)
         X_N = data['NADH'][0]
+        print(X_N.shape)
         Y_N = data['NADH'][1]
-        print(tf.shape(Y_N))
+        print(Y_N.shape)
         Y_N = data_generator.wavelet_inverse_transform(Y_N.numpy(),wavelet_config)
         Y_N = tf.convert_to_tensor(Y_N)
         
@@ -192,7 +194,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         for i, data in enumerate(all_training_data):
             callback.on_batch_begin(i, logs=logs)
             callback.on_train_batch_begin(i,logs=logs)
-            loss_val, train_metrics = train_step(model,optimizer,loss_fn,train_metrics, data,config)
+            loss_val, train_metrics = train_step(model,optimizer,loss_fn,train_metrics,data,config)
             train_loss.update_state(loss_val)
             logs["train_loss"] = train_loss.result()
             for metric_name in config['metrics']:
