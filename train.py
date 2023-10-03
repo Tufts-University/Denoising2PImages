@@ -109,7 +109,7 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
     for i in range(len(eval_metrics)):
-        train_metrics[i].update_state(eval_metrics[i](training_y, tf.cast(logits,dtype=tf.float64)))
+        train_metrics[i](eval_metrics[i](training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval[config['metrics'][i]] = train_metrics[i].result()
     return loss_value,metrics_eval
 
@@ -144,7 +144,7 @@ def test_step(model,loss_fn,val_metrics,data,config):
 
     metrics_val = {}
     for i in range(len(val_metrics)):
-        val_metrics[i].update_state(eval_metrics[i](val_y, tf.cast(logits,dtype=tf.float64)))
+        val_metrics[i](eval_metrics[i](val_y, tf.cast(logits,dtype=tf.float64)))
         metrics_val[config['metrics'][i]] = val_metrics[i].result()
     return loss_value, metrics_val
 
