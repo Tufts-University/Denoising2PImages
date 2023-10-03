@@ -152,10 +152,10 @@ def test_step(model,loss_fn,val_metrics,data,config):
         val_y = Y_F
 
     metrics_val = {}
-    if len(eval_metrics) >2:
-        psnrmetric(eval_metrics[0](val_y, tf.cast(logits,dtype=tf.float64)))
+    if len(config['metrics']) >2:
+        psnrmetric(metrics.psnr(val_y, tf.cast(logits,dtype=tf.float64)))
         metrics_val['psnr'] = psnrmetric.result()
-        ssimmetric((eval_metrics[1](val_y, tf.cast(logits,dtype=tf.float64))))
+        ssimmetric((metrics.ssim(val_y, tf.cast(logits,dtype=tf.float64))))
         metrics_val['ssim'] = ssimmetric.result()
     else:
         val_metrics(eval_metrics[0](val_y, tf.cast(logits,dtype=tf.float64)))
@@ -191,7 +191,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         all_training_data = data_generator.RR_loss_Generator(x_N,y_N,x_F,y_F,config['batch_size'],config,True)
         all_val_data = data_generator.RR_loss_Generator(x_val_N,y_val_N,x_val_F,y_val_F,config['batch_size'],config,False)
         
-        if len(eval_metrics)>1:
+        if len(config['metrics'])>1:
             tr_psnrMetric = tf.keras.metrics.Mean()
             tr_ssimMetric = tf.keras.metrics.Mean()
             va_psnrMetric = tf.keras.metrics.Mean()
