@@ -67,9 +67,10 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
     return model
 
+@tf.py_function(Tout=tf.float64)
 def final_image_generator(images,config):
     wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
-    restored_images = data_generator.wavelet_inverse_transform(images,wavelet_config)
+    restored_images = data_generator.wavelet_inverse_transform(images.numpy(),wavelet_config)
     return tf.convert_to_tensor(restored_images)
 
 # @tf.function
