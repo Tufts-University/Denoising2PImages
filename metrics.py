@@ -156,6 +156,7 @@ def calculate_discriminator_loss(hr_out, sr_out):
     sr_loss = binary_cross_entropy(tf.zeros_like(sr_out), sr_out)
     return hr_loss + sr_loss
 
+@tf.function()
 def tf_equalize_histogram(images):
     values_range = tf.constant([0., 255.], dtype = tf.float32)
     output = []
@@ -176,6 +177,7 @@ def tf_equalize_histogram(images):
         output.append(eq_hist)    
     return tf.stack(output)
 
+@tf.function()
 def guassian_bpf(images,LFC,HFC):
     output = []
     for image in images:
@@ -209,6 +211,7 @@ def guassian_bpf(images,LFC,HFC):
         output.append(filtered_image)    
     return tf.stack(output)
 
+@tf.function()
 def butterworth_bpf(images,LFC,HFC,order):
     output = []
     for image in images:

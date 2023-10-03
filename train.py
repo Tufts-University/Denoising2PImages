@@ -69,36 +69,34 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
 def final_image_generator(images,config):
     wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
-    restored_images = data_generator.wavelet_inverse_transform(images.numpy(),wavelet_config)
+    restored_images = data_generator.wavelet_inverse_transform(images,wavelet_config)
     return tf.convert_to_tensor(restored_images)
 
-# @tf.function
-@tf.function
 def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
-        Y_N = tf.py_function(final_image_generator,[Y_N,config],tf.float64)
+        Y_N = final_image_generator(Y_N,config)
         
         X_F = data['FAD'][0]
         Y_F = data['FAD'][1]
-        Y_F = tf.py_function(final_image_generator,[Y_F,config],tf.float64)
+        Y_F = final_image_generator(Y_F,config)
 
         if config['training_data_type'] == 'NADH':
             logits = model(X_N, training=True)
-            logits = tf.py_function(final_image_generator,[logits,config],tf.float64)
+            logits = final_image_generator(logits,config)
 
             logits2 = model(X_F, training=False)
-            logits2 = tf.py_function(final_image_generator,[logits2,config],tf.float64)
+            logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
             training_y = Y_N
         else:
             logits = model(X_F, training=True)
-            logits = tf.py_function(final_image_generator,[logits,config],tf.float64)
+            logits = final_image_generator(logits,config)
 
             logits2 = model(X_N, training=False)
-            logits2 = tf.py_function(final_image_generator,[logits2,config],tf.float64)
+            logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
             training_y = Y_F
@@ -110,31 +108,30 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
         metrics_eval[config['metrics'][i]] = metric.result()
     return loss_value,metrics_eval,optimizer
 
-# @tf.function
 def test_step(model,loss_fn,val_metrics,data,config):
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
-    Y_N = tf.py_function(final_image_generator,[Y_N,config],tf.float64)
+    Y_N = final_image_generator(Y_N,config)
     
     X_F = data['FAD'][0]
     Y_F = data['FAD'][1]
-    Y_F = tf.py_function(final_image_generator,[Y_F,config],tf.float64)
+    Y_F = final_image_generator(Y_F,config)
 
     if config['training_data_type'] == 'NADH':
         logits = model(X_N, training=True)
-        logits = tf.py_function(final_image_generator,[logits,config],tf.float64)
+        logits = final_image_generator(logits,config)
 
         logits2 = model(X_F, training=False)
-        logits2 = tf.py_function(final_image_generator,[logits2,config],tf.float64)
+        logits2 = final_image_generator(logits2,config)
 
         loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
         val_y = Y_N
     else:
         logits = model(X_F, training=True)
-        logits = tf.py_function(final_image_generator,[logits,config],tf.float64)
+        logits = final_image_generator(logits,config)
 
         logits2 = model(X_N, training=False)
-        logits2 = tf.py_function(final_image_generator,[logits2,config],tf.float64)
+        logits2 = final_image_generator(logits2,config)
 
         loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
         val_y = Y_F
