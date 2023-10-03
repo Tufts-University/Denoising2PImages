@@ -69,9 +69,10 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
 
 def final_image_generator(images,config):
     wavelet_config = data_generator.get_wavelet_config(function_name=config['wavelet_function'])
-    restored_images = data_generator.wavelet_inverse_transform(images.numpy(),wavelet_config)
+    restored_images = data_generator.wavelet_inverse_transform(images,wavelet_config)
     return tf.convert_to_tensor(restored_images)
 
+# @tf.function
 def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
@@ -108,6 +109,7 @@ def train_step(model,optimizer,loss_fn,eval_metrics, data,config):
         metrics_eval[config['metrics'][i]] = metric.result()
     return loss_value,metrics_eval
 
+# @tf.function
 def test_step(model,loss_fn,val_metrics,data,config):
     X_N = data['NADH'][0]
     Y_N = data['NADH'][1]
