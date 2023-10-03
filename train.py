@@ -190,7 +190,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
                 loss_val, train_metrics = strategy.run(train_step, args=(model,optimizer,loss_fn,train_metrics,data,config))
-                train_loss.update_state(loss_val)
+                train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
                 for metric_name in config['metrics']:
                     logs[metric_name] = train_metrics[metric_name]
@@ -205,7 +205,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_test_batch_begin(i, logs=logs)
                 loss_val, val_metrics = test_step(model,loss_fn,val_metrics, data,config)
-                val_loss.update_state(loss_val)
+                val_loss(loss_val)
                 logs["val_loss"] = train_loss.result()
                 for metric_name in config['metrics']:
                     logs[metric_name] = val_metrics[metric_name]
