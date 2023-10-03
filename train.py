@@ -177,8 +177,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         all_training_data = data_generator.RR_loss_Generator(x_N,y_N,x_F,y_F,config['batch_size'],config,True)
         all_val_data = data_generator.RR_loss_Generator(x_val_N,y_val_N,x_val_F,y_val_F,config['batch_size'],config,False)
         
-        train_metrics = [tf.keras.metrics.Mean()]*len(eval_metrics)
-        val_metrics = [tf.keras.metrics.Mean()]*len(eval_metrics)
+        train_metrics = [tf.keras.metrics.Mean() for i in range(len(eval_metrics))]
+        val_metrics = [tf.keras.metrics.Mean() for i in range(len(eval_metrics))]
         train_loss = tf.keras.metrics.Mean()
         val_loss = tf.keras.metrics.Mean()
 
