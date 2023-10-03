@@ -111,9 +111,9 @@ def train_step(model,optimizer,loss_fn,train_metrics, data,config):
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
     metrics_eval = {}
     if len(config['metrics']) >1:
-        psnrmetric(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
+        psnrmetric.update_state(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval['psnr'] = psnrmetric.result()
-        ssimmetric((metrics.ssim(training_y, tf.cast(logits,dtype=tf.float64))))
+        ssimmetric.update_state(metrics.ssim(training_y, tf.cast(logits,dtype=tf.float64)))
         metrics_eval['ssim'] = ssimmetric.result()
     else:
         train_metrics(metrics.psnr(training_y, tf.cast(logits,dtype=tf.float64)))
@@ -153,9 +153,9 @@ def test_step(model,loss_fn,val_metrics,data,config):
 
     metrics_val = {}
     if len(config['metrics']) >1:
-        psnrmetric(metrics.psnr(val_y, tf.cast(logits,dtype=tf.float64)))
+        psnrmetric.update_state(metrics.psnr(val_y, tf.cast(logits,dtype=tf.float64)))
         metrics_val['psnr'] = psnrmetric.result()
-        ssimmetric((metrics.ssim(val_y, tf.cast(logits,dtype=tf.float64))))
+        ssimmetric.update_state(metrics.ssim(val_y, tf.cast(logits,dtype=tf.float64)))
         metrics_val['ssim'] = ssimmetric.result()
     else:
         val_metrics(eval_metrics[0](val_y, tf.cast(logits,dtype=tf.float64)))
