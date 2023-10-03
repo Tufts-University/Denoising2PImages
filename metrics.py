@@ -281,10 +281,6 @@ def RR_loss(y_true, y_pred):
     y_pred_N, y_pred_F = y_pred
     # Generate Mask
     y_true_cyto, y_pred_cyto = Cytoplasm_mask(y_true_N,y_pred_N)
-    print(y_true_cyto.shape)
-    print(y_pred_cyto.shape)
-    print(y_true_N.shape)
-    print(y_true_F.shape)
     y_NADH_true = y_true_N * y_true_cyto * 255
     y_FAD_true = y_true_F * y_true_cyto * 255
     y_NADH_pred = y_pred_N * y_pred_cyto * 255
