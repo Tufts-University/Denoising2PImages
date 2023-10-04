@@ -203,18 +203,18 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             
             # Reset training metrics at the end of each epoch
             if len(config['metrics'])>1:
-                trainpsnr = tr_psnrMetric.result()
-                trainssim = tr_ssimMetric.result()
+                trainpsnr = tr_psnrMetric.result().numpy()
+                trainssim = tr_ssimMetric.result().numpy()
                 checkpoint.psnr.assign(trainpsnr)
                 checkpoint.ssim.assign(trainssim)
-                trainloss = train_loss.result()
+                trainloss = train_loss.result().numpy()
                 print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
-                trainpsnr = train_metrics.result()
+                trainpsnr = train_metrics.result().numpy()
                 checkpoint.psnr.assign(trainpsnr)
-                trainloss = train_loss.result()
+                trainloss = train_loss.result().numpy()
                 print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
                 train_metrics.reset_states()
 
@@ -270,15 +270,15 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 # callback.on_batch_end(i, logs=logs)
             # Reset validation metrics at the end of each epoch
             if len(config['metrics'])>1:
-                valpsnr = va_psnrMetric.result()
-                valssim = va_ssimMetric.result()
-                valloss = val_loss.result()
+                valpsnr = va_psnrMetric.result().numpy()
+                valssim = va_ssimMetric.result().numpy()
+                valloss = val_loss.result().numpy()
                 print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}, Val_SSIM = {valssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
-                valpsnr = val_metrics.result()
-                valloss = val_loss.result()
+                valpsnr = val_metrics.result().numpy()
+                valloss = val_loss.result().numpy()
                 print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
                 train_metrics.reset_states()
             if best_val == None or valpsnr > best_val:
