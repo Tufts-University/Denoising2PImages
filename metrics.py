@@ -17,7 +17,7 @@ def ssim(y_true, y_pred,filter_size=11,filter_sigma=1.5):
     Image Quality Assessment: From Error Visibility to Structural Similarity
     https://doi.org/10.1109/TIP.2003.819861
     '''
-    print(f'Using a Filter Size {filter_size} and a Filter Sigma of {filter_sigma}')
+    # print(f'Using a Filter Size {filter_size} and a Filter Sigma of {filter_sigma}')
     return tf.image.ssim(y_true, y_pred, 1, filter_size, filter_sigma, k2=0.05)
 
 
