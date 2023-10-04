@@ -49,12 +49,14 @@ def fit_model(model, model_name, config, output_dir, training_data, validation_d
         checkpoint_filepath = 'weights_{epoch:03d}_{loss:.8f}.hdf5'
     x = training_data[0]
     y = training_data[1]
+
+    val_data = (validation_data[0],validation_data[1])
     model.fit(
         x=x,
         y=y,
         epochs=config['epochs'],
         shuffle=True,
-        validation_data=validation_data,
+        validation_data=val_data,
         verbose=0,
         callbacks=callbacks.get_callbacks(
             model_name,
