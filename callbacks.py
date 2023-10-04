@@ -130,5 +130,5 @@ def get_callbacks(model_name, epochs, output_dir, checkpoint_filepath, validatio
             str(pathlib.Path(output_dir) / checkpoint_filepath),
             monitor='val_loss' if validation_data is not None else 'loss',
             save_best_only=True, verbose=1, mode='min'),
-        TqdmCallback()
+        # TqdmCallback()
     ]
