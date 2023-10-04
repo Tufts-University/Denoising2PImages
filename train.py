@@ -297,8 +297,12 @@ def train(model_name, config, output_dir, data_path):
     if config['all_data']==1:
         # Need to load both NADH and FAD data and combine them for training
         if config['training_data_type'] == '':
-            train = np.empty([2,1,256,256,1])
-            val = np.empty([2,1,256,256,1])
+            if config['wavelet_function'] == '':
+                train = np.empty([2,1,256,256,1])
+                val = np.empty([2,1,256,256,1])
+            else:
+                train = np.empty([2,1,128,128,4])
+                val = np.empty([2,1,128,128,4])
             for path in data_path:
                 (training_data, validation_data) = data_generator.gather_data(
                     config, 
