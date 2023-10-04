@@ -8,7 +8,7 @@
 #SBATCH --gres=gpu:a100:1
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
-#SBATCH --mem=30g  #requesting 2GB of RAM total 
+#SBATCH --mem=60g  #requesting 2GB of RAM total 
 #SBATCH --output=../FAD_WUNet_0928_AllData.%j.out  #saving standard output to file -- %j jobID -- %N nodename
 #SBATCH --error=../FAD_WUNet_0928_AllData.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
