@@ -91,7 +91,7 @@ def train_step(checkpoint,loss_fn, data,config):
             logits = checkpoint.model(X_N, training=True)
             logits = final_image_generator(logits,config)
 
-            logits2 = checkpoint.model.predit(X_F)
+            logits2 = checkpoint.model(X_F, training=False)
             logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
@@ -100,7 +100,7 @@ def train_step(checkpoint,loss_fn, data,config):
             logits = checkpoint.model(X_F, training=True)
             logits = final_image_generator(logits,config)
 
-            logits2 = checkpoint.model.predict(X_N)
+            logits2 = checkpoint.model.predict(X_N, training=False)
             logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
@@ -162,6 +162,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         train_loss = tf.keras.metrics.Mean()
         val_loss = tf.keras.metrics.Mean()
 
+        best_val = None
 
         for epoch in range(config['epochs']):
             callback.on_epoch_begin(epoch, logs=logs)
@@ -199,17 +200,20 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     logs['pnsr'] = train_metrics.result()
                 callback.on_train_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
-            # Print numbers
+            
             # Reset training metrics at the end of each epoch
             if len(config['metrics'])>1:
                 trainpsnr = tr_psnrMetric.result()
                 trainssim = tr_ssimMetric.result()
+                checkpoint.psnr.assign(trainpsnr)
+                checkpoint.ssim.assign(trainssim)
                 trainloss = train_loss.result()
                 print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
                 trainpsnr = train_metrics.result()
+                checkpoint.psnr.assign(trainpsnr)
                 trainloss = train_loss.result()
                 print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
                 train_metrics.reset_states()
@@ -264,7 +268,6 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     logs['pnsr_val'] = val_metrics.result()
                 callback.on_test_batch_end(i, logs=logs)
                 callback.on_batch_end(i, logs=logs)
-            
             # Reset validation metrics at the end of each epoch
             if len(config['metrics'])>1:
                 valpsnr = va_psnrMetric.result()
@@ -278,6 +281,10 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 valloss = val_loss.result()
                 print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
                 train_metrics.reset_states()
+            if best_val == None or valpsnr > best_val:
+                print('New Checkpoint Saved')
+                checkpoint_manager.save()
+                best_val = valpsnr
             callback.on_epoch_end(epoch, logs=logs)
         callback.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
