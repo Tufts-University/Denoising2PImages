@@ -77,7 +77,7 @@ def final_image_generator(images,config):
 
 optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5) 
 @tf.function()
-def train_step(model,loss_fn, data,config):
+def train_step(checkpoint,loss_fn, data,config):
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
@@ -88,25 +88,25 @@ def train_step(model,loss_fn, data,config):
         Y_F = final_image_generator(Y_F,config)
 
         if config['training_data_type'] == 'NADH':
-            logits = model(X_N, training=True)
+            logits = checkpoint.model(X_N, training=True)
             logits = final_image_generator(logits,config)
 
-            logits2 = model(X_F, training=False)
+            logits2 = checkpoint.model.predit(X_F)
             logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
             training_y = Y_N
         else:
-            logits = model(X_F, training=True)
+            logits = checkpoint.model(X_F, training=True)
             logits = final_image_generator(logits,config)
 
-            logits2 = model(X_N, training=False)
+            logits2 = checkpoint.model.predict(X_N)
             logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
             training_y = Y_F
-    grads = tape.gradient(loss_value, model.trainable_weights)
-    optimizer.apply_gradients(zip(grads, model.trainable_weights))
+    grads = tape.gradient(loss_value, checkpoint.model.trainable_weights)
+    optimizer.apply_gradients(zip(grads, checkpoint.model.trainable_weights))
     return loss_value
 
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data,strategy):
@@ -131,6 +131,19 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         callback = tf.keras.callbacks.CallbackList(_callbacks, add_history=True, model=model)
         logs = {}
         callback.on_train_begin(logs=logs)
+
+        checkpoint = tf.train.Checkpoint(psnr=tf.Variable(0.0),
+                                            ssim=tf.Variable(0.0), 
+                                            optimizer=optimizer,
+                                            model = model)
+
+        checkpoint_manager = tf.train.CheckpointManager(checkpoint=checkpoint,
+                                directory=final_dir,
+                                max_to_keep=3)
+        
+        if checkpoint_manager.latest_checkpoint:
+            checkpoint.restore(checkpoint_manager.latest_checkpoint)
+    
         x_N, y_N, x_F, y_F  = training_data['NADH'][0], training_data['NADH'][1], training_data['FAD'][0], training_data['FAD'][1]
         x_val_N, y_val_N, x_val_F, y_val_F  = validation_data['NADH'][0], validation_data['NADH'][1], validation_data['FAD'][0], validation_data['FAD'][1]
 
@@ -156,7 +169,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             for i, data in enumerate(all_training_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
-                loss_val = strategy.run(train_step, args=(model,loss_fn,data,config))
+                loss_val = strategy.run(train_step, args=(checkpoint,loss_fn,data,config))
                 train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
 
@@ -169,7 +182,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     Y = data['FAD'][1]
                     Y = final_image_generator(Y,config)
 
-                logits = model.predict(Y)
+                logits = checkpoint.model.predict(Y)
 
                 if len(config['metrics'])>1:
                     psnr = metrics.psnr(Y,logits)
@@ -234,7 +247,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 val_loss(loss_value)
                 logs["val_loss"] = val_loss.result()
 
-                logits = model.predict(val_y)
+                logits = checkpoint.model.predict(val_y)
 
                 if len(config['metrics'])>1:
                     psnr = metrics.psnr(val_y,logits)
