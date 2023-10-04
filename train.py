@@ -74,9 +74,10 @@ def final_image_generator(images,config):
         return tf.convert_to_tensor(restored_images)
     else: 
         return  tf.convert_to_tensor(images)
-    
+
+optimizer = tf.keras.optimizers.Adam(learning_rate=1e-5) 
 @tf.function()
-def train_step(model,optimizer,loss_fn, data,config):
+def train_step(model,loss_fn, data,config):
     with tf.GradientTape() as tape:
         X_N = data['NADH'][0]
         Y_N = data['NADH'][1]
@@ -106,7 +107,7 @@ def train_step(model,optimizer,loss_fn, data,config):
             training_y = Y_F
     grads = tape.gradient(loss_value, model.trainable_weights)
     optimizer.apply_gradients(zip(grads, model.trainable_weights))
-    return loss_value, optimizer
+    return loss_value
 
 def fit_RR_model(model, model_name, config, output_dir, training_data, validation_data,strategy):
     print('=== Fitting model --------------------------------------------------')
@@ -155,7 +156,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             for i, data in enumerate(all_training_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
-                loss_val, optimizer = strategy.run(train_step, args=(model,optimizer,loss_fn,data,config))
+                loss_val = strategy.run(train_step, args=(model,optimizer,loss_fn,data,config))
                 train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
 
