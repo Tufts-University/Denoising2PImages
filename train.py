@@ -165,11 +165,11 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         best_val = None
 
         for epoch in range(config['epochs']):
-            callback.on_epoch_begin(epoch, logs=logs)
+            # callback.on_epoch_begin(epoch, logs=logs)
             # Training Loop
             for i, data in enumerate(all_training_data):
-                callback.on_batch_begin(i, logs=logs)
-                callback.on_train_batch_begin(i,logs=logs)
+                # callback.on_batch_begin(i, logs=logs)
+                # callback.on_train_batch_begin(i,logs=logs)
                 loss_val = strategy.run(train_step, args=(checkpoint,loss_fn,data,config))
                 train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
@@ -198,8 +198,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     psnr = metrics.psnr(Y,logits)
                     train_metrics(psnr)
                     logs['pnsr'] = train_metrics.result()
-                callback.on_train_batch_end(i, logs=logs)
-                callback.on_batch_end(i, logs=logs)
+                # callback.on_train_batch_end(i, logs=logs)
+                # callback.on_batch_end(i, logs=logs)
             
             # Reset training metrics at the end of each epoch
             if len(config['metrics'])>1:
@@ -220,8 +220,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
 
             # Validation Loop
             for i, data in enumerate(all_val_data):
-                callback.on_batch_begin(i, logs=logs)
-                callback.on_test_batch_begin(i, logs=logs)
+                # callback.on_batch_begin(i, logs=logs)
+                # callback.on_test_batch_begin(i, logs=logs)
                 X_N = data['NADH'][0]
                 Y_N = data['NADH'][1]
                 Y_N = final_image_generator(Y_N,config)
@@ -266,8 +266,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                     psnr = metrics.psnr(val_y,logits)
                     val_metrics(psnr)
                     logs['pnsr_val'] = val_metrics.result()
-                callback.on_test_batch_end(i, logs=logs)
-                callback.on_batch_end(i, logs=logs)
+                # callback.on_test_batch_end(i, logs=logs)
+                # callback.on_batch_end(i, logs=logs)
             # Reset validation metrics at the end of each epoch
             if len(config['metrics'])>1:
                 valpsnr = va_psnrMetric.result()
@@ -285,8 +285,8 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 print('New Checkpoint Saved')
                 checkpoint_manager.save()
                 best_val = valpsnr
-            callback.on_epoch_end(epoch, logs=logs)
-        callback.on_train_end(logs=logs)
+        #     callback.on_epoch_end(epoch, logs=logs)
+        # callback.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
 
     return model
