@@ -156,7 +156,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
             for i, data in enumerate(all_training_data):
                 callback.on_batch_begin(i, logs=logs)
                 callback.on_train_batch_begin(i,logs=logs)
-                loss_val = strategy.run(train_step, args=(model,optimizer,loss_fn,data,config))
+                loss_val = strategy.run(train_step, args=(model,loss_fn,data,config))
                 train_loss(loss_val)
                 logs["train_loss"] = train_loss.result()
 
