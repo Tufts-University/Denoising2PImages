@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=60g  #requesting 2GB of RAM total 
-#SBATCH --output=../FAD_WUNet_0928_AllData.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../FAD_WUNet_0928_AllData.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../FAD_CARE_0928_RRLoss.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../FAD_CARE_0928_RRLoss.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -23,12 +23,12 @@ echo "=========================================================="
 echo "" # empty line #
 
 # RedoxRatio Test
-# python -u main.py train care "FAD_WUNet_0928_RRLossTest" cwd=.. fad_data=NV_928_FAD_Training.npz nadh_data=NV_928_NADH_Training.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 all_data=1 training_data_type="FAD"
-# python -u main.py eval care "FAD_WUNet_0928_RRLossTest" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 
+python -u main.py train care "FAD_CARE_0928_RRLoss" cwd=.. fad_data=NV_928_FAD_Training.npz nadh_data=NV_928_NADH_Training.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 all_data=1 training_data_type="FAD"
+python -u main.py eval care "FAD_CARE_0928_RRLoss" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="RR_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 
 
 # Total Data Test
-python -u main.py train wunet "FAD_WUNet_0928_AllData" cwd=.. fad_data=NV_928_FAD_Training.npz nadh_data=NV_928_NADH_Training.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1 all_data=1
-python -u main.py eval wunet "FAD_WUNet_0928_AllData" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+# python -u main.py train wunet "FAD_WUNet_0928_AllData" cwd=.. fad_data=NV_928_FAD_Training.npz nadh_data=NV_928_NADH_Training.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1 all_data=1
+# python -u main.py eval wunet "FAD_WUNet_0928_AllData" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=8 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
 
 

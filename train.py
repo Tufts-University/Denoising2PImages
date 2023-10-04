@@ -169,7 +169,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         for epoch in range(config['epochs']):
             # callback.on_epoch_begin(epoch, logs=logs)
             # Training Loop
-            for i, data in enumerate(all_training_data):
+            for _, data in enumerate(all_training_data):
                 # callback.on_batch_begin(i, logs=logs)
                 # callback.on_train_batch_begin(i,logs=logs)
                 loss_val = strategy.run(train_step, args=(checkpoint,loss_fn,data,config))
@@ -210,14 +210,15 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 checkpoint.psnr.assign(trainpsnr)
                 checkpoint.ssim.assign(trainssim)
                 trainloss = train_loss.result().numpy()
-                print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
+                print(trainloss.result())
+                print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
                 trainpsnr = train_metrics.result().numpy()
                 checkpoint.psnr.assign(trainpsnr)
                 trainloss = train_loss.result().numpy()
-                print(f'Training --> Epoch # {i}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
+                print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
                 train_metrics.reset_states()
 
             # Validation Loop
@@ -275,13 +276,13 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 valpsnr = va_psnrMetric.result().numpy()
                 valssim = va_ssimMetric.result().numpy()
                 valloss = val_loss.result().numpy()
-                print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}, Val_SSIM = {valssim:.4f}')
+                print(f'Validation --> Epoch # {epoch}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}, Val_SSIM = {valssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
             else:
                 valpsnr = val_metrics.result().numpy()
                 valloss = val_loss.result().numpy()
-                print(f'Validation --> Epoch # {i}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
+                print(f'Validation --> Epoch # {epoch}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
                 train_metrics.reset_states()
             if best_val == None or valpsnr > best_val:
                 print('New Checkpoint Saved')
@@ -290,7 +291,12 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
         #     callback.on_epoch_end(epoch, logs=logs)
         # callback.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
-
+    os.chdir(pathlib.Path(output_dir)/ 'ckpt' )
+    checkpoint.restore(checkpoint_manager.latest_checkpoint)
+    final_model = checkpoint.model
+    final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
+    final_model.save_weights(final_weights_path)
+    print(f'Weights are saved to: "{final_weights_path}"')
     return model
 
 def train(model_name, config, output_dir, data_path):
