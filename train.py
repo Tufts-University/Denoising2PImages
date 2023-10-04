@@ -100,7 +100,7 @@ def train_step(checkpoint,loss_fn, data,config):
             logits = checkpoint.model(X_F, training=True)
             logits = final_image_generator(logits,config)
 
-            logits2 = checkpoint.model.predict(X_N, training=False)
+            logits2 = checkpoint.model(X_N, training=False)
             logits2 = final_image_generator(logits2,config)
 
             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
