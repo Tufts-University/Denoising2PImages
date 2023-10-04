@@ -289,6 +289,13 @@ def Filter_images(y_true,y_pred):
 def RR_loss(y_true, y_pred):
     y_true_N, y_true_F = y_true
     y_pred_N, y_pred_F = y_pred
+
+    y_true_N, y_true_F = y_true_N - tf.math.reduce_min(y_true_N), y_true_F - tf.math.reduce_min(y_true_F)
+    y_true_N, y_true_F = y_true_N / tf.math.reduce_max(y_true_N), y_true_F / tf.math.reduce_max(y_true_F)
+
+    y_pred_N, y_pred_F = y_pred_N - tf.math.reduce_min(y_pred_N), y_pred_F - tf.math.reduce_min(y_pred_F)
+    y_pred_N, y_pred_F = y_pred_N / tf.math.reduce_max(y_pred_N), y_pred_F / tf.math.reduce_max(y_pred_F)
+
     # Generate Mask
     # y_true_norm, y_pred_norm = Filter_images(y_true_N,y_pred_N)
     # Thresholding
@@ -301,6 +308,8 @@ def RR_loss(y_true, y_pred):
     y_FAD_pred = y_pred_F * 255
     RR_true = y_FAD_true/(y_FAD_true+y_NADH_true)
     RR_pred = y_FAD_pred/(y_FAD_pred+y_NADH_pred)
+
+    RR_true, RR_pred = tf.clip_by_value(RR_true, -1e12, 1e12), tf.clip_by_value(RR_pred, -1e12, 1e12)
     
     MSE = keras.losses.mse(
         *[keras.backend.batch_flatten(y) for y in [RR_true, RR_pred]])
