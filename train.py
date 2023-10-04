@@ -210,7 +210,7 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
                 checkpoint.psnr.assign(trainpsnr)
                 checkpoint.ssim.assign(trainssim)
                 trainloss = train_loss.result().numpy()
-                print(trainloss.result())
+                print(trainloss)
                 print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
                 tr_psnrMetric.reset_states()
                 tr_ssimMetric.reset_states()
