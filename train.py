@@ -166,132 +166,131 @@ def fit_RR_model(model, model_name, config, output_dir, training_data, validatio
 
         best_val = None
 
-        for epoch in range(config['epochs']):
-            # callback.on_epoch_begin(epoch, logs=logs)
-            # Training Loop
-            for _, data in enumerate(all_training_data):
-                # callback.on_batch_begin(i, logs=logs)
-                # callback.on_train_batch_begin(i,logs=logs)
-                loss_val = strategy.run(train_step, args=(checkpoint,loss_fn,data,config))
-                train_loss(loss_val)
-                logs["train_loss"] = train_loss.result()
+        # for epoch in range(config['epochs']):
+        #     # callback.on_epoch_begin(epoch, logs=logs)
+        #     # Training Loop
+        #     for _, data in enumerate(all_training_data):
+        #         # callback.on_batch_begin(i, logs=logs)
+        #         # callback.on_train_batch_begin(i,logs=logs)
+        #         loss_val = strategy.run(train_step, args=(checkpoint,loss_fn,data,config))
+        #         train_loss(loss_val)
+        #         logs["train_loss"] = train_loss.result()
 
-                if config['training_data_type'] == 'NADH':
-                    X = data['NADH'][0]
-                    Y = data['NADH'][1]
-                    Y = final_image_generator(Y,config)
-                else:
-                    X = data['FAD'][0]
-                    Y = data['FAD'][1]
-                    Y = final_image_generator(Y,config)
+        #         if config['training_data_type'] == 'NADH':
+        #             X = data['NADH'][0]
+        #             Y = data['NADH'][1]
+        #             Y = final_image_generator(Y,config)
+        #         else:
+        #             X = data['FAD'][0]
+        #             Y = data['FAD'][1]
+        #             Y = final_image_generator(Y,config)
 
-                logits = checkpoint.model.predict(Y)
+        #         logits = checkpoint.model.predict(Y)
 
-                if len(config['metrics'])>1:
-                    psnr = metrics.psnr(Y,logits)
-                    tr_psnrMetric(psnr)
-                    logs['pnsr'] = tr_psnrMetric.result()
-                    Y = tf.cast(Y,tf.double)
-                    logits = tf.cast(logits,tf.double)
-                    ssim = metrics.ssim(Y,logits)
-                    tr_ssimMetric(ssim)
-                    logs['ssim'] = tr_ssimMetric.result()
-                else:
-                    psnr = metrics.psnr(Y,logits)
-                    train_metrics(psnr)
-                    logs['pnsr'] = train_metrics.result()
-                # callback.on_train_batch_end(i, logs=logs)
-                # callback.on_batch_end(i, logs=logs)
+        #         if len(config['metrics'])>1:
+        #             psnr = metrics.psnr(Y,logits)
+        #             tr_psnrMetric(psnr)
+        #             logs['pnsr'] = tr_psnrMetric.result()
+        #             Y = tf.cast(Y,tf.double)
+        #             logits = tf.cast(logits,tf.double)
+        #             ssim = metrics.ssim(Y,logits)
+        #             tr_ssimMetric(ssim)
+        #             logs['ssim'] = tr_ssimMetric.result()
+        #         else:
+        #             psnr = metrics.psnr(Y,logits)
+        #             train_metrics(psnr)
+        #             logs['pnsr'] = train_metrics.result()
+        #         # callback.on_train_batch_end(i, logs=logs)
+        #         # callback.on_batch_end(i, logs=logs)
             
-            # Reset training metrics at the end of each epoch
-            if len(config['metrics'])>1:
-                trainpsnr = tr_psnrMetric.result().numpy()
-                trainssim = tr_ssimMetric.result().numpy()
-                checkpoint.psnr.assign(trainpsnr)
-                checkpoint.ssim.assign(trainssim)
-                trainloss = train_loss.result().numpy()
-                print(trainloss)
-                print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
-                tr_psnrMetric.reset_states()
-                tr_ssimMetric.reset_states()
-            else:
-                trainpsnr = train_metrics.result().numpy()
-                checkpoint.psnr.assign(trainpsnr)
-                trainloss = train_loss.result().numpy()
-                print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
-                train_metrics.reset_states()
+        #     # Reset training metrics at the end of each epoch
+        #     if len(config['metrics'])>1:
+        #         trainpsnr = tr_psnrMetric.result().numpy()
+        #         trainssim = tr_ssimMetric.result().numpy()
+        #         checkpoint.psnr.assign(trainpsnr)
+        #         checkpoint.ssim.assign(trainssim)
+        #         trainloss = train_loss.result().numpy()
+        #         print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}, Train_SSIM = {trainssim:.4f}')
+        #         tr_psnrMetric.reset_states()
+        #         tr_ssimMetric.reset_states()
+        #     else:
+        #         trainpsnr = train_metrics.result().numpy()
+        #         checkpoint.psnr.assign(trainpsnr)
+        #         trainloss = train_loss.result().numpy()
+        #         print(f'Training --> Epoch # {epoch}: Training_loss = {trainloss:.4f}, Train_PSNR = {trainpsnr:.4f}')
+        #         train_metrics.reset_states()
 
-            # Validation Loop
-            for i, data in enumerate(all_val_data):
-                # callback.on_batch_begin(i, logs=logs)
-                # callback.on_test_batch_begin(i, logs=logs)
-                X_N = data['NADH'][0]
-                Y_N = data['NADH'][1]
-                Y_N = final_image_generator(Y_N,config)
+        #     # Validation Loop
+        #     for i, data in enumerate(all_val_data):
+        #         # callback.on_batch_begin(i, logs=logs)
+        #         # callback.on_test_batch_begin(i, logs=logs)
+        #         X_N = data['NADH'][0]
+        #         Y_N = data['NADH'][1]
+        #         Y_N = final_image_generator(Y_N,config)
                 
-                X_F = data['FAD'][0]
-                Y_F = data['FAD'][1]
-                Y_F = final_image_generator(Y_F,config)
+        #         X_F = data['FAD'][0]
+        #         Y_F = data['FAD'][1]
+        #         Y_F = final_image_generator(Y_F,config)
 
-                if config['training_data_type'] == 'NADH':
-                    logits = model(X_N, training=True)
-                    logits = final_image_generator(logits,config)
+        #         if config['training_data_type'] == 'NADH':
+        #             logits = model(X_N, training=True)
+        #             logits = final_image_generator(logits,config)
 
-                    logits2 = model(X_F, training=False)
-                    logits2 = final_image_generator(logits2,config)
+        #             logits2 = model(X_F, training=False)
+        #             logits2 = final_image_generator(logits2,config)
 
-                    loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
-                    val_y = Y_N
-                else:
-                    logits = model(X_F, training=True)
-                    logits = final_image_generator(logits,config)
+        #             loss_value = loss_fn((Y_N,Y_F), (logits,logits2))
+        #             val_y = Y_N
+        #         else:
+        #             logits = model(X_F, training=True)
+        #             logits = final_image_generator(logits,config)
 
-                    logits2 = model(X_N, training=False)
-                    logits2 = final_image_generator(logits2,config)
+        #             logits2 = model(X_N, training=False)
+        #             logits2 = final_image_generator(logits2,config)
 
-                    loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
-                    val_y = Y_F
-                val_loss(loss_value)
-                logs["val_loss"] = val_loss.result()
+        #             loss_value = loss_fn((Y_N,Y_F), (logits2,logits))
+        #             val_y = Y_F
+        #         val_loss(loss_value)
+        #         logs["val_loss"] = val_loss.result()
 
-                logits = checkpoint.model.predict(val_y)
+        #         logits = checkpoint.model.predict(val_y)
 
-                if len(config['metrics'])>1:
-                    psnr = metrics.psnr(val_y,logits)
-                    va_psnrMetric(psnr)
-                    logs['pnsr_val'] = va_psnrMetric.result()
-                    val_y = tf.cast(val_y,tf.double)
-                    logits = tf.cast(logits,tf.double)
-                    ssim = metrics.ssim(val_y,logits)
-                    va_ssimMetric(ssim)
-                    logs['ssim_val'] = va_ssimMetric.result()
-                else:
-                    psnr = metrics.psnr(val_y,logits)
-                    val_metrics(psnr)
-                    logs['pnsr_val'] = val_metrics.result()
-                # callback.on_test_batch_end(i, logs=logs)
-                # callback.on_batch_end(i, logs=logs)
-            # Reset validation metrics at the end of each epoch
-            if len(config['metrics'])>1:
-                valpsnr = va_psnrMetric.result().numpy()
-                valssim = va_ssimMetric.result().numpy()
-                valloss = val_loss.result().numpy()
-                print(f'Validation --> Epoch # {epoch}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}, Val_SSIM = {valssim:.4f}')
-                tr_psnrMetric.reset_states()
-                tr_ssimMetric.reset_states()
-            else:
-                valpsnr = val_metrics.result().numpy()
-                valloss = val_loss.result().numpy()
-                print(f'Validation --> Epoch # {epoch}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
-                train_metrics.reset_states()
-            if best_val == None or valpsnr > best_val:
-                print('New Checkpoint Saved')
-                checkpoint_manager.save()
-                best_val = valpsnr
+        #         if len(config['metrics'])>1:
+        #             psnr = metrics.psnr(val_y,logits)
+        #             va_psnrMetric(psnr)
+        #             logs['pnsr_val'] = va_psnrMetric.result()
+        #             val_y = tf.cast(val_y,tf.double)
+        #             logits = tf.cast(logits,tf.double)
+        #             ssim = metrics.ssim(val_y,logits)
+        #             va_ssimMetric(ssim)
+        #             logs['ssim_val'] = va_ssimMetric.result()
+        #         else:
+        #             psnr = metrics.psnr(val_y,logits)
+        #             val_metrics(psnr)
+        #             logs['pnsr_val'] = val_metrics.result()
+        #         # callback.on_test_batch_end(i, logs=logs)
+        #         # callback.on_batch_end(i, logs=logs)
+        #     # Reset validation metrics at the end of each epoch
+        #     if len(config['metrics'])>1:
+        #         valpsnr = va_psnrMetric.result().numpy()
+        #         valssim = va_ssimMetric.result().numpy()
+        #         valloss = val_loss.result().numpy()
+        #         print(f'Validation --> Epoch # {epoch}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}, Val_SSIM = {valssim:.4f}')
+        #         tr_psnrMetric.reset_states()
+        #         tr_ssimMetric.reset_states()
+        #     else:
+        #         valpsnr = val_metrics.result().numpy()
+        #         valloss = val_loss.result().numpy()
+        #         print(f'Validation --> Epoch # {epoch}: Validation_loss = {valloss:.4f}, Val_PSNR = {valpsnr:.4f}')
+        #         train_metrics.reset_states()
+        #     if best_val == None or valpsnr > best_val:
+        #         print('New Checkpoint Saved')
+        #         checkpoint_manager.save()
+        #         best_val = valpsnr
         #     callback.on_epoch_end(epoch, logs=logs)
         # callback.on_train_end(logs=logs)
     print('--------------------------------------------------------------------')
-    os.chdir(pathlib.Path(output_dir)/ 'ckpt' )
+    os.chdir(pathlib.Path(output_dir))
     checkpoint.restore(checkpoint_manager.latest_checkpoint)
     final_model = checkpoint.model
     final_weights_path = str(pathlib.Path(output_dir) / basics.final_weights_name())
