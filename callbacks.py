@@ -45,7 +45,7 @@ class PlotLearning(keras.callbacks.Callback):
             axs[i].plot(range(1, epoch + 2), 
                         self.metrics[metric], 
                         label=metric)
-            if ['val_' + metric] in logs:
+            if 'val_' + metric in logs:
                 axs[i].plot(range(1, epoch + 2), 
                             self.metrics['val_' + metric], 
                             label='val_' + metric)
