@@ -9,8 +9,8 @@
 ##SBATCH --nodelist=p1cmp110
 #SBATCH --exclude=cc1gpu005
 #SBATCH --mem=30g  #requesting 2GB of RAM total 
-#SBATCH --output=../FAD_WUnet_0928_cervix_SSIMR2_new_seed1_loss.%j.out  #saving standard output to file -- %j jobID -- %N nodename
-#SBATCH --error=../FAD_WUnet_0928_cervix_SSIMR2_new_seed1_loss.%j.err  #saving standard error to file -- %j jobID -- %N nodename
+#SBATCH --output=../FAD_WUnet_0928_cervix_SSIMR2_new_seed0_loss_larger.%j.out  #saving standard output to file -- %j jobID -- %N nodename
+#SBATCH --error=../FAD_WUnet_0928_cervix_SSIMR2_new_seed0_loss_larger.%j.err  #saving standard error to file -- %j jobID -- %N nodename
 #SBATCH --mail-type=ALL    #email options
 #SBATCH --mail-user=nvora01@tufts.edu
 
@@ -22,10 +22,10 @@ echo "Starting python script..."
 echo "==========================================================" 
 echo "" # empty line #
 
-# python -u main.py train wunet "FAD_WUnet_0928_cervix_SSIMR2_new_seed0_loss" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+python -u main.py train wunet "FAD_WUnet_0928_cervix_SSIMR2_new_seed0_loss_larger" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=0 val_split=10 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 # python -u main.py eval wunet "FAD_WUnet_0928_cervix_SSIMR2_new_seed0_loss" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
-python -u main.py train wunet "FAD_WUnet_0928_cervix_SSIMR2_new_seed1_loss" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=1 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
+# python -u main.py train wunet "FAD_WUnet_0928_cervix_SSIMR2_new_seed1_loss" cwd=.. fad_data=NV_928_FAD_Training.npz  loss="ssimr2_loss"  val_seed=1 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 # python -u main.py eval wunet "FAD_WUnet_0928_cervix_SSIMR2_new_seed0_loss" cwd=.. fad_data=NV_928_FAD_Testing.npz nadh_data=NV_928_NADH_Testing.npz loss="ssimr2_loss" val_seed=0 val_split=25 ssim_FSize=3 ssim_FSig=0.5 loss_alpha=0.84 test_flag=1 train_mode=0 wavelet_function=bior1.1
 
 # UNet-RCAN Study on Human Datasets
