@@ -45,7 +45,7 @@ class PlotLearning(keras.callbacks.Callback):
             axs[i].plot(range(1, epoch + 2), 
                         self.metrics[metric], 
                         label=metric)
-            if logs['val_' + metric]:
+            if ['val_' + metric] in logs:
                 axs[i].plot(range(1, epoch + 2), 
                             self.metrics['val_' + metric], 
                             label='val_' + metric)
@@ -55,6 +55,7 @@ class PlotLearning(keras.callbacks.Callback):
 
         plt.tight_layout()
         plt.show()
+        plt.savefig('Curves.png')
 
 
 class ModelCheckpoint(keras.callbacks.ModelCheckpoint):
